@@ -45,9 +45,11 @@ export const vehicles = pgTable("vehicles", {
   pricePerHour: decimal("price_per_hour", { precision: 10, scale: 2 }).notNull(),
   pricePerDay: decimal("price_per_day", { precision: 10, scale: 2 }).notNull(),
   location: text("location").notNull(),
+  ownerLocation: text("owner_location").notNull().default("Bhubaneswar"),
   imageUrl: text("image_url").notNull(),
   features: text("features").array(),
   available: boolean("available").notNull().default(true),
+  isPaused: boolean("is_paused").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -63,8 +65,10 @@ export const bookings = pgTable("bookings", {
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   deliveryCharge: decimal("delivery_charge", { precision: 10, scale: 2 }).default("0"),
   status: text("status").notNull().default("pending"), // pending, confirmed, active, completed, cancelled
-  paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, refunded
+  paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, refunded, partially_refunded
   paymentIntentId: text("payment_intent_id"),
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
+  cancelledAt: timestamp("cancelled_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
