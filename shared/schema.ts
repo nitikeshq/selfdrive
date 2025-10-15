@@ -60,7 +60,6 @@ export const bookings = pgTable("bookings", {
   endDate: timestamp("end_date").notNull(),
   pickupOption: text("pickup_option").notNull(), // parking, delivery
   deliveryAddress: text("delivery_address"),
-  dlPhotoUrl: text("dl_photo_url").notNull(),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   deliveryCharge: decimal("delivery_charge", { precision: 10, scale: 2 }).default("0"),
   status: text("status").notNull().default("pending"), // pending, confirmed, active, completed, cancelled
