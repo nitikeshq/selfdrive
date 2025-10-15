@@ -11,10 +11,10 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Link href="/">
-              <a className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-4 cursor-pointer">
                 <Car className="h-6 w-6 text-primary" />
                 <span className="text-lg font-display font-bold">DriveEase</span>
-              </a>
+              </div>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Your journey, your vehicle, your schedule. Book self-drive cars & bikes with instant confirmation.
@@ -37,31 +37,24 @@ export function Footer() {
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/about">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-about">
-                    About Us
-                  </a>
+                <Link href="/vehicles">
+                  <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vehicles-footer">
+                    Browse Vehicles
+                  </span>
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-how-it-works-footer">
-                    How It Works
-                  </a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-faq">
-                    FAQ
-                  </a>
+                <Link href="/dashboard">
+                  <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard-footer">
+                    My Bookings
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/contact">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-contact">
+                  <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-contact">
                     Contact Us
-                  </a>
+                  </span>
                 </Link>
               </li>
             </ul>
@@ -73,23 +66,16 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/list-vehicle">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-list-vehicle-footer">
+                  <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle-footer">
                     List Your Vehicle
-                  </a>
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/owner-dashboard">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-owner-dashboard">
+                  <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-owner-dashboard">
                     Owner Dashboard
-                  </a>
-                </Link>
-              </li>
-              <li>
-                <Link href="/earnings">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-earnings">
-                    Track Earnings
-                  </a>
+                  </span>
                 </Link>
               </li>
             </ul>
@@ -122,14 +108,14 @@ export function Footer() {
           </p>
           <div className="flex gap-6">
             <Link href="/terms">
-              <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-terms">
+              <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-terms">
                 Terms of Service
-              </a>
+              </span>
             </Link>
             <Link href="/privacy">
-              <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-privacy">
+              <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-privacy">
                 Privacy Policy
-              </a>
+              </span>
             </Link>
           </div>
         </div>

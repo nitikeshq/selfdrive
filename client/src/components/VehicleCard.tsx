@@ -77,15 +77,13 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
         </div>
 
         <Link href={`/book/${vehicle.id}`}>
-          <a className="w-full">
-            <Button 
-              className="w-full" 
-              disabled={!vehicle.available}
-              data-testid={`button-book-${vehicle.id}`}
-            >
-              Book Now
-            </Button>
-          </a>
+          <Button 
+            className="w-full" 
+            disabled={!vehicle.available}
+            data-testid={`button-book-${vehicle.id}`}
+          >
+            Book Now
+          </Button>
         </Link>
       </CardContent>
     </Card>

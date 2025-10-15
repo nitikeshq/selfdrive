@@ -38,18 +38,14 @@ export default function Login() {
             </p>
             <div className="grid grid-cols-2 gap-3">
               <Link href="/">
-                <a className="w-full">
-                  <Button variant="outline" className="w-full" data-testid="button-browse-as-customer">
-                    Browse as Customer
-                  </Button>
-                </a>
+                <Button variant="outline" className="w-full" data-testid="button-browse-as-customer">
+                  Browse as Customer
+                </Button>
               </Link>
               <Link href="/list-vehicle">
-                <a className="w-full">
-                  <Button variant="outline" className="w-full" data-testid="button-list-as-owner">
-                    List as Owner
-                  </Button>
-                </a>
+                <Button variant="outline" className="w-full" data-testid="button-list-as-owner">
+                  List as Owner
+                </Button>
               </Link>
             </div>
           </div>
@@ -58,11 +54,11 @@ export default function Login() {
             <p className="text-xs text-center text-muted-foreground">
               By continuing, you agree to our{" "}
               <Link href="/terms">
-                <a className="text-primary hover:underline">Terms of Service</a>
+                <span className="text-primary hover:underline cursor-pointer">Terms of Service</span>
               </Link>{" "}
               and{" "}
               <Link href="/privacy">
-                <a className="text-primary hover:underline">Privacy Policy</a>
+                <span className="text-primary hover:underline cursor-pointer">Privacy Policy</span>
               </Link>
             </p>
           </div>

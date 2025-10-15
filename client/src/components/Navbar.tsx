@@ -13,37 +13,30 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/">
-            <a className="flex items-center gap-2 hover-elevate active-elevate-2 px-2 py-1 rounded-md transition-all" data-testid="link-home">
+            <div className="flex items-center gap-2 hover-elevate active-elevate-2 px-2 py-1 rounded-md transition-all cursor-pointer" data-testid="link-home">
               <Car className="h-7 w-7 text-primary" />
               <span className="text-xl font-display font-bold text-foreground">DriveEase</span>
-            </a>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/">
-              <a className="text-sm font-medium text-foreground hover:text-primary transition-colors" data-testid="link-browse">
+            <Link href="/vehicles">
+              <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse">
                 Browse Vehicles
-              </a>
-            </Link>
-            <Link href="/how-it-works">
-              <a className="text-sm font-medium text-foreground hover:text-primary transition-colors" data-testid="link-how-it-works">
-                How It Works
-              </a>
+              </span>
             </Link>
             <Link href="/list-vehicle">
-              <a className="text-sm font-medium text-foreground hover:text-primary transition-colors" data-testid="link-list-vehicle">
+              <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle">
                 List Your Vehicle
-              </a>
+              </span>
             </Link>
             <ThemeToggle />
             <Link href="/login">
-              <a>
-                <Button variant="default" size="default" data-testid="button-login">
-                  <User className="h-4 w-4 mr-2" />
-                  Login
-                </Button>
-              </a>
+              <Button variant="default" size="default" data-testid="button-login">
+                <User className="h-4 w-4 mr-2" />
+                Login
+              </Button>
             </Link>
           </div>
 
@@ -65,28 +58,21 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col gap-4">
-              <Link href="/">
-                <a className="text-sm font-medium text-foreground hover:text-primary transition-colors" data-testid="link-browse-mobile">
+              <Link href="/vehicles">
+                <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse-mobile">
                   Browse Vehicles
-                </a>
-              </Link>
-              <Link href="/how-it-works">
-                <a className="text-sm font-medium text-foreground hover:text-primary transition-colors" data-testid="link-how-it-works-mobile">
-                  How It Works
-                </a>
+                </span>
               </Link>
               <Link href="/list-vehicle">
-                <a className="text-sm font-medium text-foreground hover:text-primary transition-colors" data-testid="link-list-vehicle-mobile">
+                <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle-mobile">
                   List Your Vehicle
-                </a>
+                </span>
               </Link>
               <Link href="/login">
-                <a>
-                  <Button variant="default" className="w-full" data-testid="button-login-mobile">
-                    <User className="h-4 w-4 mr-2" />
-                    Login
-                  </Button>
-                </a>
+                <Button variant="default" className="w-full" data-testid="button-login-mobile">
+                  <User className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
               </Link>
             </div>
           </div>

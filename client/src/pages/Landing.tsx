@@ -165,11 +165,9 @@ export default function Landing() {
               Featured Vehicles
             </h2>
             <Link href="/vehicles">
-              <a>
-                <Button variant="outline" data-testid="button-view-all">
-                  View All
-                </Button>
-              </a>
+              <Button variant="outline" data-testid="button-view-all">
+                View All
+              </Button>
             </Link>
           </div>
           
@@ -334,11 +332,9 @@ export default function Landing() {
                 ))}
               </ul>
               <Link href="/list-vehicle">
-                <a>
-                  <Button size="lg" variant="secondary" data-testid="button-list-vehicle-cta">
-                    List Your Vehicle
-                  </Button>
-                </a>
+                <Button size="lg" variant="secondary" data-testid="button-list-vehicle-cta">
+                  List Your Vehicle
+                </Button>
               </Link>
             </div>
             <div className="relative h-80 rounded-xl overflow-hidden">
