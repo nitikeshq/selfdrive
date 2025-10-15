@@ -13,6 +13,9 @@ import Dashboard from "@/pages/Dashboard";
 import OwnerDashboard from "@/pages/OwnerDashboard";
 import ListVehicle from "@/pages/ListVehicle";
 import Login from "@/pages/Login";
+import TermsAndConditions from "@/pages/TermsAndConditions";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import ContactUs from "@/pages/ContactUs";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,6 +28,9 @@ function Router() {
       <Route path="/owner-dashboard" component={OwnerDashboard} />
       <Route path="/list-vehicle" component={ListVehicle} />
       <Route path="/login" component={Login} />
+      <Route path="/terms-and-conditions" component={TermsAndConditions} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/contact-us" component={ContactUs} />
       <Route component={NotFound} />
     </Switch>
   );

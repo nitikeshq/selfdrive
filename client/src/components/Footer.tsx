@@ -51,7 +51,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
+                <Link href="/contact-us">
                   <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-contact">
                     Contact Us
                   </span>
@@ -107,12 +107,12 @@ export function Footer() {
             © 2025 DriveEase. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link href="/terms">
+            <Link href="/terms-and-conditions">
               <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-terms">
                 Terms of Service
               </span>
             </Link>
-            <Link href="/privacy">
+            <Link href="/privacy-policy">
               <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-privacy">
                 Privacy Policy
               </span>
