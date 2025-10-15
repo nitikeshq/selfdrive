@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -136,9 +136,11 @@ export default function Dashboard() {
                           <div className="text-2xl font-bold text-primary">
                             ₹{booking.totalAmount}
                           </div>
-                          <Button variant="outline" data-testid={`button-view-details-${booking.id}`}>
-                            View Details
-                          </Button>
+                          <Link href={`/booking/${booking.id}`}>
+                            <Button variant="outline" data-testid={`button-view-details-${booking.id}`}>
+                              View Details
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>

@@ -1,18 +1,44 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Car, DollarSign, Calendar, TrendingUp, Plus } from "lucide-react";
 import { Link } from "wouter";
 import type { Vehicle, BookingWithDetails } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function OwnerDashboard() {
+  const { toast } = useToast();
+  
   const { data: vehicles, isLoading: vehiclesLoading } = useQuery<Vehicle[]>({
     queryKey: ["/api/owner/vehicles"],
   });
 
   const { data: bookings, isLoading: bookingsLoading } = useQuery<BookingWithDetails[]>({
     queryKey: ["/api/owner/bookings"],
+  });
+
+  const toggleAvailabilityMutation = useMutation({
+    mutationFn: async (vehicleId: string) => {
+      const response = await apiRequest("PATCH", `/api/vehicles/${vehicleId}/toggle-pause`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/owner/vehicles"] });
+      toast({
+        title: "Success",
+        description: "Vehicle availability updated",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update vehicle availability",
+        variant: "destructive",
+      });
+    },
   });
 
   const totalEarnings = bookings?.reduce((sum, booking) => {
@@ -164,12 +190,16 @@ export default function OwnerDashboard() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" className="flex-1" data-testid={`button-edit-vehicle-${vehicle.id}`}>
-                        Edit
-                      </Button>
+                      <Link href={`/edit-vehicle/${vehicle.id}`}>
+                        <Button variant="outline" className="flex-1" data-testid={`button-edit-vehicle-${vehicle.id}`}>
+                          Edit
+                        </Button>
+                      </Link>
                       <Button 
                         variant={vehicle.available ? "secondary" : "default"} 
                         className="flex-1"
+                        onClick={() => toggleAvailabilityMutation.mutate(vehicle.id)}
+                        disabled={toggleAvailabilityMutation.isPending}
                         data-testid={`button-toggle-availability-${vehicle.id}`}
                       >
                         {vehicle.available ? "Mark Unavailable" : "Mark Available"}
@@ -207,7 +237,7 @@ export default function OwnerDashboard() {
                         <div>
                           <h4 className="font-semibold">{booking.vehicle.name}</h4>
                           <p className="text-sm text-muted-foreground">
-                            By {booking.user.name}
+                            By {booking.user.firstName} {booking.user.lastName}
                           </p>
                         </div>
                       </div>
