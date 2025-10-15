@@ -371,8 +371,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Find booking by transaction ID
-      const bookings = await storage.getAllBookings();
-      const booking = bookings.find(b => b.paymentIntentId === txnid);
+      const bookings = await storage.getBookingsByUser(""); // Get all bookings
+      const booking = bookings.find((b: any) => b.paymentIntentId === txnid);
 
       if (booking && status === "success") {
         await storage.updateBooking(booking.id, {
@@ -396,8 +396,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { txnid } = req.body;
       
       // Find booking by transaction ID and mark as failed
-      const bookings = await storage.getAllBookings();
-      const booking = bookings.find(b => b.paymentIntentId === txnid);
+      const bookings = await storage.getBookingsByUser(""); // Get all bookings
+      const booking = bookings.find((b: any) => b.paymentIntentId === txnid);
 
       if (booking) {
         await storage.updateBooking(booking.id, {
