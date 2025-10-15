@@ -2,7 +2,15 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin, isOwner, hashPassword, comparePassword } from "./auth";
-import { insertVehicleSchema, insertBookingSchema } from "@shared/schema";
+import { 
+  insertVehicleSchema, 
+  insertBookingSchema,
+  insertRatingSchema,
+  insertChallanSchema,
+  insertVideoVerificationSchema,
+  insertVehicleDocumentSchema,
+  insertOwnerAddressSchema
+} from "@shared/schema";
 import { z } from "zod";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
@@ -642,6 +650,297 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error setting DL photo:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Ratings routes
+  app.post("/api/ratings", async (req, res) => {
+    try {
+      const validatedData = insertRatingSchema.parse(req.body);
+      const rating = await storage.createRating(validatedData);
+      res.status(201).json(rating);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create rating" });
+    }
+  });
+
+  app.get("/api/ratings/:bookingId", async (req, res) => {
+    try {
+      const ratings = await storage.getRatingsByBooking(req.params.bookingId);
+      res.json(ratings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch ratings" });
+    }
+  });
+
+  app.get("/api/ratings/user/:userId", async (req, res) => {
+    try {
+      const ratings = await storage.getRatingsByRatee(req.params.userId);
+      res.json(ratings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user ratings" });
+    }
+  });
+
+  // Challans routes
+  app.post("/api/challans", async (req, res) => {
+    try {
+      const validatedData = insertChallanSchema.parse(req.body);
+      const challan = await storage.createChallan(validatedData);
+      res.status(201).json(challan);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create challan" });
+    }
+  });
+
+  app.get("/api/challans/vehicle/:vehicleId", async (req, res) => {
+    try {
+      const challans = await storage.getChallansByVehicle(req.params.vehicleId);
+      res.json(challans);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch challans" });
+    }
+  });
+
+  app.get("/api/challans/booking/:bookingId", async (req, res) => {
+    try {
+      const challans = await storage.getChallansByBooking(req.params.bookingId);
+      res.json(challans);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch booking challans" });
+    }
+  });
+
+  app.patch("/api/challans/:id", async (req, res) => {
+    try {
+      const challan = await storage.updateChallan(req.params.id, req.body);
+      if (!challan) {
+        return res.status(404).json({ error: "Challan not found" });
+      }
+      res.json(challan);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update challan" });
+    }
+  });
+
+  // Video Verification routes
+  app.post("/api/video-verifications", async (req, res) => {
+    try {
+      const validatedData = insertVideoVerificationSchema.parse(req.body);
+      const verification = await storage.createVideoVerification(validatedData);
+      res.status(201).json(verification);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create video verification" });
+    }
+  });
+
+  app.get("/api/video-verifications/:bookingId", async (req, res) => {
+    try {
+      const verifications = await storage.getVideoVerificationsByBooking(req.params.bookingId);
+      res.json(verifications);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch video verifications" });
+    }
+  });
+
+  app.patch("/api/video-verifications/:id/approve", async (req, res) => {
+    try {
+      const { approvedBy } = req.body; // "customer" or "owner"
+      
+      const updateData: any = {};
+      if (approvedBy === "customer") {
+        updateData.approvedByCustomer = true;
+        updateData.customerApprovedAt = new Date();
+      } else if (approvedBy === "owner") {
+        updateData.approvedByOwner = true;
+        updateData.ownerApprovedAt = new Date();
+      } else {
+        return res.status(400).json({ error: "Invalid approvedBy value" });
+      }
+
+      const verification = await storage.updateVideoVerification(req.params.id, updateData);
+      if (!verification) {
+        return res.status(404).json({ error: "Video verification not found" });
+      }
+      res.json(verification);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve video verification" });
+    }
+  });
+
+  // Vehicle Documents routes
+  app.post("/api/vehicles/:id/documents", async (req, res) => {
+    try {
+      const validatedData = insertVehicleDocumentSchema.parse({
+        ...req.body,
+        vehicleId: req.params.id
+      });
+      const document = await storage.createVehicleDocument(validatedData);
+      res.status(201).json(document);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create vehicle document" });
+    }
+  });
+
+  app.get("/api/vehicles/:id/documents", async (req, res) => {
+    try {
+      const documents = await storage.getVehicleDocumentsByVehicle(req.params.id);
+      res.json(documents);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch vehicle documents" });
+    }
+  });
+
+  app.patch("/api/vehicle-documents/:id", async (req, res) => {
+    try {
+      const document = await storage.updateVehicleDocument(req.params.id, req.body);
+      if (!document) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+      res.json(document);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update vehicle document" });
+    }
+  });
+
+  // Owner Addresses routes
+  app.post("/api/owner/addresses", async (req, res) => {
+    try {
+      const validatedData = insertOwnerAddressSchema.parse(req.body);
+      const address = await storage.createOwnerAddress(validatedData);
+      res.status(201).json(address);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create owner address" });
+    }
+  });
+
+  app.get("/api/owner/addresses", async (req, res) => {
+    try {
+      const ownerId = req.query.ownerId as string;
+      if (!ownerId) {
+        return res.status(400).json({ error: "Owner ID required" });
+      }
+      const addresses = await storage.getOwnerAddresses(ownerId);
+      res.json(addresses);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch owner addresses" });
+    }
+  });
+
+  app.patch("/api/owner/addresses/:id", async (req, res) => {
+    try {
+      const address = await storage.updateOwnerAddress(req.params.id, req.body);
+      if (!address) {
+        return res.status(404).json({ error: "Address not found" });
+      }
+      res.json(address);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update owner address" });
+    }
+  });
+
+  app.delete("/api/owner/addresses/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteOwnerAddress(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Address not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete owner address" });
+    }
+  });
+
+  // KYC verification routes
+  app.patch("/api/users/kyc", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const { aadharNumber, panNumber, dlNumber, dlPhotoUrl, digilockerVerified } = req.body;
+
+      const updateData: any = {};
+      if (aadharNumber) updateData.aadharNumber = aadharNumber;
+      if (panNumber) updateData.panNumber = panNumber;
+      if (dlNumber) updateData.dlNumber = dlNumber;
+      if (dlPhotoUrl) updateData.dlPhotoUrl = dlPhotoUrl;
+      if (digilockerVerified !== undefined) updateData.digilockerVerified = digilockerVerified;
+
+      const user = await storage.updateUser(userId, updateData);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update KYC details" });
+    }
+  });
+
+  app.get("/api/users/kyc-status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const kycStatus = {
+        aadharVerified: !!user.aadharNumber,
+        panVerified: !!user.panNumber,
+        dlVerified: !!user.dlNumber && !!user.dlPhotoUrl,
+        digilockerVerified: user.digilockerVerified || false,
+        isKycComplete: !!(user.aadharNumber && user.panNumber && user.dlNumber && user.dlPhotoUrl)
+      };
+
+      res.json(kycStatus);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch KYC status" });
+    }
+  });
+
+  // Security Deposit routes
+  app.post("/api/security-deposit", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const { amount, transactionId } = req.body;
+
+      if (!amount) {
+        return res.status(400).json({ error: "Amount is required" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const currentDeposit = parseFloat(user.securityDeposit || "0");
+      const newDeposit = currentDeposit + parseFloat(amount);
+
+      const updatedUser = await storage.updateUser(userId, {
+        securityDeposit: newDeposit.toString(),
+        securityDepositTransactionId: transactionId || null,
+      });
+
+      res.json({
+        message: "Security deposit added successfully",
+        newDeposit: newDeposit.toString(),
+        user: updatedUser
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to add security deposit" });
     }
   });
 

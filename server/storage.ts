@@ -8,9 +8,24 @@ import {
   type InsertBooking,
   type BookingWithDetails,
   type VehicleWithOwner,
+  type Rating,
+  type InsertRating,
+  type Challan,
+  type InsertChallan,
+  type VideoVerification,
+  type InsertVideoVerification,
+  type VehicleDocument,
+  type InsertVehicleDocument,
+  type OwnerAddress,
+  type InsertOwnerAddress,
   users,
   vehicles,
-  bookings
+  bookings,
+  ratings,
+  challans,
+  videoVerifications,
+  vehicleDocuments,
+  ownerAddresses
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte } from "drizzle-orm";
@@ -39,6 +54,38 @@ export interface IStorage {
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateBooking(id: string, data: Partial<Booking>): Promise<Booking | undefined>;
   checkVehicleAvailability(vehicleId: string, startDate: Date, endDate: Date): Promise<boolean>;
+
+  // Rating methods
+  getRating(id: string): Promise<Rating | undefined>;
+  getRatingsByBooking(bookingId: string): Promise<Rating[]>;
+  getRatingsByRatee(rateeId: string): Promise<Rating[]>;
+  createRating(rating: InsertRating): Promise<Rating>;
+
+  // Challan methods
+  getChallan(id: string): Promise<Challan | undefined>;
+  getChallansByVehicle(vehicleId: string): Promise<Challan[]>;
+  getChallansByBooking(bookingId: string): Promise<Challan[]>;
+  createChallan(challan: InsertChallan): Promise<Challan>;
+  updateChallan(id: string, data: Partial<Challan>): Promise<Challan | undefined>;
+
+  // Video Verification methods
+  getVideoVerification(id: string): Promise<VideoVerification | undefined>;
+  getVideoVerificationsByBooking(bookingId: string): Promise<VideoVerification[]>;
+  createVideoVerification(verification: InsertVideoVerification): Promise<VideoVerification>;
+  updateVideoVerification(id: string, data: Partial<VideoVerification>): Promise<VideoVerification | undefined>;
+
+  // Vehicle Document methods
+  getVehicleDocument(id: string): Promise<VehicleDocument | undefined>;
+  getVehicleDocumentsByVehicle(vehicleId: string): Promise<VehicleDocument[]>;
+  createVehicleDocument(document: InsertVehicleDocument): Promise<VehicleDocument>;
+  updateVehicleDocument(id: string, data: Partial<VehicleDocument>): Promise<VehicleDocument | undefined>;
+
+  // Owner Address methods
+  getOwnerAddress(id: string): Promise<OwnerAddress | undefined>;
+  getOwnerAddresses(ownerId: string): Promise<OwnerAddress[]>;
+  createOwnerAddress(address: InsertOwnerAddress): Promise<OwnerAddress>;
+  updateOwnerAddress(id: string, data: Partial<OwnerAddress>): Promise<OwnerAddress | undefined>;
+  deleteOwnerAddress(id: string): Promise<boolean>;
 }
 
 export class DbStorage implements IStorage {
@@ -194,6 +241,114 @@ export class DbStorage implements IStorage {
       );
 
     return overlappingBookings.length === 0;
+  }
+
+  // Rating methods
+  async getRating(id: string): Promise<Rating | undefined> {
+    const result = await db.select().from(ratings).where(eq(ratings.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getRatingsByBooking(bookingId: string): Promise<Rating[]> {
+    return await db.select().from(ratings).where(eq(ratings.bookingId, bookingId));
+  }
+
+  async getRatingsByRatee(rateeId: string): Promise<Rating[]> {
+    return await db.select().from(ratings).where(eq(ratings.rateeId, rateeId));
+  }
+
+  async createRating(insertRating: InsertRating): Promise<Rating> {
+    const result = await db.insert(ratings).values(insertRating).returning();
+    return result[0];
+  }
+
+  // Challan methods
+  async getChallan(id: string): Promise<Challan | undefined> {
+    const result = await db.select().from(challans).where(eq(challans.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getChallansByVehicle(vehicleId: string): Promise<Challan[]> {
+    return await db.select().from(challans).where(eq(challans.vehicleId, vehicleId));
+  }
+
+  async getChallansByBooking(bookingId: string): Promise<Challan[]> {
+    return await db.select().from(challans).where(eq(challans.bookingId, bookingId));
+  }
+
+  async createChallan(insertChallan: InsertChallan): Promise<Challan> {
+    const result = await db.insert(challans).values(insertChallan).returning();
+    return result[0];
+  }
+
+  async updateChallan(id: string, data: Partial<Challan>): Promise<Challan | undefined> {
+    const result = await db.update(challans).set(data).where(eq(challans.id, id)).returning();
+    return result[0];
+  }
+
+  // Video Verification methods
+  async getVideoVerification(id: string): Promise<VideoVerification | undefined> {
+    const result = await db.select().from(videoVerifications).where(eq(videoVerifications.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getVideoVerificationsByBooking(bookingId: string): Promise<VideoVerification[]> {
+    return await db.select().from(videoVerifications).where(eq(videoVerifications.bookingId, bookingId));
+  }
+
+  async createVideoVerification(insertVerification: InsertVideoVerification): Promise<VideoVerification> {
+    const result = await db.insert(videoVerifications).values(insertVerification).returning();
+    return result[0];
+  }
+
+  async updateVideoVerification(id: string, data: Partial<VideoVerification>): Promise<VideoVerification | undefined> {
+    const result = await db.update(videoVerifications).set(data).where(eq(videoVerifications.id, id)).returning();
+    return result[0];
+  }
+
+  // Vehicle Document methods
+  async getVehicleDocument(id: string): Promise<VehicleDocument | undefined> {
+    const result = await db.select().from(vehicleDocuments).where(eq(vehicleDocuments.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getVehicleDocumentsByVehicle(vehicleId: string): Promise<VehicleDocument[]> {
+    return await db.select().from(vehicleDocuments).where(eq(vehicleDocuments.vehicleId, vehicleId));
+  }
+
+  async createVehicleDocument(insertDocument: InsertVehicleDocument): Promise<VehicleDocument> {
+    const result = await db.insert(vehicleDocuments).values(insertDocument).returning();
+    return result[0];
+  }
+
+  async updateVehicleDocument(id: string, data: Partial<VehicleDocument>): Promise<VehicleDocument | undefined> {
+    const result = await db.update(vehicleDocuments).set(data).where(eq(vehicleDocuments.id, id)).returning();
+    return result[0];
+  }
+
+  // Owner Address methods
+  async getOwnerAddress(id: string): Promise<OwnerAddress | undefined> {
+    const result = await db.select().from(ownerAddresses).where(eq(ownerAddresses.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getOwnerAddresses(ownerId: string): Promise<OwnerAddress[]> {
+    return await db.select().from(ownerAddresses).where(eq(ownerAddresses.ownerId, ownerId));
+  }
+
+  async createOwnerAddress(insertAddress: InsertOwnerAddress): Promise<OwnerAddress> {
+    const result = await db.insert(ownerAddresses).values(insertAddress).returning();
+    return result[0];
+  }
+
+  async updateOwnerAddress(id: string, data: Partial<OwnerAddress>): Promise<OwnerAddress | undefined> {
+    const result = await db.update(ownerAddresses).set(data).where(eq(ownerAddresses.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteOwnerAddress(id: string): Promise<boolean> {
+    const result = await db.delete(ownerAddresses).where(eq(ownerAddresses.id, id)).returning();
+    return result.length > 0;
   }
 }
 
