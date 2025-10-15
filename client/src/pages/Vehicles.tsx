@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,20 @@ import { Search, Filter, X } from "lucide-react";
 import type { Vehicle } from "@shared/schema";
 
 export default function Vehicles() {
+  const [location] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<string>("");
+
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(location.split('?')[1] || '');
+    const urlLocation = params.get('location');
+    const urlType = params.get('type');
+    
+    if (urlLocation) setSelectedLocation(urlLocation);
+    if (urlType) setSelectedType(urlType);
+  }, [location]);
   
   const { data: vehicles, isLoading } = useQuery<Vehicle[]>({
     queryKey: ["/api/vehicles"],

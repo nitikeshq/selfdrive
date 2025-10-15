@@ -36,7 +36,7 @@ export default function Landing() {
     const params = new URLSearchParams();
     if (searchLocation) params.append("location", searchLocation);
     if (searchType) params.append("type", searchType);
-    setLocation(`/?${params.toString()}`);
+    setLocation(`/vehicles?${params.toString()}`);
   };
 
   return (
@@ -159,9 +159,9 @@ export default function Landing() {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileCheck className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Upload DL & Pay</h3>
+                <h3 className="text-xl font-semibold mb-3">Book & Pay</h3>
                 <p className="text-muted-foreground">
-                  Secure verification with driver's license and instant payment
+                  Instant booking confirmation with secure advance payment
                 </p>
               </CardContent>
             </Card>
