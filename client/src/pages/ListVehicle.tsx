@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
-import { Car, Upload } from "lucide-react";
+import { Car, Upload, MapPin } from "lucide-react";
 import { useState } from "react";
+import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 
 const vehicleFormSchema = z.object({
   name: z.string().min(1, "Vehicle name is required"),
@@ -21,7 +22,10 @@ const vehicleFormSchema = z.object({
   registrationNumber: z.string().min(1, "Registration number is required"),
   pricePerHour: z.number().min(1, "Hourly price is required"),
   pricePerDay: z.number().min(1, "Daily price is required"),
-  location: z.string().min(1, "Location is required"),
+  location: z.string().min(1, "Parking location is required"),
+  locationPlaceId: z.string().optional(),
+  locationLat: z.number().optional(),
+  locationLng: z.number().optional(),
   ownerLocation: z.string().min(1, "Owner location is required"),
   features: z.string().optional(),
   imageUrl: z.string().url("Valid image URL is required"),
@@ -47,6 +51,9 @@ export default function ListVehicle() {
       pricePerHour: 0,
       pricePerDay: 0,
       location: "",
+      locationPlaceId: "",
+      locationLat: undefined,
+      locationLng: undefined,
       ownerLocation: "",
       features: "",
       imageUrl: "",
@@ -247,10 +254,28 @@ export default function ListVehicle() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Vehicle Parking Location</FormLabel>
+                        <FormLabel className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          Vehicle Parking Location
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Patia, Khandagiri" {...field} data-testid="input-location" />
+                          <GooglePlacesAutocomplete
+                            value={field.value}
+                            onChange={field.onChange}
+                            onPlaceSelect={(details) => {
+                              form.setValue("location", details.address);
+                              form.setValue("locationPlaceId", details.placeId);
+                              form.setValue("locationLat", details.lat);
+                              form.setValue("locationLng", details.lng);
+                            }}
+                            placeholder="Search for parking location in Bhubaneswar"
+                            restrictToBhubaneswar={true}
+                            testId="input-location"
+                          />
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          Select precise parking location using Google Maps
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
