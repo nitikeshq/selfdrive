@@ -34,7 +34,7 @@ export default function TermsAndConditions() {
               <ul className="list-disc pl-6 space-y-2">
                 <li>You must be at least 18 years old to rent a vehicle</li>
                 <li>You must possess a valid driver's license for the vehicle type you wish to rent</li>
-                <li>Driver's license must be uploaded and verified before booking confirmation</li>
+                <li>Driver's license must be presented and verified at the time of vehicle pickup</li>
                 <li>You must provide accurate personal and contact information</li>
                 <li>Services are currently available only in Bhubaneswar, Odisha</li>
               </ul>
@@ -98,6 +98,10 @@ export default function TermsAndConditions() {
                 <li><strong>Self-Pickup from Parking:</strong> Collect the vehicle from our designated parking locations at no extra cost</li>
                 <li><strong>Doorstep Delivery:</strong> Get the vehicle delivered to your preferred location for an additional ₹200</li>
               </ul>
+              <p className="mt-3">
+                <strong>Important:</strong> You must bring your valid driver's license at the time of pickup for verification. 
+                The license must match the vehicle category you've booked. Rental cannot proceed without proper license verification.
+              </p>
               <p className="mt-3">
                 Vehicles must be returned to the same location from where they were picked up unless otherwise agreed. 
                 Late returns will incur additional hourly charges.

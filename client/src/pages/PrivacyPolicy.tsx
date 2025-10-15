@@ -25,7 +25,7 @@ export default function PrivacyPolicy() {
                 <li>Name (First and Last)</li>
                 <li>Email address</li>
                 <li>Phone number</li>
-                <li>Driver's license information and photo</li>
+                <li>Driver's license information (verified at pickup)</li>
                 <li>Payment information (processed securely through PayU)</li>
               </ul>
               <h4 className="font-semibold mt-4 mb-2">Usage Information:</h4>
@@ -65,7 +65,7 @@ export default function PrivacyPolicy() {
               <p className="mb-3">We take data security seriously:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>All personal data is stored securely using industry-standard encryption</li>
-                <li>Driver's license photos are stored in secure cloud storage with restricted access</li>
+                <li>Driver's license information is verified at pickup and stored only for legal compliance</li>
                 <li>Payment information is processed through PayU's secure payment gateway and not stored on our servers</li>
                 <li>We use HTTPS/SSL encryption for all data transmission</li>
                 <li>Access to personal data is restricted to authorized personnel only</li>
@@ -98,13 +98,13 @@ export default function PrivacyPolicy() {
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-none">
               <p>
-                Driver's license verification is mandatory for all bookings. Your license photo is:
+                Driver's license verification is mandatory for all vehicle rentals and is conducted at the time of pickup:
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-3">
-                <li>Stored securely in encrypted cloud storage</li>
-                <li>Accessed only for verification and legal compliance purposes</li>
-                <li>Not shared with any third parties except as legally required</li>
-                <li>Retained as per legal requirements and deleted upon account closure (unless legally required to retain)</li>
+                <li>You must present your valid driver's license when picking up the vehicle</li>
+                <li>License information is verified on-site to ensure it matches the vehicle category</li>
+                <li>We do not store digital copies of your license during the booking process</li>
+                <li>License details may be recorded for rental agreement purposes and legal compliance</li>
               </ul>
             </CardContent>
           </Card>
@@ -162,8 +162,8 @@ export default function PrivacyPolicy() {
                 <li>Resolve disputes and enforce our agreements</li>
               </ul>
               <p className="mt-3">
-                Booking records are typically retained for 7 years for legal compliance. Driver's license photos are deleted 
-                within 90 days of account closure unless legally required to retain.
+                Booking records are typically retained for 7 years for legal compliance. Driver's license information 
+                collected during pickup verification is retained as per legal requirements.
               </p>
             </CardContent>
           </Card>
