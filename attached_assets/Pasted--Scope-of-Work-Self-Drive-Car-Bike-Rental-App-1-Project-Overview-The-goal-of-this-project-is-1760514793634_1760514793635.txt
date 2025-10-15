@@ -1,0 +1,189 @@
+🚗 Scope of Work: Self-Drive Car & Bike Rental App
+
+1. Project Overview
+
+The goal of this project is to develop a mobile application (Android & iOS) and web admin panel that enables customers to book self-drive cars and bikes on an hourly, daily, or weekly basis. The system will also allow vehicle owners to list their vehicles, manage bookings, and track earnings. A super admin will oversee all users, vehicles, bookings, and platform commissions.
+
+2. Core User Roles
+
+2.1 Customer
+
+Register/login via mobile number, email, or social login.
+
+Search for available cars/bikes based on:
+
+Location
+
+Type of vehicle
+
+Availability (date/time range)
+
+View vehicle details: brand, model, price/hour, owner rating.
+
+Book vehicle for a specified time range (“From–To”).
+
+Pay using integrated payment gateways (UPI, credit/debit, wallet).
+
+Track booking status and trip history.
+
+View and manage in-app wallet.
+
+Cancel bookings and request refunds (as per policy).
+
+2.2 Vehicle Owner (Car/Bike Owner)
+
+Register/login with verification (KYC, RC, insurance upload).
+
+Add, edit, or delete vehicle listings with:
+
+Photos
+
+Model, registration number
+
+Pricing per hour/day (₹ - Indian Currency)
+
+Availability schedule
+
+Dashboard to view:
+
+Booking requests & current bookings
+
+Vehicle status (available/booked)
+
+Total earnings and commission deductions
+
+Wallet balance and payout history
+
+Receive notifications for new bookings, payments, or cancellations.
+
+2.3 Super Admin (Web Panel)
+
+Secure login with multi-level authentication.
+
+Manage users (customers, owners).
+
+Manage vehicles and approve/reject listings.
+
+Configure commission percentages (e.g., 10–15% per booking).
+
+Monitor bookings, payments, cancellations, and disputes.
+
+Manage platform wallet and auto settlements:
+
+Customer → Platform → Owner
+
+Generate reports:
+
+Revenue by period
+
+Owner payouts
+
+Commission summaries
+
+3. Key Features
+
+3.1 Booking & Payments
+
+Real-time availability check.
+
+Dynamic pricing (per hour/day).
+
+Booking summary before payment.
+
+Integrated payment gateway (Razorpay/Paytm/Stripe India).
+
+Auto-calculated commission split:
+
+Example: ₹1,000 booking → Owner ₹900, Platform ₹100.
+
+Refunds & wallet credit for cancellations.
+
+3.2 Wallet System
+
+Each user (customer and owner) maintains an in-app wallet.
+
+Owners’ earnings accumulate in wallet; can request withdrawal.
+
+Customers can recharge wallet and pay via it.
+
+Automatic ledger for all transactions.
+
+3.3 Notifications & Communication
+
+Push notifications, email, and SMS updates for:
+
+Booking confirmations
+
+Cancellations
+
+Payments
+
+Chat support or in-app messaging (optional in later phase).
+
+4. Technology Stack (Proposed)
+
+Component Technology
+
+Mobile App Flutter / React Native
+
+Backend Node.js / Django REST Framework
+
+Database PostgreSQL / MongoDB
+
+Hosting AWS / Google Cloud
+
+Payment Gateway Razorpay / Paytm
+
+Admin Panel React.js / Angular Web App
+
+Authentication JWT / Firebase Auth
+
+5. Deliverables
+
+Mobile App (Android + iOS)
+
+Customer & Owner modules
+
+Admin Dashboard (Web)
+
+Role-based control
+
+Backend API + Database
+
+Secure, scalable, cloud-hosted
+
+Documentation
+
+API documentation
+
+Admin usage manual
+
+Deployment
+
+App Store & Play Store release
+
+Web hosting setup
+
+6. Timeline (Indicative)
+
+Phase Duration Deliverables
+
+Phase 1 2 weeks Wireframes & UI/UX
+
+Phase 2 4 weeks App development (Frontend + Backend)
+
+Phase 3 2 weeks Testing & QA
+
+Phase 4 1 week Deployment & Launch
+
+7. Future Enhancements (Optional)
+
+GPS tracking & digital key for vehicles.
+
+Subscription plans for frequent users.
+
+Integration with insurance & roadside assistance.
+
+Chatbot support for customers.
+
+Dynamic pricing by location or demand.
