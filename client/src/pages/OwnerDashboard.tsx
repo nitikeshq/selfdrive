@@ -1,0 +1,235 @@
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Car, DollarSign, Calendar, TrendingUp, Plus } from "lucide-react";
+import { Link } from "wouter";
+import type { Vehicle, BookingWithDetails } from "@shared/schema";
+
+export default function OwnerDashboard() {
+  const { data: vehicles, isLoading: vehiclesLoading } = useQuery<Vehicle[]>({
+    queryKey: ["/api/owner/vehicles"],
+  });
+
+  const { data: bookings, isLoading: bookingsLoading } = useQuery<BookingWithDetails[]>({
+    queryKey: ["/api/owner/bookings"],
+  });
+
+  const totalEarnings = bookings?.reduce((sum, booking) => {
+    if (booking.paymentStatus === "paid") {
+      return sum + parseFloat(booking.totalAmount);
+    }
+    return sum;
+  }, 0) || 0;
+
+  const activeBookings = bookings?.filter(b => b.status === "active" || b.status === "confirmed").length || 0;
+  const totalVehicles = vehicles?.length || 0;
+  const availableVehicles = vehicles?.filter(v => v.available).length || 0;
+
+  const isLoading = vehiclesLoading || bookingsLoading;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2" data-testid="text-owner-dashboard-title">
+              Owner Dashboard
+            </h1>
+            <p className="text-muted-foreground">Manage your vehicles and track earnings</p>
+          </div>
+          <Link href="/list-vehicle">
+            <a>
+              <Button size="lg" data-testid="button-add-vehicle">
+                <Plus className="h-5 w-5 mr-2" />
+                Add Vehicle
+              </Button>
+            </a>
+          </Link>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <Card className="hover-elevate transition-all">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="text-total-earnings">₹{totalEarnings.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                From all bookings
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate transition-all">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Bookings</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="text-active-bookings">{activeBookings}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Current rentals
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate transition-all">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
+              <Car className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="text-total-vehicles">{totalVehicles}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Listed vehicles
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate transition-all">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Available Now</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="text-available-vehicles">{availableVehicles}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Ready to rent
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Your Vehicles */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-semibold mb-6" data-testid="text-your-vehicles-title">
+            Your Vehicles
+          </h2>
+          {vehicles && vehicles.length === 0 ? (
+            <Card className="p-12 text-center">
+              <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No vehicles listed</h3>
+              <p className="text-muted-foreground mb-4">
+                Start earning by listing your first vehicle
+              </p>
+              <Link href="/list-vehicle">
+                <a>
+                  <Button data-testid="button-list-first-vehicle">
+                    <Plus className="h-4 w-4 mr-2" />
+                    List Your Vehicle
+                  </Button>
+                </a>
+              </Link>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {vehicles?.map((vehicle) => (
+                <Card key={vehicle.id} className="hover-elevate transition-all" data-testid={`card-owner-vehicle-${vehicle.id}`}>
+                  <div className="relative h-48 overflow-hidden rounded-t-lg">
+                    <img
+                      src={vehicle.imageUrl}
+                      alt={vehicle.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {vehicle.available ? (
+                      <Badge className="absolute top-3 right-3 bg-green-500">Available</Badge>
+                    ) : (
+                      <Badge variant="destructive" className="absolute top-3 right-3">Unavailable</Badge>
+                    )}
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-lg mb-1">{vehicle.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {vehicle.brand} {vehicle.model}
+                    </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Hourly</p>
+                        <p className="font-bold">₹{vehicle.pricePerHour}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground">Daily</p>
+                        <p className="font-bold">₹{vehicle.pricePerDay}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="flex-1" data-testid={`button-edit-vehicle-${vehicle.id}`}>
+                        Edit
+                      </Button>
+                      <Button 
+                        variant={vehicle.available ? "secondary" : "default"} 
+                        className="flex-1"
+                        data-testid={`button-toggle-availability-${vehicle.id}`}
+                      >
+                        {vehicle.available ? "Mark Unavailable" : "Mark Available"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Bookings */}
+        <div>
+          <h2 className="text-2xl font-semibold mb-6" data-testid="text-recent-bookings-title">
+            Recent Bookings
+          </h2>
+          {bookings && bookings.length === 0 ? (
+            <Card className="p-8 text-center">
+              <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No bookings yet</p>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {bookings?.slice(0, 5).map((booking) => (
+                <Card key={booking.id} className="hover-elevate transition-all" data-testid={`card-owner-booking-${booking.id}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={booking.vehicle.imageUrl}
+                          alt={booking.vehicle.name}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                        <div>
+                          <h4 className="font-semibold">{booking.vehicle.name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            By {booking.user.name}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">₹{booking.totalAmount}</p>
+                        <Badge className={
+                          booking.status === "confirmed" ? "bg-blue-500/10 text-blue-600" :
+                          booking.status === "active" ? "bg-green-500/10 text-green-600" :
+                          booking.status === "completed" ? "bg-gray-500/10 text-gray-600" :
+                          "bg-yellow-500/10 text-yellow-600"
+                        }>
+                          {booking.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
