@@ -12,20 +12,18 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Calendar, MapPin, TruckIcon, FileUp, CreditCard, Users, Fuel, Settings } from "lucide-react";
-import { ObjectUploader } from "@/components/ObjectUploader";
+import { Calendar, MapPin, TruckIcon, CreditCard, Users, Fuel, Settings, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Vehicle } from "@shared/schema";
-import type { UploadResult } from "@uppy/core";
 
 const bookingFormSchema = z.object({
   startDate: z.string().min(1, "Pickup date is required"),
   endDate: z.string().min(1, "Return date is required"),
   pickupOption: z.enum(["parking", "delivery"]),
   deliveryAddress: z.string().optional(),
-  dlPhotoUrl: z.string().min(1, "Driver's license photo is required"),
 });
 
 type BookingFormData = z.infer<typeof bookingFormSchema>;
@@ -36,7 +34,6 @@ export default function BookVehicle() {
   const [, setLocation] = useLocation();
   const vehicleId = params?.id;
   const [selectedOption, setSelectedOption] = useState<"parking" | "delivery">("parking");
-  const [dlPhotoUrl, setDlPhotoUrl] = useState<string>("");
   const [paymentData, setPaymentData] = useState<any | null>(null);
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -53,7 +50,6 @@ export default function BookVehicle() {
       startDate: "",
       endDate: "",
       deliveryAddress: "",
-      dlPhotoUrl: "",
     },
   });
 
@@ -79,38 +75,6 @@ export default function BookVehicle() {
   const totalAmount = calculateTotal(watchedStartDate, watchedEndDate);
   const deliveryCharge = selectedOption === "delivery" ? 200 : 0;
 
-  const handleGetUploadParameters = async () => {
-    const response = await apiRequest("POST", "/api/objects/upload");
-    const data = await response.json();
-    return {
-      method: "PUT" as const,
-      url: data.uploadURL,
-    };
-  };
-
-  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful && result.successful.length > 0) {
-      const uploadedUrl = result.successful[0].uploadURL;
-      
-      try {
-        const response = await apiRequest("PUT", "/api/dl-photos", { dlPhotoURL: uploadedUrl });
-        const data = await response.json();
-        setDlPhotoUrl(data.objectPath);
-        form.setValue("dlPhotoUrl", data.objectPath);
-        toast({
-          title: "Success",
-          description: "Driver's license uploaded successfully",
-        });
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to process driver's license",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
   const createBookingMutation = useMutation({
     mutationFn: async (data: BookingFormData) => {
       if (!isAuthenticated || !user) {
@@ -124,7 +88,6 @@ export default function BookVehicle() {
         endDate: new Date(data.endDate),
         pickupOption: data.pickupOption,
         deliveryAddress: data.deliveryAddress || null,
-        dlPhotoUrl: data.dlPhotoUrl,
         totalAmount: totalAmount.toString(),
         deliveryCharge: deliveryCharge.toString(),
         status: "pending",
@@ -164,15 +127,6 @@ export default function BookVehicle() {
         variant: "destructive",
       });
       setLocation("/login");
-      return;
-    }
-
-    if (!data.dlPhotoUrl) {
-      toast({
-        title: "Required",
-        description: "Please upload your driver's license",
-        variant: "destructive",
-      });
       return;
     }
 
@@ -379,56 +333,15 @@ export default function BookVehicle() {
                   </CardContent>
                 </Card>
 
-                {/* DL Upload */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileUp className="h-5 w-5" />
-                      Driver's License Verification
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <p className="text-sm text-muted-foreground">
-                        Please upload a clear photo of your driver's license for verification
-                      </p>
-                      <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover-elevate transition-all">
-                        {dlPhotoUrl ? (
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-center gap-2 text-green-600">
-                              <FileUp className="h-6 w-6" />
-                              <span className="font-medium">Driver's License Uploaded</span>
-                            </div>
-                            <ObjectUploader
-                              maxNumberOfFiles={1}
-                              maxFileSize={10485760}
-                              onGetUploadParameters={handleGetUploadParameters}
-                              onComplete={handleUploadComplete}
-                              buttonClassName="w-full"
-                            >
-                              <FileUp className="h-4 w-4 mr-2" />
-                              Change Photo
-                            </ObjectUploader>
-                          </div>
-                        ) : (
-                          <div>
-                            <FileUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                            <ObjectUploader
-                              maxNumberOfFiles={1}
-                              maxFileSize={10485760}
-                              onGetUploadParameters={handleGetUploadParameters}
-                              onComplete={handleUploadComplete}
-                              buttonClassName="w-full"
-                            >
-                              <FileUp className="h-4 w-4 mr-2" />
-                              Upload Driver's License
-                            </ObjectUploader>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Important Reminder */}
+                <Alert className="border-primary/50 bg-primary/5">
+                  <AlertCircle className="h-5 w-5 text-primary" />
+                  <AlertTitle className="text-primary font-semibold">Important Reminder</AlertTitle>
+                  <AlertDescription className="mt-2 text-muted-foreground">
+                    Please bring your <strong>valid driver's license</strong> with you when picking up the {vehicle.type}. 
+                    The license must match the vehicle category you're renting. Rental cannot proceed without proper license verification at pickup.
+                  </AlertDescription>
+                </Alert>
 
                 <Button 
                   type="submit" 
