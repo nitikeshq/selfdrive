@@ -58,15 +58,25 @@ Preferred communication style: Simple, everyday language.
 - Connection pooling for optimal performance
 
 **Schema Design**
-- Users table: email, password hash, profile info, role, driver's license photo URL
-- Vehicles table: owner reference, vehicle details (type, brand, model, year), pricing (hourly/daily), location, features array, availability status
-- Bookings table: customer/vehicle references, date range, pickup option, delivery address, payment info, status tracking
-- Sessions table: express-session storage for authentication state
+- **Users table**: email, password hash, profile info, role, KYC documents (Aadhar, PAN, DL), KYC verification status, DigiLocker integration, wallet balance, security deposit tracking, bidirectional ratings (as customer and as owner)
+- **Owner Addresses table**: multiple addresses per owner with default address selection, supports address changes
+- **Vehicles table**: owner reference, vehicle details (type, brand, model, year), pricing (hourly/daily), location, features array, extra insurance option, GPS tracking requirement, vehicle ratings, pause/active status
+- **Vehicle Documents table**: registration, RC, insurance, PUC documents with verification status and expiry tracking
+- **Bookings table**: customer/vehicle references, date range, pickup option, delivery address, payment info, insurance selection, video verification approval from both parties, status tracking, cancellation with refund logic
+- **Ratings table**: bidirectional ratings system (customer→owner, owner→customer, customer→vehicle)
+- **Challans table**: traffic violation tracking with date/time matching to identify responsible customer, proof uploads by owner
+- **Video Verifications table**: pickup video approval workflow requiring confirmation from both customer and owner
+- **Sessions table**: express-session storage for authentication state
 
 **Data Relationships**
 - One-to-many: Owner → Vehicles
+- One-to-many: Owner → Addresses
+- One-to-many: Vehicle → Documents
 - One-to-many: Customer → Bookings
 - One-to-many: Vehicle → Bookings
+- One-to-many: Booking → Ratings
+- One-to-many: Vehicle → Challans
+- One-to-many: Booking → Video Verifications
 
 ### External Dependencies
 
