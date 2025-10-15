@@ -95,8 +95,8 @@ export default function BookVehicle() {
       const bookingData = {
         userId: (user as any).id,
         vehicleId: vehicleId!,
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
+        startDate: data.startDate, // Send as ISO string directly
+        endDate: data.endDate, // Send as ISO string directly
         pickupOption: data.pickupOption,
         deliveryAddress: data.deliveryAddress || null,
         totalAmount: totalAmount.toString(),
@@ -107,8 +107,6 @@ export default function BookVehicle() {
         ownerEarnings: "0",
         status: "pending",
         paymentStatus: "pending",
-        pickupVideoApprovedByCustomer: false,
-        pickupVideoApprovedByOwner: false,
       };
 
       const response = await apiRequest("POST", "/api/bookings", bookingData);
