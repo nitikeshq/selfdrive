@@ -12,10 +12,11 @@ interface VehicleCardProps {
 export function VehicleCard({ vehicle }: VehicleCardProps) {
   return (
     <Card className="overflow-hidden hover-elevate active-elevate-2 transition-all" data-testid={`card-vehicle-${vehicle.id}`}>
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative h-48 overflow-hidden bg-muted">
         <img
           src={vehicle.imageUrl}
           alt={vehicle.name}
+          loading="lazy"
           className="w-full h-full object-cover"
         />
         <div className="absolute top-3 right-3">

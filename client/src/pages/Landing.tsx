@@ -47,6 +47,8 @@ export default function Landing() {
           <img
             src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070"
             alt="Hero"
+            loading="eager"
+            fetchPriority="high"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70" />
@@ -360,10 +362,11 @@ export default function Landing() {
                 </Button>
               </Link>
             </div>
-            <div className="relative h-80 rounded-xl overflow-hidden">
+            <div className="relative h-80 rounded-xl overflow-hidden bg-muted">
               <img
                 src="https://images.unsplash.com/photo-1542282088-fe8426682b8f?q=80&w=2069"
                 alt="Owner Dashboard"
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             </div>
