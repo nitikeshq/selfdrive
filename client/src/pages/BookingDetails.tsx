@@ -221,7 +221,7 @@ export default function BookingDetails() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Rental Amount</span>
-                <span className="font-medium">₹{(parseFloat(booking.totalAmount) - parseFloat(booking.deliveryCharge)).toFixed(2)}</span>
+                <span className="font-medium">₹{(parseFloat(booking.totalAmount) - parseFloat(booking.deliveryCharge || "0")).toFixed(2)}</span>
               </div>
               {parseFloat(booking.deliveryCharge || "0") > 0 && (
                 <div className="flex justify-between">
