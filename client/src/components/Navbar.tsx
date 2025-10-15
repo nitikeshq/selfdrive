@@ -1,11 +1,14 @@
 import { Link } from "wouter";
-import { Car, Menu, X, User } from "lucide-react";
+import { Car, Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "./ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   return (
     <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -26,18 +29,57 @@ export function Navbar() {
                 Browse Vehicles
               </span>
             </Link>
-            <Link href="/list-vehicle">
-              <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle">
-                List Your Vehicle
-              </span>
-            </Link>
+            {!isLoading && isAuthenticated && (
+              <>
+                <Link href="/dashboard">
+                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard">
+                    My Bookings
+                  </span>
+                </Link>
+                <Link href="/list-vehicle">
+                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle">
+                    List Vehicle
+                  </span>
+                </Link>
+              </>
+            )}
             <ThemeToggle />
-            <Link href="/login">
-              <Button variant="default" size="default" data-testid="button-login">
+            {isLoading ? (
+              <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
+            ) : isAuthenticated && user ? (
+              <div className="flex items-center gap-3">
+                <Link href="/dashboard">
+                  <div className="flex items-center gap-2 cursor-pointer hover-elevate px-2 py-1 rounded-md transition-all">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.profileImageUrl || undefined} />
+                      <AvatarFallback>
+                        {user.firstName?.charAt(0) || user.email?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium">{user.firstName || "User"}</span>
+                  </div>
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = "/api/logout"}
+                  data-testid="button-logout"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="default"
+                size="default"
+                onClick={() => window.location.href = "/api/login"}
+                data-testid="button-login"
+              >
                 <User className="h-4 w-4 mr-2" />
                 Login
               </Button>
-            </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -63,17 +105,41 @@ export function Navbar() {
                   Browse Vehicles
                 </span>
               </Link>
-              <Link href="/list-vehicle">
-                <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle-mobile">
-                  List Your Vehicle
-                </span>
-              </Link>
-              <Link href="/login">
-                <Button variant="default" className="w-full" data-testid="button-login-mobile">
+              {!isLoading && isAuthenticated && (
+                <>
+                  <Link href="/dashboard">
+                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard-mobile">
+                      My Bookings
+                    </span>
+                  </Link>
+                  <Link href="/list-vehicle">
+                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle-mobile">
+                      List Vehicle
+                    </span>
+                  </Link>
+                </>
+              )}
+              {!isLoading && isAuthenticated ? (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => window.location.href = "/api/logout"}
+                  data-testid="button-logout-mobile"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  className="w-full"
+                  onClick={() => window.location.href = "/api/login"}
+                  data-testid="button-login-mobile"
+                >
                   <User className="h-4 w-4 mr-2" />
                   Login
                 </Button>
-              </Link>
+              )}
             </div>
           </div>
         )}
