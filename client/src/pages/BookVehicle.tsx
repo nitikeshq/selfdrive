@@ -274,54 +274,51 @@ export default function BookVehicle() {
                               onValueChange={(value) => {
                                 field.onChange(value);
                                 setSelectedOption(value as "parking" | "delivery");
+                                // Clear delivery address when switching to parking
+                                if (value === "parking") {
+                                  form.setValue("deliveryAddress", "");
+                                }
                               }}
                               value={field.value}
                               className="space-y-4"
                             >
-                              <div
+                              <Label
+                                htmlFor="parking"
                                 className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-all cursor-pointer hover-elevate ${
                                   selectedOption === "parking" ? "border-primary bg-primary/5" : "border-border"
                                 }`}
-                                onClick={() => {
-                                  field.onChange("parking");
-                                  setSelectedOption("parking");
-                                  form.setValue("deliveryAddress", "");
-                                }}
                               >
                                 <RadioGroupItem value="parking" id="parking" data-testid="radio-parking" />
                                 <div className="flex-1">
-                                  <Label htmlFor="parking" className="flex items-center gap-2 cursor-pointer">
+                                  <div className="flex items-center gap-2">
                                     <MapPin className="h-5 w-5 text-accent-foreground" />
                                     <span className="font-semibold">Self-Pickup from Parking</span>
-                                  </Label>
+                                  </div>
                                   <p className="text-sm text-muted-foreground mt-1">
                                     Pick up from {vehicle.location}
                                   </p>
                                   <Badge variant="secondary" className="mt-2">Standard Pricing</Badge>
                                 </div>
-                              </div>
+                              </Label>
 
-                              <div
+                              <Label
+                                htmlFor="delivery"
                                 className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-all cursor-pointer hover-elevate ${
                                   selectedOption === "delivery" ? "border-primary bg-primary/5" : "border-border"
                                 }`}
-                                onClick={() => {
-                                  field.onChange("delivery");
-                                  setSelectedOption("delivery");
-                                }}
                               >
                                 <RadioGroupItem value="delivery" id="delivery" data-testid="radio-delivery" />
                                 <div className="flex-1">
-                                  <Label htmlFor="delivery" className="flex items-center gap-2 cursor-pointer">
+                                  <div className="flex items-center gap-2">
                                     <TruckIcon className="h-5 w-5 text-primary" />
                                     <span className="font-semibold">Doorstep Delivery</span>
-                                  </Label>
+                                  </div>
                                   <p className="text-sm text-muted-foreground mt-1">
                                     Get vehicle delivered to your address
                                   </p>
                                   <Badge className="mt-2">+ ₹200 Delivery Charge</Badge>
                                 </div>
-                              </div>
+                              </Label>
                             </RadioGroup>
                           </FormControl>
                           <FormMessage />
