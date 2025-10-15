@@ -870,14 +870,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/users/kyc", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.session.userId;
-      const { aadharNumber, panNumber, dlNumber, dlPhotoUrl, digilockerVerified } = req.body;
+      const { aadharNumber, panNumber, dlNumber, dlPhotoUrl, digilockerLinked } = req.body;
 
       const updateData: any = {};
       if (aadharNumber) updateData.aadharNumber = aadharNumber;
       if (panNumber) updateData.panNumber = panNumber;
       if (dlNumber) updateData.dlNumber = dlNumber;
       if (dlPhotoUrl) updateData.dlPhotoUrl = dlPhotoUrl;
-      if (digilockerVerified !== undefined) updateData.digilockerVerified = digilockerVerified;
+      if (digilockerLinked !== undefined) updateData.digilockerLinked = digilockerLinked;
 
       const user = await storage.updateUser(userId, updateData);
       if (!user) {
@@ -901,7 +901,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         aadharVerified: !!user.aadharNumber,
         panVerified: !!user.panNumber,
         dlVerified: !!user.dlNumber && !!user.dlPhotoUrl,
-        digilockerVerified: user.digilockerVerified || false,
+        digilockerLinked: user.digilockerLinked || false,
         isKycComplete: !!(user.aadharNumber && user.panNumber && user.dlNumber && user.dlPhotoUrl)
       };
 
@@ -926,12 +926,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "User not found" });
       }
 
-      const currentDeposit = parseFloat(user.securityDeposit || "0");
+      const currentDeposit = parseFloat(user.securityDepositAmount || "0");
       const newDeposit = currentDeposit + parseFloat(amount);
 
       const updatedUser = await storage.updateUser(userId, {
-        securityDeposit: newDeposit.toString(),
-        securityDepositTransactionId: transactionId || null,
+        securityDepositAmount: newDeposit.toString(),
+        securityDepositPaid: true,
       });
 
       res.json({
