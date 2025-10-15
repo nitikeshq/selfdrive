@@ -1,4 +1,5 @@
-import { Link } from "wouter";
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,11 +21,23 @@ import { useQuery } from "@tanstack/react-query";
 import type { Vehicle } from "@shared/schema";
 
 export default function Landing() {
+  const [, setLocation] = useLocation();
+  const [searchLocation, setSearchLocation] = useState("Bhubaneswar");
+  const [searchDate, setSearchDate] = useState("");
+  const [searchType, setSearchType] = useState("");
+
   const { data: vehicles, isLoading } = useQuery<Vehicle[]>({
     queryKey: ["/api/vehicles"],
   });
 
   const featuredVehicles = vehicles?.slice(0, 6) || [];
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchLocation) params.append("location", searchLocation);
+    if (searchType) params.append("type", searchType);
+    setLocation(`/?${params.toString()}`);
+  };
 
   return (
     <div className="min-h-screen">
@@ -55,31 +68,41 @@ export default function Landing() {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Location</label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        placeholder="Enter location" 
-                        className="pl-10"
-                        data-testid="input-search-location"
-                      />
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                      <select 
+                        className="w-full h-9 rounded-md border border-input bg-background pl-10 pr-3 text-sm"
+                        value={searchLocation}
+                        onChange={(e) => setSearchLocation(e.target.value)}
+                        data-testid="select-search-location"
+                      >
+                        <option value="Bhubaneswar">Bhubaneswar</option>
+                      </select>
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">Pickup Date & Time</label>
                     <Input 
-                      type="datetime-local" 
+                      type="datetime-local"
+                      value={searchDate}
+                      onChange={(e) => setSearchDate(e.target.value)}
                       data-testid="input-search-datetime"
                     />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">Vehicle Type</label>
-                    <select className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm" data-testid="select-vehicle-type">
+                    <select 
+                      className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                      value={searchType}
+                      onChange={(e) => setSearchType(e.target.value)}
+                      data-testid="select-vehicle-type"
+                    >
                       <option value="">All Types</option>
                       <option value="car">Cars</option>
                       <option value="bike">Bikes</option>
                     </select>
                   </div>
                 </div>
-                <Button size="lg" className="w-full mt-4" data-testid="button-search">
+                <Button size="lg" className="w-full mt-4" onClick={handleSearch} data-testid="button-search">
                   <Search className="h-5 w-5 mr-2" />
                   Search Vehicles
                 </Button>
