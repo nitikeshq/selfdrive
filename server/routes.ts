@@ -4,13 +4,9 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin, isOwner, hashPassword, comparePassword } from "./auth";
 import { insertVehicleSchema, insertBookingSchema } from "@shared/schema";
 import { z } from "zod";
-import Stripe from "stripe";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-09-30.clover",
-});
+import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup auth middleware
@@ -297,60 +293,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe payment intent creation
-  app.post("/api/create-payment-intent", async (req, res) => {
+  // PayU payment initialization
+  app.post("/api/create-payment", async (req, res) => {
     try {
-      const { amount, bookingId } = req.body;
+      const { amount, bookingId, userEmail, userFirstName, userPhone } = req.body;
 
-      if (!amount || !bookingId) {
-        return res.status(400).json({ error: "Amount and booking ID required" });
+      if (!amount || !bookingId || !userEmail || !userFirstName) {
+        return res.status(400).json({ error: "Required payment details missing" });
       }
 
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: "inr",
-        metadata: { bookingId },
+      const key = process.env.PAYU_MERCHANT_KEY;
+      const salt = process.env.PAYU_SALT;
+      
+      if (!key || !salt) {
+        return res.status(500).json({ error: "Payment gateway not configured" });
+      }
+
+      // Generate unique transaction ID
+      const txnid = `TXN${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+      
+      const productinfo = `Vehicle Booking - ${bookingId}`;
+      const firstname = userFirstName;
+      const email = userEmail;
+      const phone = userPhone || "0000000000";
+      
+      // Success and failure URLs
+      const surl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/api/payment-success`;
+      const furl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/api/payment-failure`;
+
+      // Generate hash: sha512(key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||SALT)
+      const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
+      const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+
+      // Store txnid with bookingId for later verification
+      await storage.updateBooking(bookingId, {
+        paymentIntentId: txnid,
       });
 
-      res.json({ clientSecret: paymentIntent.client_secret });
+      const paymentData = {
+        key,
+        txnid,
+        amount: amount.toString(),
+        productinfo,
+        firstname,
+        email,
+        phone,
+        surl,
+        furl,
+        hash,
+        // Use test environment if in development
+        paymentUrl: process.env.NODE_ENV === 'production' 
+          ? 'https://secure.payu.in/_payment'
+          : 'https://test.payu.in/_payment'
+      };
+
+      res.json(paymentData);
     } catch (error) {
-      console.error("Stripe error:", error);
-      res.status(500).json({ error: "Failed to create payment intent" });
+      console.error("PayU payment creation error:", error);
+      res.status(500).json({ error: "Failed to create payment" });
     }
   });
 
-  // Webhook to handle payment confirmation
-  app.post("/api/stripe-webhook", async (req, res) => {
-    const sig = req.headers["stripe-signature"];
-
-    if (!sig) {
-      return res.status(400).send("No signature");
-    }
-
+  // PayU success callback
+  app.post("/api/payment-success", async (req, res) => {
     try {
-      const event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET || ""
-      );
+      const { txnid, status, hash: responseHash, mihpayid } = req.body;
+      
+      const salt = process.env.PAYU_SALT;
+      const key = process.env.PAYU_MERCHANT_KEY;
 
-      if (event.type === "payment_intent.succeeded") {
-        const paymentIntent = event.data.object;
-        const bookingId = paymentIntent.metadata.bookingId;
+      // Verify hash to ensure response is authentic
+      const hashString = `${salt}|${status}|||||||||||${req.body.email}|${req.body.firstname}|${req.body.productinfo}|${req.body.amount}|${txnid}|${key}`;
+      const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
 
-        if (bookingId) {
-          await storage.updateBooking(bookingId, {
-            paymentStatus: "paid",
-            status: "confirmed",
-            paymentIntentId: paymentIntent.id,
-          });
-        }
+      if (calculatedHash !== responseHash) {
+        return res.status(400).send("Invalid payment response");
       }
 
-      res.json({ received: true });
+      // Find booking by transaction ID
+      const bookings = await storage.getAllBookings();
+      const booking = bookings.find(b => b.paymentIntentId === txnid);
+
+      if (booking && status === "success") {
+        await storage.updateBooking(booking.id, {
+          paymentStatus: "paid",
+          status: "confirmed",
+          paymentIntentId: mihpayid || txnid,
+        });
+      }
+
+      // Redirect to success page
+      res.redirect(`/?payment=success&bookingId=${booking?.id}`);
     } catch (error) {
-      console.error("Webhook error:", error);
-      res.status(400).send("Webhook error");
+      console.error("Payment success callback error:", error);
+      res.redirect("/?payment=error");
+    }
+  });
+
+  // PayU failure callback
+  app.post("/api/payment-failure", async (req, res) => {
+    try {
+      const { txnid } = req.body;
+      
+      // Find booking by transaction ID and mark as failed
+      const bookings = await storage.getAllBookings();
+      const booking = bookings.find(b => b.paymentIntentId === txnid);
+
+      if (booking) {
+        await storage.updateBooking(booking.id, {
+          paymentStatus: "failed",
+        });
+      }
+
+      res.redirect(`/?payment=failed&bookingId=${booking?.id}`);
+    } catch (error) {
+      console.error("Payment failure callback error:", error);
+      res.redirect("/?payment=error");
     }
   });
 

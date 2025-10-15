@@ -17,8 +17,6 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import type { Vehicle } from "@shared/schema";
 import type { UploadResult } from "@uppy/core";
 
@@ -32,7 +30,6 @@ const bookingFormSchema = z.object({
 
 type BookingFormData = z.infer<typeof bookingFormSchema>;
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
 
 export default function BookVehicle() {
   const [, params] = useRoute("/book/:id");
@@ -40,7 +37,7 @@ export default function BookVehicle() {
   const vehicleId = params?.id;
   const [selectedOption, setSelectedOption] = useState<"parking" | "delivery">("parking");
   const [dlPhotoUrl, setDlPhotoUrl] = useState<string>("");
-  const [clientSecret, setClientSecret] = useState<string>("");
+  const [paymentData, setPaymentData] = useState<any | null>(null);
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -139,12 +136,15 @@ export default function BookVehicle() {
       return response.json();
     },
     onSuccess: async (booking) => {
-      const response = await apiRequest("POST", "/api/create-payment-intent", {
+      const response = await apiRequest("POST", "/api/create-payment", {
         amount: totalAmount,
         bookingId: booking.id,
+        userEmail: (user as any).email,
+        userFirstName: (user as any).firstName,
+        userPhone: (user as any).phone || "0000000000",
       });
       const data = await response.json();
-      setClientSecret(data.clientSecret);
+      setPaymentData(data);
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
     },
     onError: (error: Error) => {
@@ -498,88 +498,62 @@ export default function BookVehicle() {
         </div>
       </div>
 
-      {/* Payment Modal */}
-      {clientSecret && (
+      {/* Payment Modal - PayU Integration */}
+      {paymentData && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-background rounded-lg max-w-md w-full p-6">
             <h2 className="text-2xl font-bold mb-4">Complete Payment</h2>
-            <p className="text-muted-foreground mb-6">
-              Complete your payment to confirm the booking
+            <p className="text-muted-foreground mb-4">
+              You will be redirected to PayU secure payment gateway
             </p>
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <PaymentForm 
-                onSuccess={() => {
-                  toast({
-                    title: "Payment Successful",
-                    description: "Your booking has been confirmed!",
-                  });
-                  setLocation("/dashboard");
-                }}
-              />
-            </Elements>
+            <div className="bg-muted/50 p-4 rounded-lg mb-6">
+              <p className="text-sm mb-2">
+                <strong>Amount:</strong> ₹{paymentData.amount}
+              </p>
+              <p className="text-sm mb-2">
+                <strong>Transaction ID:</strong> {paymentData.txnid}
+              </p>
+            </div>
+            <form 
+              action={paymentData.paymentUrl} 
+              method="post" 
+              id="payuForm"
+              ref={(form) => {
+                if (form) {
+                  // Auto-submit after a brief delay
+                  setTimeout(() => form.submit(), 1000);
+                }
+              }}
+            >
+              <input type="hidden" name="key" value={paymentData.key} />
+              <input type="hidden" name="txnid" value={paymentData.txnid} />
+              <input type="hidden" name="amount" value={paymentData.amount} />
+              <input type="hidden" name="productinfo" value={paymentData.productinfo} />
+              <input type="hidden" name="firstname" value={paymentData.firstname} />
+              <input type="hidden" name="email" value={paymentData.email} />
+              <input type="hidden" name="phone" value={paymentData.phone} />
+              <input type="hidden" name="surl" value={paymentData.surl} />
+              <input type="hidden" name="furl" value={paymentData.furl} />
+              <input type="hidden" name="hash" value={paymentData.hash} />
+              <Button 
+                type="submit" 
+                className="w-full" 
+                data-testid="button-confirm-payment"
+              >
+                <CreditCard className="h-5 w-5 mr-2" />
+                Proceed to Payment
+              </Button>
+            </form>
+            <Button 
+              variant="outline" 
+              className="w-full mt-3"
+              onClick={() => setPaymentData(null)}
+            >
+              Cancel
+            </Button>
           </div>
         </div>
       )}
     </div>
-  );
-}
-
-function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { toast } = useToast();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/dashboard`,
-      },
-      redirect: "if_required",
-    });
-
-    if (error) {
-      toast({
-        title: "Payment Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      setIsProcessing(false);
-    } else {
-      onSuccess();
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
-      <Button 
-        type="submit" 
-        className="w-full" 
-        disabled={!stripe || isProcessing}
-        data-testid="button-confirm-payment"
-      >
-        {isProcessing ? (
-          <>
-            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
-            Processing...
-          </>
-        ) : (
-          <>
-            <CreditCard className="h-5 w-5 mr-2" />
-            Pay Now
-          </>
-        )}
-      </Button>
-    </form>
   );
 }
