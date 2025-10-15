@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import type { BookingWithDetails } from "@shared/schema";
 import { format } from "date-fns";
 
 export default function Dashboard() {
+  const [, setLocation] = useLocation();
   const { data: bookings, isLoading } = useQuery<BookingWithDetails[]>({
     queryKey: ["/api/bookings"],
   });
@@ -59,7 +61,7 @@ export default function Dashboard() {
               <p className="text-muted-foreground mb-4">
                 You don't have any active bookings at the moment
               </p>
-              <Button data-testid="button-browse-vehicles">Browse Vehicles</Button>
+              <Button onClick={() => setLocation("/")} data-testid="button-browse-vehicles">Browse Vehicles</Button>
             </Card>
           ) : (
             <div className="grid grid-cols-1 gap-6">
