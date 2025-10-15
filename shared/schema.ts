@@ -111,7 +111,11 @@ export const vehicles = pgTable("vehicles", {
   available: boolean("available").notNull().default(true),
   isPaused: boolean("is_paused").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  ownerIdx: index("vehicles_owner_idx").on(table.ownerId),
+  availableIdx: index("vehicles_available_idx").on(table.available),
+  typeIdx: index("vehicles_type_idx").on(table.type),
+}));
 
 // Vehicle Documents table
 export const vehicleDocuments = pgTable("vehicle_documents", {
@@ -159,7 +163,12 @@ export const bookings = pgTable("bookings", {
   pickupVideoApprovedAt: timestamp("pickup_video_approved_at"),
   
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  userIdx: index("bookings_user_idx").on(table.userId),
+  vehicleIdx: index("bookings_vehicle_idx").on(table.vehicleId),
+  statusIdx: index("bookings_status_idx").on(table.status),
+  datesIdx: index("bookings_dates_idx").on(table.startDate, table.endDate),
+}));
 
 // Ratings table (bidirectional - customer rates owner, owner rates customer)
 export const ratings = pgTable("ratings", {
