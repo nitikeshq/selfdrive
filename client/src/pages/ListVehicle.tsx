@@ -22,6 +22,7 @@ const vehicleFormSchema = z.object({
   pricePerHour: z.number().min(1, "Hourly price is required"),
   pricePerDay: z.number().min(1, "Daily price is required"),
   location: z.string().min(1, "Location is required"),
+  ownerLocation: z.string().min(1, "Owner location is required"),
   features: z.string().optional(),
   imageUrl: z.string().url("Valid image URL is required"),
 });
@@ -46,6 +47,7 @@ export default function ListVehicle() {
       pricePerHour: 0,
       pricePerDay: 0,
       location: "",
+      ownerLocation: "",
       features: "",
       imageUrl: "",
     },
@@ -245,9 +247,30 @@ export default function ListVehicle() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Location</FormLabel>
+                        <FormLabel>Vehicle Parking Location</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Mumbai" {...field} data-testid="input-location" />
+                          <Input placeholder="e.g., Patia, Khandagiri" {...field} data-testid="input-location" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="ownerLocation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Owner Location</FormLabel>
+                        <FormControl>
+                          <select
+                            {...field}
+                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            data-testid="select-owner-location"
+                          >
+                            <option value="">Select your location</option>
+                            <option value="Bhubaneswar">Bhubaneswar</option>
+                          </select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
