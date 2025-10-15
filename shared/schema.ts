@@ -91,6 +91,9 @@ export const vehicles = pgTable("vehicles", {
   pricePerHour: decimal("price_per_hour", { precision: 10, scale: 2 }).notNull(),
   pricePerDay: decimal("price_per_day", { precision: 10, scale: 2 }).notNull(),
   location: text("location").notNull(),
+  locationPlaceId: text("location_place_id"), // Google Places ID for parking location
+  locationLat: decimal("location_lat", { precision: 10, scale: 7 }),
+  locationLng: decimal("location_lng", { precision: 10, scale: 7 }),
   ownerLocation: text("owner_location").notNull().default("Bhubaneswar"),
   imageUrl: text("image_url").notNull(),
   features: text("features").array(),
