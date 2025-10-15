@@ -48,7 +48,6 @@ export default function Landing() {
             src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070"
             alt="Hero"
             loading="eager"
-            fetchPriority="high"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70" />
