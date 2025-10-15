@@ -5,6 +5,8 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertVehicleSchema, insertBookingSchema } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { ObjectPermission } from "./objectAcl";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-12-18.acacia",
@@ -278,6 +280,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ available: isAvailable });
     } catch (error) {
       res.status(500).json({ error: "Failed to check availability" });
+    }
+  });
+
+  // Object storage routes for serving protected files (DL photos)
+  app.get("/objects/:objectPath(*)", isAuthenticated, async (req: any, res) => {
+    const userId = req.user?.claims?.sub;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(
+        req.path,
+      );
+      const canAccess = await objectStorageService.canAccessObjectEntity({
+        objectFile,
+        userId: userId,
+        requestedPermission: ObjectPermission.READ,
+      });
+      if (!canAccess) {
+        return res.sendStatus(401);
+      }
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error checking object access:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  // Object storage upload URL endpoint
+  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+    res.json({ uploadURL });
+  });
+
+  // Update DL photo with ACL policy after upload
+  app.put("/api/dl-photos", isAuthenticated, async (req: any, res) => {
+    if (!req.body.dlPhotoURL) {
+      return res.status(400).json({ error: "dlPhotoURL is required" });
+    }
+
+    const userId = req.user?.claims?.sub;
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        req.body.dlPhotoURL,
+        {
+          owner: userId,
+          visibility: "private",
+        },
+      );
+
+      res.status(200).json({
+        objectPath: objectPath,
+      });
+    } catch (error) {
+      console.error("Error setting DL photo:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 

@@ -1,5 +1,5 @@
-import { useRoute } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useRoute, useLocation } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,23 +13,36 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar, MapPin, TruckIcon, FileUp, CreditCard, Users, Fuel, Settings } from "lucide-react";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import type { Vehicle } from "@shared/schema";
+import type { UploadResult } from "@uppy/core";
 
 const bookingFormSchema = z.object({
   startDate: z.string().min(1, "Pickup date is required"),
   endDate: z.string().min(1, "Return date is required"),
   pickupOption: z.enum(["parking", "delivery"]),
   deliveryAddress: z.string().optional(),
-  dlPhoto: z.instanceof(File).optional(),
+  dlPhotoUrl: z.string().min(1, "Driver's license photo is required"),
 });
 
 type BookingFormData = z.infer<typeof bookingFormSchema>;
 
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
+
 export default function BookVehicle() {
   const [, params] = useRoute("/book/:id");
+  const [, setLocation] = useLocation();
   const vehicleId = params?.id;
   const [selectedOption, setSelectedOption] = useState<"parking" | "delivery">("parking");
-  const [dlPreview, setDlPreview] = useState<string>("");
+  const [dlPhotoUrl, setDlPhotoUrl] = useState<string>("");
+  const [clientSecret, setClientSecret] = useState<string>("");
+  const { toast } = useToast();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
   const { data: vehicle, isLoading } = useQuery<Vehicle>({
     queryKey: ["/api/vehicles", vehicleId],
@@ -43,6 +56,7 @@ export default function BookVehicle() {
       startDate: "",
       endDate: "",
       deliveryAddress: "",
+      dlPhotoUrl: "",
     },
   });
 
@@ -68,21 +82,101 @@ export default function BookVehicle() {
   const totalAmount = calculateTotal(watchedStartDate, watchedEndDate);
   const deliveryCharge = selectedOption === "delivery" ? 200 : 0;
 
-  const handleDlUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      form.setValue("dlPhoto", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setDlPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleGetUploadParameters = async () => {
+    const response = await apiRequest("POST", "/api/objects/upload");
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  };
+
+  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedUrl = result.successful[0].uploadURL;
+      
+      try {
+        const response = await apiRequest("PUT", "/api/dl-photos", { dlPhotoURL: uploadedUrl });
+        const data = await response.json();
+        setDlPhotoUrl(data.objectPath);
+        form.setValue("dlPhotoUrl", data.objectPath);
+        toast({
+          title: "Success",
+          description: "Driver's license uploaded successfully",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to process driver's license",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const onSubmit = (data: BookingFormData) => {
-    console.log("Booking data:", data);
-    // This will be connected to backend in Phase 2
+  const createBookingMutation = useMutation({
+    mutationFn: async (data: BookingFormData) => {
+      if (!isAuthenticated || !user) {
+        throw new Error("User not authenticated");
+      }
+
+      const bookingData = {
+        userId: (user as any).id,
+        vehicleId: vehicleId!,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
+        pickupOption: data.pickupOption,
+        deliveryAddress: data.deliveryAddress || null,
+        dlPhotoUrl: data.dlPhotoUrl,
+        totalAmount: totalAmount.toString(),
+        deliveryCharge: deliveryCharge.toString(),
+        status: "pending",
+        paymentStatus: "pending",
+      };
+
+      const response = await apiRequest("POST", "/api/bookings", bookingData);
+
+      return response.json();
+    },
+    onSuccess: async (booking) => {
+      const response = await apiRequest("POST", "/api/create-payment-intent", {
+        amount: totalAmount,
+        bookingId: booking.id,
+      });
+      const data = await response.json();
+      setClientSecret(data.clientSecret);
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create booking",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = async (data: BookingFormData) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to complete booking",
+        variant: "destructive",
+      });
+      window.location.href = "/api/login";
+      return;
+    }
+
+    if (!data.dlPhotoUrl) {
+      toast({
+        title: "Required",
+        description: "Please upload your driver's license",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createBookingMutation.mutate(data);
   };
 
   if (isLoading) {
@@ -299,50 +393,61 @@ export default function BookVehicle() {
                         Please upload a clear photo of your driver's license for verification
                       </p>
                       <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover-elevate transition-all">
-                        {dlPreview ? (
+                        {dlPhotoUrl ? (
                           <div className="space-y-4">
-                            <img
-                              src={dlPreview}
-                              alt="DL Preview"
-                              className="max-h-48 mx-auto rounded-lg"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => document.getElementById("dl-upload")?.click()}
-                              data-testid="button-change-dl"
+                            <div className="flex items-center justify-center gap-2 text-green-600">
+                              <FileUp className="h-6 w-6" />
+                              <span className="font-medium">Driver's License Uploaded</span>
+                            </div>
+                            <ObjectUploader
+                              maxNumberOfFiles={1}
+                              maxFileSize={10485760}
+                              onGetUploadParameters={handleGetUploadParameters}
+                              onComplete={handleUploadComplete}
+                              buttonClassName="w-full"
                             >
+                              <FileUp className="h-4 w-4 mr-2" />
                               Change Photo
-                            </Button>
+                            </ObjectUploader>
                           </div>
                         ) : (
                           <div>
                             <FileUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => document.getElementById("dl-upload")?.click()}
-                              data-testid="button-upload-dl"
+                            <ObjectUploader
+                              maxNumberOfFiles={1}
+                              maxFileSize={10485760}
+                              onGetUploadParameters={handleGetUploadParameters}
+                              onComplete={handleUploadComplete}
+                              buttonClassName="w-full"
                             >
+                              <FileUp className="h-4 w-4 mr-2" />
                               Upload Driver's License
-                            </Button>
+                            </ObjectUploader>
                           </div>
                         )}
-                        <input
-                          id="dl-upload"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleDlUpload}
-                        />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Button type="submit" size="lg" className="w-full" data-testid="button-proceed-payment">
-                  <CreditCard className="h-5 w-5 mr-2" />
-                  Proceed to Payment
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full" 
+                  data-testid="button-proceed-payment"
+                  disabled={createBookingMutation.isPending}
+                >
+                  {createBookingMutation.isPending ? (
+                    <>
+                      <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
+                      Creating Booking...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="h-5 w-5 mr-2" />
+                      Proceed to Payment
+                    </>
+                  )}
                 </Button>
               </form>
             </Form>
@@ -392,6 +497,89 @@ export default function BookVehicle() {
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {clientSecret && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold mb-4">Complete Payment</h2>
+            <p className="text-muted-foreground mb-6">
+              Complete your payment to confirm the booking
+            </p>
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <PaymentForm 
+                onSuccess={() => {
+                  toast({
+                    title: "Payment Successful",
+                    description: "Your booking has been confirmed!",
+                  });
+                  setLocation("/dashboard");
+                }}
+              />
+            </Elements>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/dashboard`,
+      },
+      redirect: "if_required",
+    });
+
+    if (error) {
+      toast({
+        title: "Payment Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+    } else {
+      onSuccess();
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <PaymentElement />
+      <Button 
+        type="submit" 
+        className="w-full" 
+        disabled={!stripe || isProcessing}
+        data-testid="button-confirm-payment"
+      >
+        {isProcessing ? (
+          <>
+            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
+            Processing...
+          </>
+        ) : (
+          <>
+            <CreditCard className="h-5 w-5 mr-2" />
+            Pay Now
+          </>
+        )}
+      </Button>
+    </form>
   );
 }
