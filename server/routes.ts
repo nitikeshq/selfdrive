@@ -312,6 +312,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/bookings/:id/cancel", async (req, res) => {
+    try {
+      const bookingDetails = await storage.getBooking(req.params.id);
+      if (!bookingDetails) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+
+      const booking = bookingDetails;
+      if (booking.status === 'cancelled') {
+        return res.status(400).json({ error: "Booking already cancelled" });
+      }
+
+      const now = new Date();
+      const startDate = new Date(booking.startDate);
+      const hoursUntilStart = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+      
+      let refundPercentage = 0;
+      let refundAmount = 0;
+      const totalAmount = parseFloat(booking.totalAmount);
+      const processingFee = totalAmount * 0.02; // 2% processing fee
+
+      if (hoursUntilStart < 24) {
+        // Less than 24 hours: 60% refund
+        refundPercentage = 60;
+        refundAmount = totalAmount * 0.6;
+      } else if (hoursUntilStart >= 72) {
+        // 3+ days (72+ hours): 100% refund minus processing fee
+        refundPercentage = 100;
+        refundAmount = totalAmount - processingFee;
+      } else {
+        // Between 24-72 hours: 80% refund
+        refundPercentage = 80;
+        refundAmount = totalAmount * 0.8;
+      }
+
+      const updatedBooking = await storage.updateBooking(req.params.id, {
+        status: 'cancelled',
+        paymentStatus: 'partially_refunded',
+        refundAmount: refundAmount.toString(),
+        cancelledAt: now,
+      });
+
+      res.json({
+        booking: updatedBooking,
+        refundAmount,
+        refundPercentage,
+        message: `Booking cancelled. Refund of ₹${refundAmount.toFixed(2)} (${refundPercentage}%) will be processed.`
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to cancel booking" });
+    }
+  });
+
   // Owner bookings routes
   app.get("/api/owner/bookings", async (req, res) => {
     try {
