@@ -380,7 +380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // PayU payment initialization
+  // PayU payment initialization with split payment (30% commission)
   app.post("/api/create-payment", async (req, res) => {
     try {
       const { amount, bookingId, userEmail, userFirstName, userPhone } = req.body;
@@ -394,6 +394,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!key || !salt) {
         return res.status(500).json({ error: "Payment gateway not configured" });
+      }
+
+      // Get booking with vehicle and owner details
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+
+      const vehicle = await storage.getVehicle(booking.vehicleId);
+      if (!vehicle) {
+        return res.status(404).json({ error: "Vehicle not found" });
+      }
+
+      const owner = await storage.getUser(vehicle.ownerId);
+      if (!owner) {
+        return res.status(404).json({ error: "Owner not found" });
+      }
+
+      // Calculate platform commission (30%) and owner earnings (70%)
+      const PLATFORM_COMMISSION_RATE = 0.30;
+      const totalAmount = parseFloat(amount);
+      const platformCommission = totalAmount * PLATFORM_COMMISSION_RATE;
+      const ownerEarnings = totalAmount * (1 - PLATFORM_COMMISSION_RATE);
+
+      // Validate owner has PayU vendor ID for split payment
+      if (!owner.payuVendorId) {
+        return res.status(400).json({ 
+          error: "Owner payment details not configured. Please contact support." 
+        });
       }
 
       // Generate unique transaction ID
@@ -412,9 +441,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
       const hash = crypto.createHash('sha512').update(hashString).digest('hex');
 
-      // Store txnid with bookingId for later verification
+      // Store txnid and payment split details with bookingId
       await storage.updateBooking(bookingId, {
         paymentIntentId: txnid,
+        platformCommission: platformCommission.toFixed(2),
+        ownerEarnings: ownerEarnings.toFixed(2),
       });
 
       const paymentData = {
@@ -428,6 +459,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         surl,
         furl,
         hash,
+        // PayU Marketplace Split Payment - owner gets 70% after 7 days
+        split_info: JSON.stringify({
+          vendor_id: owner.payuVendorId,
+          vendor_amount: ownerEarnings.toFixed(2),
+          platform_amount: platformCommission.toFixed(2),
+        }),
         // Use test environment if in development
         paymentUrl: process.env.NODE_ENV === 'production' 
           ? 'https://secure.payu.in/_payment'
