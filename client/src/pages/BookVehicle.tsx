@@ -24,7 +24,18 @@ const bookingFormSchema = z.object({
   endDate: z.string().min(1, "Return date is required"),
   pickupOption: z.enum(["parking", "delivery"]),
   deliveryAddress: z.string().optional(),
-});
+}).refine(
+  (data) => {
+    if (data.pickupOption === "delivery") {
+      return data.deliveryAddress && data.deliveryAddress.trim().length > 0;
+    }
+    return true;
+  },
+  {
+    message: "Delivery address is required for doorstep delivery",
+    path: ["deliveryAddress"],
+  }
+);
 
 type BookingFormData = z.infer<typeof bookingFormSchema>;
 
@@ -90,8 +101,14 @@ export default function BookVehicle() {
         deliveryAddress: data.deliveryAddress || null,
         totalAmount: totalAmount.toString(),
         deliveryCharge: deliveryCharge.toString(),
+        hasExtraInsurance: false,
+        insuranceAmount: "0",
+        platformCommission: "0",
+        ownerEarnings: "0",
         status: "pending",
         paymentStatus: "pending",
+        pickupVideoApprovedByCustomer: false,
+        pickupVideoApprovedByOwner: false,
       };
 
       const response = await apiRequest("POST", "/api/bookings", bookingData);
@@ -268,6 +285,7 @@ export default function BookVehicle() {
                                 onClick={() => {
                                   field.onChange("parking");
                                   setSelectedOption("parking");
+                                  form.setValue("deliveryAddress", "");
                                 }}
                               >
                                 <RadioGroupItem value="parking" id="parking" data-testid="radio-parking" />
