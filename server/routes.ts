@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdmin, isOwner, hashPassword, comparePassword } from "./auth";
 import { insertVehicleSchema, insertBookingSchema } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
@@ -9,7 +9,7 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2025-09-30.clover",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -17,11 +17,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
+  app.post("/api/register", async (req, res) => {
+    try {
+      const { email, password, firstName, lastName, role } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password required" });
+      }
+
+      // Check if user exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await hashPassword(password);
+
+      // Create user
+      const user = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        role: role || "customer",
+      });
+
+      // Create session
+      (req.session as any).userId = user.id;
+
+      res.status(201).json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      });
+    } catch (error) {
+      console.error("Register error:", error);
+      res.status(500).json({ message: "Failed to register" });
+    }
+  });
+
+  app.post("/api/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password required" });
+      }
+
+      // Get user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Verify password
+      const validPassword = await comparePassword(password, user.password);
+      if (!validPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Create session
+      (req.session as any).userId = user.id;
+
+      res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Failed to login" });
+    }
+  });
+
+  app.post("/api/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Failed to logout" });
+      }
+      res.clearCookie("connect.sid");
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
   app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
-      res.json(user);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        profileImageUrl: user.profileImageUrl,
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -30,7 +128,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Vehicles routes
   app.get("/api/vehicles", async (req, res) => {
     try {
-      const vehicles = await storage.getAllVehicles();
+      const { search, location } = req.query;
+      let vehicles = await storage.getAllVehicles();
+      
+      // Filter by location (default to Bhubaneswar)
+      const filterLocation = (location as string) || "Bhubaneswar";
+      vehicles = vehicles.filter(v => 
+        v.location.toLowerCase().includes(filterLocation.toLowerCase())
+      );
+      
+      // Filter by search query
+      if (search && typeof search === 'string') {
+        const searchLower = search.toLowerCase();
+        vehicles = vehicles.filter(v => 
+          v.name.toLowerCase().includes(searchLower) ||
+          v.brand.toLowerCase().includes(searchLower) ||
+          v.model.toLowerCase().includes(searchLower) ||
+          v.type.toLowerCase().includes(searchLower)
+        );
+      }
+      
       res.json(vehicles);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch vehicles" });
@@ -285,7 +402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Object storage routes for serving protected files (DL photos)
   app.get("/objects/:objectPath(*)", isAuthenticated, async (req: any, res) => {
-    const userId = req.user?.claims?.sub;
+    const userId = req.session.userId;
     const objectStorageService = new ObjectStorageService();
     try {
       const objectFile = await objectStorageService.getObjectEntityFile(
@@ -322,7 +439,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ error: "dlPhotoURL is required" });
     }
 
-    const userId = req.user?.claims?.sub;
+    const userId = req.session.userId;
 
     try {
       const objectStorageService = new ObjectStorageService();

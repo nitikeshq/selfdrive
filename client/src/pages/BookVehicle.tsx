@@ -163,7 +163,7 @@ export default function BookVehicle() {
         description: "Please login to complete booking",
         variant: "destructive",
       });
-      window.location.href = "/api/login";
+      setLocation("/login");
       return;
     }
 

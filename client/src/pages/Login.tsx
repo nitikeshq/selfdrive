@@ -1,69 +1,312 @@
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car } from "lucide-react";
-import { Link } from "wouter";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Car, LogIn, UserPlus } from "lucide-react";
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const registerSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  role: z.enum(["customer", "owner", "admin"]),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function Login() {
+  const [, setLocation] = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const registerForm = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      role: "customer",
+    },
+  });
+
+  const onLogin = async (data: LoginFormData) => {
+    setIsLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/login", data);
+      const user = await response.json();
+      
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${user.firstName}!`,
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setLocation("/");
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Invalid credentials",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onRegister = async (data: RegisterFormData) => {
+    setIsLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/register", data);
+      const user = await response.json();
+      
+      toast({
+        title: "Registration Successful",
+        description: `Welcome to DriveEase, ${user.firstName}!`,
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setLocation("/");
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Failed to register",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-muted/30">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <Car className="h-8 w-8 text-primary" />
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Car className="h-10 w-10 text-primary" />
+            <h1 className="text-3xl font-display font-bold">DriveEase</h1>
           </div>
-          <CardTitle className="text-2xl font-display">Welcome to DriveEase</CardTitle>
-          <CardDescription>
-            Sign in to book vehicles or manage your listings
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button className="w-full" size="lg" data-testid="button-login-replit">
-            Continue with Replit
-          </Button>
+          <p className="text-muted-foreground">Your trusted vehicle rental platform in Bhubaneswar</p>
+        </div>
+
+        <Tabs defaultValue="login" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="register">Register</TabsTrigger>
+          </TabsList>
           
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or</span>
-            </div>
-          </div>
+          <TabsContent value="login">
+            <Card>
+              <CardHeader>
+                <CardTitle>Login to Your Account</CardTitle>
+                <CardDescription>Enter your credentials to access your account</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                    <FormField
+                      control={loginForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="your@email.com"
+                              {...field}
+                              data-testid="input-login-email"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              {...field}
+                              data-testid="input-login-password"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                      data-testid="button-submit-login"
+                    >
+                      {isLoading ? (
+                        <>
+                          <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
+                          Logging in...
+                        </>
+                      ) : (
+                        <>
+                          <LogIn className="h-5 w-5 mr-2" />
+                          Login
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground text-center">
-              New to DriveEase?
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Link href="/">
-                <Button variant="outline" className="w-full" data-testid="button-browse-as-customer">
-                  Browse as Customer
-                </Button>
-              </Link>
-              <Link href="/list-vehicle">
-                <Button variant="outline" className="w-full" data-testid="button-list-as-owner">
-                  List as Owner
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-border">
-            <p className="text-xs text-center text-muted-foreground">
-              By continuing, you agree to our{" "}
-              <Link href="/terms">
-                <span className="text-primary hover:underline cursor-pointer">Terms of Service</span>
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy">
-                <span className="text-primary hover:underline cursor-pointer">Privacy Policy</span>
-              </Link>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+          <TabsContent value="register">
+            <Card>
+              <CardHeader>
+                <CardTitle>Create an Account</CardTitle>
+                <CardDescription>Register to start renting vehicles in Bhubaneswar</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...registerForm}>
+                  <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={registerForm.control}
+                        name="firstName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="John" {...field} data-testid="input-register-firstname" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={registerForm.control}
+                        name="lastName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Doe" {...field} data-testid="input-register-lastname" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={registerForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="your@email.com"
+                              {...field}
+                              data-testid="input-register-email"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              {...field}
+                              data-testid="input-register-password"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Account Type</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-register-role">
+                                <SelectValue placeholder="Select account type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="customer">Customer - Rent Vehicles</SelectItem>
+                              <SelectItem value="owner">Owner - List My Vehicles</SelectItem>
+                              <SelectItem value="admin">Admin - Manage Platform</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                      data-testid="button-submit-register"
+                    >
+                      {isLoading ? (
+                        <>
+                          <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
+                          Creating Account...
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="h-5 w-5 mr-2" />
+                          Create Account
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

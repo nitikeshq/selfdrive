@@ -51,18 +51,21 @@ export function Navbar() {
                 <Link href="/dashboard">
                   <div className="flex items-center gap-2 cursor-pointer hover-elevate px-2 py-1 rounded-md transition-all">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.profileImageUrl || undefined} />
+                      <AvatarImage src={(user as any).profileImageUrl || undefined} />
                       <AvatarFallback>
-                        {user.firstName?.charAt(0) || user.email?.charAt(0) || "U"}
+                        {(user as any).firstName?.charAt(0) || (user as any).email?.charAt(0) || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium">{user.firstName || "User"}</span>
+                    <span className="text-sm font-medium">{(user as any).firstName || "User"}</span>
                   </div>
                 </Link>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => window.location.href = "/api/logout"}
+                  onClick={async () => {
+                    await fetch("/api/logout", { method: "POST", credentials: "include" });
+                    window.location.href = "/";
+                  }}
                   data-testid="button-logout"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
@@ -70,15 +73,16 @@ export function Navbar() {
                 </Button>
               </div>
             ) : (
-              <Button
-                variant="default"
-                size="default"
-                onClick={() => window.location.href = "/api/login"}
-                data-testid="button-login"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Login
-              </Button>
+              <Link href="/login">
+                <Button
+                  variant="default"
+                  size="default"
+                  data-testid="button-login"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
             )}
           </div>
 
@@ -123,22 +127,26 @@ export function Navbar() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => window.location.href = "/api/logout"}
+                  onClick={async () => {
+                    await fetch("/api/logout", { method: "POST", credentials: "include" });
+                    window.location.href = "/";
+                  }}
                   data-testid="button-logout-mobile"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </Button>
               ) : (
-                <Button
-                  variant="default"
-                  className="w-full"
-                  onClick={() => window.location.href = "/api/login"}
-                  data-testid="button-login-mobile"
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Login
-                </Button>
+                <Link href="/login">
+                  <Button
+                    variant="default"
+                    className="w-full"
+                    data-testid="button-login-mobile"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
               )}
             </div>
           </div>
