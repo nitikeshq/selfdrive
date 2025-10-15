@@ -127,6 +127,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { search, location } = req.query;
       let vehicles = await storage.getAllVehicles();
       
+      // Filter out paused vehicles
+      vehicles = vehicles.filter(v => !v.isPaused);
+      
+      // Filter out currently rented vehicles
+      const now = new Date();
+      const availableVehicles = [];
+      for (const vehicle of vehicles) {
+        const activeBookings = await storage.getActiveBookingsForVehicle(vehicle.id);
+        const isCurrentlyRented = activeBookings.some((booking: typeof activeBookings[number]) => 
+          booking.status !== 'cancelled' && 
+          new Date(booking.startDate) <= now && 
+          new Date(booking.endDate) >= now
+        );
+        if (!isCurrentlyRented) {
+          availableVehicles.push(vehicle);
+        }
+      }
+      vehicles = availableVehicles;
+      
       // Filter by location (default to Bhubaneswar)
       const filterLocation = (location as string) || "Bhubaneswar";
       vehicles = vehicles.filter(v => 
@@ -184,6 +203,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(vehicle);
     } catch (error) {
       res.status(500).json({ error: "Failed to update vehicle" });
+    }
+  });
+
+  app.patch("/api/vehicles/:id/toggle-pause", async (req, res) => {
+    try {
+      const vehicle = await storage.getVehicle(req.params.id);
+      if (!vehicle) {
+        return res.status(404).json({ error: "Vehicle not found" });
+      }
+      const updatedVehicle = await storage.updateVehicle(req.params.id, { 
+        isPaused: !vehicle.isPaused 
+      });
+      res.json(updatedVehicle);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to toggle vehicle status" });
     }
   });
 

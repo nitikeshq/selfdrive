@@ -35,6 +35,7 @@ export interface IStorage {
   getBooking(id: string): Promise<BookingWithDetails | undefined>;
   getBookingsByUser(userId: string): Promise<BookingWithDetails[]>;
   getBookingsByOwner(ownerId: string): Promise<BookingWithDetails[]>;
+  getActiveBookingsForVehicle(vehicleId: string): Promise<Booking[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateBooking(id: string, data: Partial<Booking>): Promise<Booking | undefined>;
   checkVehicleAvailability(vehicleId: string, startDate: Date, endDate: Date): Promise<boolean>;
@@ -159,6 +160,14 @@ export class DbStorage implements IStorage {
         vehicle: r.vehicles!,
         user: r.users!,
       }));
+  }
+
+  async getActiveBookingsForVehicle(vehicleId: string): Promise<Booking[]> {
+    const result = await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.vehicleId, vehicleId));
+    return result;
   }
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
