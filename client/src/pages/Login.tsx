@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Car, LogIn, UserPlus } from "lucide-react";
@@ -23,7 +22,6 @@ const registerSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  role: z.enum(["customer", "owner", "admin"]),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -49,7 +47,6 @@ export default function Login() {
       password: "",
       firstName: "",
       lastName: "",
-      role: "customer",
     },
   });
 
@@ -256,28 +253,6 @@ export default function Login() {
                               data-testid="input-register-password"
                             />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={registerForm.control}
-                      name="role"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Account Type</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-register-role">
-                                <SelectValue placeholder="Select account type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="customer">Customer - Rent Vehicles</SelectItem>
-                              <SelectItem value="owner">Owner - List My Vehicles</SelectItem>
-                              <SelectItem value="admin">Admin - Manage Platform</SelectItem>
-                            </SelectContent>
-                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
