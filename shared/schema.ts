@@ -51,6 +51,13 @@ export const users = pgTable("users", {
   averageRatingAsOwner: decimal("average_rating_as_owner", { precision: 3, scale: 2 }).default("0"),
   totalRatingsAsOwner: integer("total_ratings_as_owner").default(0),
   
+  // PayU Vendor/Settlement Details (for owners)
+  payuVendorId: text("payu_vendor_id"), // PayU sub-merchant ID for direct settlement
+  bankAccountNumber: text("bank_account_number"),
+  bankIfscCode: text("bank_ifsc_code"),
+  bankAccountHolderName: text("bank_account_holder_name"),
+  isPayuVendorVerified: boolean("is_payu_vendor_verified").notNull().default(false),
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -131,6 +138,10 @@ export const bookings = pgTable("bookings", {
   // Insurance
   hasExtraInsurance: boolean("has_extra_insurance").notNull().default(false),
   insuranceAmount: decimal("insurance_amount", { precision: 10, scale: 2 }).default("0"),
+  
+  // Payment Split (for PayU marketplace)
+  platformCommission: decimal("platform_commission", { precision: 10, scale: 2 }).default("0"),
+  ownerEarnings: decimal("owner_earnings", { precision: 10, scale: 2 }).default("0"),
   
   status: text("status").notNull().default("pending"), // pending, confirmed, active, completed, cancelled
   paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, refunded, partially_refunded
