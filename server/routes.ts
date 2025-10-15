@@ -277,6 +277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/bookings", async (req, res) => {
     try {
+      console.log("Booking request body:", JSON.stringify(req.body, null, 2));
       const validatedData = insertBookingSchema.parse(req.body);
       
       // Check vehicle availability
@@ -294,8 +295,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(booking);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error("Validation error:", JSON.stringify(error.errors, null, 2));
         return res.status(400).json({ error: error.errors });
       }
+      console.error("Booking creation error:", error);
       res.status(500).json({ error: "Failed to create booking" });
     }
   });
