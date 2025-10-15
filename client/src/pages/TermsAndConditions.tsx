@@ -114,12 +114,14 @@ export default function TermsAndConditions() {
               <CardTitle>7. Cancellation and Refunds</CardTitle>
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-none">
+              <p className="mb-3">Our cancellation policy is designed to be fair to both customers and vehicle owners:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Cancellations made 24 hours before pickup time: 90% refund</li>
-                <li>Cancellations made 12-24 hours before pickup: 50% refund</li>
-                <li>Cancellations made less than 12 hours before pickup: No refund</li>
-                <li>Refunds will be processed within 5-7 business days</li>
+                <li><strong>Cancellations 3 days (72 hours) or more before pickup:</strong> 100% refund minus processing fees (2% of booking amount)</li>
+                <li><strong>Cancellations between 24-72 hours before pickup:</strong> 80% refund</li>
+                <li><strong>Cancellations less than 24 hours before pickup:</strong> 60% refund</li>
+                <li>Refunds will be processed to the original payment method within 5-7 business days</li>
                 <li>No refunds for early returns or unused rental periods</li>
+                <li>In case of booking cancellation by the vehicle owner or due to technical issues from our end, 100% refund will be provided</li>
               </ul>
             </CardContent>
           </Card>
