@@ -29,6 +29,11 @@ export function Navbar() {
                 Browse Vehicles
               </span>
             </Link>
+            <Link href="/become-owner">
+              <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-become-owner">
+                Become an Owner
+              </span>
+            </Link>
             {!isLoading && isAuthenticated && (
               <>
                 <Link href="/dashboard">
@@ -107,6 +112,11 @@ export function Navbar() {
               <Link href="/vehicles">
                 <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse-mobile">
                   Browse Vehicles
+                </span>
+              </Link>
+              <Link href="/become-owner">
+                <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-become-owner-mobile">
+                  Become an Owner
                 </span>
               </Link>
               {!isLoading && isAuthenticated && (
