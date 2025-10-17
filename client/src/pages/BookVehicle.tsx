@@ -190,6 +190,10 @@ export default function BookVehicle() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <SEO
+          title="Loading Booking..."
+          description="Please wait while we load your vehicle booking details"
+        />
         <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full" />
       </div>
     );
@@ -198,6 +202,10 @@ export default function BookVehicle() {
   if (!vehicle) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <SEO
+          title="Vehicle Not Found"
+          description="The vehicle you're looking for doesn't exist or has been removed"
+        />
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Vehicle not found</h2>
           <p className="text-muted-foreground">The vehicle you're looking for doesn't exist.</p>
@@ -212,6 +220,8 @@ export default function BookVehicle() {
         title={vehicle ? `Book ${vehicle.name} - ${vehicle.type === 'car' ? 'Car' : 'Bike'} Rental` : 'Book Vehicle'}
         description={vehicle ? `Book ${vehicle.name} for hourly or daily rental. ${vehicle.brand} ${vehicle.model} available for self-drive. Instant confirmation with flexible payment options.` : 'Complete your vehicle booking'}
         keywords="book car, book bike, vehicle booking, rental confirmation, payment options"
+        ogImage={vehicle?.imageUrl}
+        canonical={vehicle ? `https://driveease.in/book/${vehicle.id}` : undefined}
       />
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
