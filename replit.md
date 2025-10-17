@@ -6,6 +6,16 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (October 17, 2025)
+- **Vehicle Categories**: Added category field to vehicles with Indian market categories (Super cars, Economy, Premium Cars, Compact cars, XUVs, Hatchbacks, Bikes, Scooters, Electric Bikes, Electric Cars)
+- **Status Badge System**: Browse vehicles page now displays ALL vehicles with color-coded status badges:
+  - Green badge: Available vehicles (ready to book)
+  - Yellow badge: Paused vehicles (owner temporarily unavailable)
+  - Orange badge: Booked vehicles (currently rented)
+- **Enhanced Vehicle Listing**: /api/vehicles returns all vehicles with real-time status computation, optional location filtering
+- **Swadeshi Branding**: Added "Made in India" and "Made in Odisha" badges to footer celebrating Indian heritage
+- **Currency**: Verified INR (₹) currency symbol used consistently across all pricing displays
+
 ## System Architecture
 
 ### Frontend Architecture
