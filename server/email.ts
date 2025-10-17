@@ -190,4 +190,26 @@ export const emailTemplates = {
       },
     });
   },
+
+  contactInquiry: async (
+    name: string,
+    email: string,
+    phone: string,
+    subject: string,
+    message: string
+  ) => {
+    return sendEmail({
+      to: "nitikesh@qwegle.com",
+      subject: "Selfdrive - Inquiry has been received",
+      template: "contact-inquiry",
+      data: {
+        name,
+        email,
+        phone: phone || "Not provided",
+        subject,
+        message,
+        timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+      },
+    });
+  },
 };

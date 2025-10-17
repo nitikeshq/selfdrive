@@ -1751,6 +1751,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact form submission
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const { name, email, phone, subject, message } = req.body;
+
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ error: "Please provide all required fields" });
+      }
+
+      // Send email to nitikesh@qwegle.com
+      const { emailTemplates } = await import("./email");
+      await emailTemplates.contactInquiry(name, email, phone || "", subject, message);
+
+      res.json({ 
+        success: true, 
+        message: "Thank you for contacting us. We'll get back to you within 24 hours." 
+      });
+    } catch (error: any) {
+      console.error("Contact form error:", error);
+      res.status(500).json({ error: error.message || "Failed to send message. Please try again." });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
