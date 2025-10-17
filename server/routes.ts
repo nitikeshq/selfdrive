@@ -283,23 +283,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/bookings", async (req, res) => {
+  app.post("/api/bookings", async (req: any, res) => {
     try {
       console.log("Booking request body:", JSON.stringify(req.body, null, 2));
-      const validatedData = insertBookingSchema.parse(req.body);
+      
+      const isAuthenticated = !!(req.session && req.session.userId);
+      let bookingData: any;
+      
+      if (isAuthenticated) {
+        // Authenticated user booking - use session userId, ignore any userId in request
+        const authenticatedBookingSchema = insertBookingSchema.extend({
+          userId: z.string().optional(), // Will be overridden
+        });
+        
+        const validatedData = authenticatedBookingSchema.parse(req.body);
+        bookingData = {
+          ...validatedData,
+          userId: req.session.userId, // Always use session userId for security
+          isGuestBooking: false,
+          guestEmail: null,
+          guestPhone: null,
+          guestName: null,
+        };
+      } else {
+        // Guest booking - require all guest fields
+        const guestBookingSchema = z.object({
+          vehicleId: z.string(),
+          startDate: z.coerce.date(),
+          endDate: z.coerce.date(),
+          pickupOption: z.string(),
+          deliveryAddress: z.string().optional(),
+          totalAmount: z.string(),
+          deliveryCharge: z.string().optional(),
+          hasExtraInsurance: z.boolean().optional(),
+          insuranceAmount: z.string().optional(),
+          platformCommission: z.string().optional(),
+          ownerEarnings: z.string().optional(),
+          // Guest required fields
+          isGuestBooking: z.literal(true),
+          guestEmail: z.string().email(),
+          guestPhone: z.string().min(10),
+          guestName: z.string().min(1),
+        });
+        
+        const validatedData = guestBookingSchema.parse(req.body);
+        bookingData = {
+          ...validatedData,
+          userId: null, // No userId for guest bookings
+        };
+      }
       
       // Check vehicle availability
       const isAvailable = await storage.checkVehicleAvailability(
-        validatedData.vehicleId,
-        validatedData.startDate,
-        validatedData.endDate
+        bookingData.vehicleId,
+        bookingData.startDate,
+        bookingData.endDate
       );
 
       if (!isAvailable) {
         return res.status(400).json({ error: "Vehicle is not available for selected dates" });
       }
 
-      const booking = await storage.createBooking(validatedData);
+      const booking = await storage.createBooking(bookingData);
       res.status(201).json(booking);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -941,6 +986,227 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to add security deposit" });
+    }
+  });
+
+  // Admin routes - Vehicle verification
+  app.get("/api/admin/vehicles/pending", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const vehicles = await storage.getVehiclesByStatus("pending");
+      res.json(vehicles);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch pending vehicles" });
+    }
+  });
+
+  app.post("/api/admin/vehicles/:id/approve", isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const vehicleId = req.params.id;
+      const adminId = req.session.userId;
+      
+      const vehicle = await storage.updateVehicle(vehicleId, {
+        verificationStatus: "approved",
+        verifiedAt: new Date(),
+        verifiedByAdminId: adminId,
+      });
+      
+      if (!vehicle) {
+        return res.status(404).json({ error: "Vehicle not found" });
+      }
+      
+      res.json(vehicle);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve vehicle" });
+    }
+  });
+
+  app.post("/api/admin/vehicles/:id/reject", isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const vehicleId = req.params.id;
+      const adminId = req.session.userId;
+      const { reason } = req.body;
+      
+      const vehicle = await storage.updateVehicle(vehicleId, {
+        verificationStatus: "rejected",
+        verifiedAt: new Date(),
+        verifiedByAdminId: adminId,
+        rejectionReason: reason,
+        available: false,
+      });
+      
+      if (!vehicle) {
+        return res.status(404).json({ error: "Vehicle not found" });
+      }
+      
+      res.json(vehicle);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to reject vehicle" });
+    }
+  });
+
+  // Admin dashboard - Analytics
+  app.get("/api/admin/analytics", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const analytics = await storage.getAdminAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch analytics" });
+    }
+  });
+
+  // Admin dashboard - User management
+  app.get("/api/admin/users", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const role = req.query.role as string | undefined;
+      const users = await storage.getAllUsers(role);
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  // Vehicle documents routes
+  app.post("/api/vehicles/:id/documents", isAuthenticated, async (req: any, res) => {
+    try {
+      const vehicleId = req.params.id;
+      const userId = req.session.userId;
+      
+      // Check if user owns this vehicle or is admin
+      const vehicle = await storage.getVehicle(vehicleId);
+      if (!vehicle) {
+        return res.status(404).json({ error: "Vehicle not found" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (vehicle.ownerId !== userId && user?.role !== 'admin') {
+        return res.status(403).json({ error: "Not authorized to upload documents for this vehicle" });
+      }
+      
+      const validatedData = insertVehicleDocumentSchema.parse({
+        ...req.body,
+        vehicleId,
+      });
+      
+      const document = await storage.createVehicleDocument(validatedData);
+      res.status(201).json(document);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to upload document" });
+    }
+  });
+
+  app.get("/api/vehicles/:id/documents", async (req, res) => {
+    try {
+      const vehicleId = req.params.id;
+      const documents = await storage.getVehicleDocuments(vehicleId);
+      res.json(documents);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch documents" });
+    }
+  });
+
+  // Guest booking - lookup bookings by email
+  app.get("/api/guest-bookings", async (req, res) => {
+    try {
+      const email = req.query.email as string;
+      if (!email) {
+        return res.status(400).json({ error: "Email required" });
+      }
+      const bookings = await storage.getGuestBookingsByEmail(email);
+      res.json(bookings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch guest bookings" });
+    }
+  });
+
+  // Update booking status (pickup/return)
+  app.post("/api/bookings/:id/pickup", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const bookingDetails = await storage.getBooking(req.params.id);
+      
+      if (!bookingDetails) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      
+      // Check if user is customer or owner
+      const vehicle = await storage.getVehicle(bookingDetails.vehicleId);
+      const isCustomer = bookingDetails.userId === userId;
+      const isOwner = vehicle?.ownerId === userId;
+      
+      if (!isCustomer && !isOwner) {
+        return res.status(403).json({ error: "Not authorized to complete pickup for this booking" });
+      }
+      
+      const { odometerReading, fuelLevel, videoUrl } = req.body;
+      const booking = await storage.updateBooking(req.params.id, {
+        pickupCompletedAt: new Date(),
+        pickupOdometerReading: odometerReading,
+        fuelLevelAtPickup: fuelLevel,
+        pickupVideoUrl: videoUrl,
+        status: "active",
+      });
+      
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      
+      // Update vehicle status
+      if (booking.vehicleId) {
+        await storage.updateVehicle(booking.vehicleId, {
+          currentStatus: "rented",
+        });
+      }
+      
+      res.json(booking);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to complete pickup" });
+    }
+  });
+
+  app.post("/api/bookings/:id/return", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const bookingDetails = await storage.getBooking(req.params.id);
+      
+      if (!bookingDetails) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      
+      // Check if user is customer or owner
+      const vehicle = await storage.getVehicle(bookingDetails.vehicleId);
+      const isCustomer = bookingDetails.userId === userId;
+      const isOwner = vehicle?.ownerId === userId;
+      
+      if (!isCustomer && !isOwner) {
+        return res.status(403).json({ error: "Not authorized to complete return for this booking" });
+      }
+      
+      const { odometerReading, fuelLevel, videoUrl } = req.body;
+      const booking = await storage.updateBooking(req.params.id, {
+        returnCompletedAt: new Date(),
+        returnOdometerReading: odometerReading,
+        fuelLevelAtReturn: fuelLevel,
+        returnVideoUrl: videoUrl,
+        status: "completed",
+      });
+      
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+      
+      // Update vehicle status
+      if (booking.vehicleId) {
+        await storage.updateVehicle(booking.vehicleId, {
+          currentStatus: "idle",
+        });
+      }
+      
+      res.json(booking);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to complete return" });
     }
   });
 

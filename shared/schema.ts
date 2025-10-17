@@ -94,6 +94,14 @@ export const vehicles = pgTable("vehicles", {
   locationPlaceId: text("location_place_id"), // Google Places ID for parking location
   locationLat: decimal("location_lat", { precision: 10, scale: 7 }),
   locationLng: decimal("location_lng", { precision: 10, scale: 7 }),
+  
+  // Manual address fallback (when Google Places fails)
+  manualAddressLine1: text("manual_address_line_1"),
+  manualAddressLine2: text("manual_address_line_2"),
+  manualCity: text("manual_city"),
+  manualState: text("manual_state"),
+  manualPincode: text("manual_pincode"),
+  
   ownerLocation: text("owner_location").notNull().default("Bhubaneswar"),
   imageUrl: text("image_url").notNull(),
   features: text("features").array(),
@@ -108,13 +116,21 @@ export const vehicles = pgTable("vehicles", {
   averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default("0"),
   totalRatings: integer("total_ratings").default(0),
   
+  // Admin Verification
+  verificationStatus: text("verification_status").notNull().default("pending"), // pending, approved, rejected
+  verifiedAt: timestamp("verified_at"),
+  verifiedByAdminId: varchar("verified_by_admin_id").references(() => users.id),
+  rejectionReason: text("rejection_reason"),
+  
   available: boolean("available").notNull().default(true),
   isPaused: boolean("is_paused").notNull().default(false),
+  currentStatus: text("current_status").notNull().default("idle"), // idle, rented, in_maintenance
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   ownerIdx: index("vehicles_owner_idx").on(table.ownerId),
   availableIdx: index("vehicles_available_idx").on(table.available),
   typeIdx: index("vehicles_type_idx").on(table.type),
+  verificationIdx: index("vehicles_verification_idx").on(table.verificationStatus),
 }));
 
 // Vehicle Documents table
@@ -133,8 +149,15 @@ export const vehicleDocuments = pgTable("vehicle_documents", {
 // Bookings table
 export const bookings = pgTable("bookings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").references(() => users.id), // Nullable for guest bookings
   vehicleId: varchar("vehicle_id").notNull().references(() => vehicles.id),
+  
+  // Guest booking fields (for non-registered users)
+  isGuestBooking: boolean("is_guest_booking").notNull().default(false),
+  guestEmail: varchar("guest_email"),
+  guestPhone: varchar("guest_phone"),
+  guestName: varchar("guest_name"),
+  
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
   pickupOption: text("pickup_option").notNull(), // parking, delivery
@@ -156,11 +179,24 @@ export const bookings = pgTable("bookings", {
   refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
   cancelledAt: timestamp("cancelled_at"),
   
+  // Post-booking activities
+  pickupCompletedAt: timestamp("pickup_completed_at"),
+  returnCompletedAt: timestamp("return_completed_at"),
+  pickupOdometerReading: integer("pickup_odometer_reading"),
+  returnOdometerReading: integer("return_odometer_reading"),
+  fuelLevelAtPickup: text("fuel_level_at_pickup"),
+  fuelLevelAtReturn: text("fuel_level_at_return"),
+  
   // Video verification
   pickupVideoUrl: text("pickup_video_url"),
   pickupVideoApprovedByCustomer: boolean("pickup_video_approved_by_customer").default(false),
   pickupVideoApprovedByOwner: boolean("pickup_video_approved_by_owner").default(false),
   pickupVideoApprovedAt: timestamp("pickup_video_approved_at"),
+  
+  returnVideoUrl: text("return_video_url"),
+  returnVideoApprovedByCustomer: boolean("return_video_approved_by_customer").default(false),
+  returnVideoApprovedByOwner: boolean("return_video_approved_by_owner").default(false),
+  returnVideoApprovedAt: timestamp("return_video_approved_at"),
   
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
@@ -168,6 +204,7 @@ export const bookings = pgTable("bookings", {
   vehicleIdx: index("bookings_vehicle_idx").on(table.vehicleId),
   statusIdx: index("bookings_status_idx").on(table.status),
   datesIdx: index("bookings_dates_idx").on(table.startDate, table.endDate),
+  guestEmailIdx: index("bookings_guest_email_idx").on(table.guestEmail),
 }));
 
 // Ratings table (bidirectional - customer rates owner, owner rates customer)

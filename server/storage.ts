@@ -77,6 +77,7 @@ export interface IStorage {
   // Vehicle Document methods
   getVehicleDocument(id: string): Promise<VehicleDocument | undefined>;
   getVehicleDocumentsByVehicle(vehicleId: string): Promise<VehicleDocument[]>;
+  getVehicleDocuments(vehicleId: string): Promise<VehicleDocument[]>;
   createVehicleDocument(document: InsertVehicleDocument): Promise<VehicleDocument>;
   updateVehicleDocument(id: string, data: Partial<VehicleDocument>): Promise<VehicleDocument | undefined>;
 
@@ -86,6 +87,12 @@ export interface IStorage {
   createOwnerAddress(address: InsertOwnerAddress): Promise<OwnerAddress>;
   updateOwnerAddress(id: string, data: Partial<OwnerAddress>): Promise<OwnerAddress | undefined>;
   deleteOwnerAddress(id: string): Promise<boolean>;
+
+  // Admin methods
+  getVehiclesByStatus(status: string): Promise<VehicleWithOwner[]>;
+  getAllUsers(role?: string): Promise<User[]>;
+  getAdminAnalytics(): Promise<any>;
+  getGuestBookingsByEmail(email: string): Promise<BookingWithDetails[]>;
 }
 
 export class DbStorage implements IStorage {
@@ -349,6 +356,92 @@ export class DbStorage implements IStorage {
   async deleteOwnerAddress(id: string): Promise<boolean> {
     const result = await db.delete(ownerAddresses).where(eq(ownerAddresses.id, id)).returning();
     return result.length > 0;
+  }
+
+  // Admin methods
+  async getVehiclesByStatus(status: string): Promise<VehicleWithOwner[]> {
+    const result = await db
+      .select()
+      .from(vehicles)
+      .leftJoin(users, eq(vehicles.ownerId, users.id))
+      .where(eq(vehicles.verificationStatus, status));
+    
+    return result.map((row) => ({
+      ...row.vehicles,
+      owner: row.users!,
+    }));
+  }
+
+  async getAllUsers(role?: string): Promise<User[]> {
+    if (role) {
+      return await db.select().from(users).where(eq(users.role, role));
+    }
+    return await db.select().from(users);
+  }
+
+  async getAdminAnalytics(): Promise<any> {
+    const totalUsers = await db.select().from(users);
+    const totalVehicles = await db.select().from(vehicles);
+    const totalBookings = await db.select().from(bookings);
+    const pendingVehicles = await db.select().from(vehicles).where(eq(vehicles.verificationStatus, 'pending'));
+    
+    const customers = totalUsers.filter(u => u.role === 'customer');
+    const owners = totalUsers.filter(u => u.role === 'owner' || u.role === 'admin');
+    
+    const activeBookings = totalBookings.filter(b => b.status === 'active' || b.status === 'confirmed');
+    const completedBookings = totalBookings.filter(b => b.status === 'completed');
+    
+    let totalRevenue = 0;
+    let platformEarnings = 0;
+    
+    completedBookings.forEach(booking => {
+      const amount = parseFloat(booking.totalAmount || '0');
+      totalRevenue += amount;
+      platformEarnings += parseFloat(booking.platformCommission || '0');
+    });
+    
+    return {
+      users: {
+        total: totalUsers.length,
+        customers: customers.length,
+        owners: owners.length,
+      },
+      vehicles: {
+        total: totalVehicles.length,
+        pending: pendingVehicles.length,
+        approved: totalVehicles.filter(v => v.verificationStatus === 'approved').length,
+        rejected: totalVehicles.filter(v => v.verificationStatus === 'rejected').length,
+      },
+      bookings: {
+        total: totalBookings.length,
+        active: activeBookings.length,
+        completed: completedBookings.length,
+        cancelled: totalBookings.filter(b => b.status === 'cancelled').length,
+      },
+      revenue: {
+        total: totalRevenue.toFixed(2),
+        platformEarnings: platformEarnings.toFixed(2),
+      },
+    };
+  }
+
+  async getGuestBookingsByEmail(email: string): Promise<BookingWithDetails[]> {
+    const result = await db
+      .select()
+      .from(bookings)
+      .leftJoin(vehicles, eq(bookings.vehicleId, vehicles.id))
+      .leftJoin(users, eq(bookings.userId, users.id))
+      .where(eq(bookings.guestEmail, email));
+    
+    return result.map((row) => ({
+      ...row.bookings,
+      vehicle: row.vehicles!,
+      user: row.users || { id: '', email: row.bookings.guestEmail || '', firstName: row.bookings.guestName || 'Guest', lastName: '', role: 'customer' } as User,
+    }));
+  }
+
+  async getVehicleDocuments(vehicleId: string): Promise<VehicleDocument[]> {
+    return await db.select().from(vehicleDocuments).where(eq(vehicleDocuments.vehicleId, vehicleId));
   }
 }
 
