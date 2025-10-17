@@ -1,5 +1,9 @@
 # DriveEase - Self-Drive Car & Bike Rental Platform
 
+## Team
+- **Nitikesh Pattanayak** - Founder
+- **Chinmay Gayan** - Co-founder
+
 ## Overview
 DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or weekly self-drive car and bike rentals. It supports customers, vehicle owners, and administrators, offering a modern, trust-focused booking experience inspired by Airbnb and Uber. Key features include real-time availability, integrated Stripe payments, and flexible pickup options. The platform aims to provide a seamless rental experience, empowering both vehicle owners to earn passive income and customers to find suitable vehicles easily.
 
