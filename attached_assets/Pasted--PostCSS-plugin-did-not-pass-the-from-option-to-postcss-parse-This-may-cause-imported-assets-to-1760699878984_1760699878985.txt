@@ -1,0 +1,122 @@
+ PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+11:17:05 AM [express] GET /api/auth/user 401 in 4ms :: {"message":"Unauthorized"}
+PG Pool error: error: terminating connection due to administrator command
+    at Parser.parseErrorMessage (/home/runner/workspace/node_modules/pg-protocol/src/parser.ts:368:69)
+    at Parser.handlePacket (/home/runner/workspace/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/home/runner/workspace/node_modules/pg-protocol/src/parser.ts:102:30)
+    at TLSSocket.<anonymous> (/home/runner/workspace/node_modules/pg-protocol/src/index.ts:7:48)
+    at TLSSocket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  length: 116,
+  severity: 'FATAL',
+  code: '57P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'postgres.c',
+  line: '3289',
+  routine: 'ProcessInterrupts',
+  client: Client {
+    _events: [Object: null prototype] { error: [Function (anonymous)] },
+    _eventsCount: 1,
+    _maxListeners: undefined,
+    connectionParameters: ConnectionParameters {
+      user: 'neondb_owner',
+      database: 'neondb',
+      port: 5432,
+      host: 'ep-royal-sun-ag7y1x6b.c-2.eu-central-1.aws.neon.tech',
+      binary: false,
+      options: undefined,
+      ssl: {},
+      client_encoding: '',
+      replication: undefined,
+      isDomainSocket: false,
+      application_name: undefined,
+      fallback_application_name: undefined,
+      statement_timeout: false,
+      lock_timeout: false,
+      idle_in_transaction_session_timeout: false,
+      query_timeout: false,
+      connect_timeout: 0
+    },
+    user: 'neondb_owner',
+    database: 'neondb',
+    port: 5432,
+    host: 'ep-royal-sun-ag7y1x6b.c-2.eu-central-1.aws.neon.tech',
+    replication: undefined,
+    _Promise: [Function: Promise],
+    _types: TypeOverrides { _types: [Object], text: {}, binary: {} },
+    _ending: true,
+    _ended: false,
+    _connecting: false,
+    _connected: true,
+    _connectionError: false,
+    _queryable: false,
+    connection: Connection {
+      _events: [Object: null prototype],
+      _eventsCount: 23,
+      _maxListeners: undefined,
+      stream: [TLSSocket],
+      _keepAlive: false,
+      _keepAliveInitialDelayMillis: 0,
+      lastBuffer: false,
+      parsedStatements: {},
+      ssl: {},
+      _ending: true,
+      _emitMessage: false,
+      _connecting: true,
+      [Symbol(shapeMode)]: false,
+      [Symbol(kCapture)]: false
+    },
+    queryQueue: [],
+    binary: false,
+    processID: -2088589924,
+    secretKey: -2083135962,
+    ssl: {},
+    _connectionTimeoutMillis: 0,
+    _connectionCallback: null,
+    saslSession: null,
+    release: [Function (anonymous)],
+    activeQuery: null,
+    readyForQuery: true,
+    hasExecuted: true,
+    _poolUseCount: 2,
+    [Symbol(shapeMode)]: false,
+    [Symbol(kCapture)]: false
+  }
+}
+11:17:18 AM [express] GET /api/auth/user 304 in 354ms :: {"id":"7c13619a-f18d-49e3-a136-bee00c37ac55"…
+11:17:19 AM [express] GET /api/vehicles 304 in 824ms :: [{"id":"ca4a008f-9ed9-4f01-bb13-c3cc3fdd1c20"…
+11:17:22 AM [express] GET /api/wallet/transactions 304 in 379ms :: []
+11:17:23 AM [express] GET /api/wallet/balance 304 in 456ms :: {"balance":0}
+11:17:25 AM [express] GET /api/membership/status 304 in 458ms :: {"isActive":false,"expiresAt":null,"…
+11:17:34 AM [express] GET /api/vehicles/ca4a008f-9ed9-4f01-bb13-c3cc3fdd1c20 200 in 350ms :: {"id":"c…
+Booking request body: {
+  "userId": "7c13619a-f18d-49e3-a136-bee00c37ac55",
+  "vehicleId": "ca4a008f-9ed9-4f01-bb13-c3cc3fdd1c20",
+  "startDate": "2025-10-17T16:47",
+  "endDate": "2025-10-18T16:47",
+  "pickupOption": "parking",
+  "deliveryAddress": null,
+  "totalAmount": "3600",
+  "deliveryCharge": "0",
+  "hasExtraInsurance": false,
+  "insuranceAmount": "0",
+  "platformCommission": "0",
+  "ownerEarnings": "0",
+  "status": "pending",
+  "paymentStatus": "pending"
+}
+11:17:44 AM [express] POST /api/bookings 201 in 474ms :: {"id":"3d8506b1-571c-4ba2-8741-693413d203c4"…
+11:17:44 AM [express] POST /api/create-payment 400 in 575ms :: {"error":"Owner payment details not co…
