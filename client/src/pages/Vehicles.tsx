@@ -14,20 +14,54 @@ export default function Vehicles() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [pickupDateTime, setPickupDateTime] = useState<string>("");
+  const [returnDateTime, setReturnDateTime] = useState<string>("");
 
   // Initialize filters from URL parameters
   useEffect(() => {
     const params = new URLSearchParams(location.split('?')[1] || '');
     const urlLocation = params.get('location');
     const urlType = params.get('type');
+    const urlPickupTime = params.get('pickupTime');
+    const urlReturnTime = params.get('returnTime');
     
     if (urlLocation) setSelectedLocation(urlLocation);
     if (urlType) setSelectedType(urlType);
+    if (urlPickupTime) setPickupDateTime(urlPickupTime);
+    if (urlReturnTime) setReturnDateTime(urlReturnTime);
   }, [location]);
   
   const { data: vehicles, isLoading } = useQuery<Vehicle[]>({
     queryKey: ["/api/vehicles"],
   });
+
+  // Helper function to check if vehicle is available at requested time
+  const isVehicleAvailableAtTime = (vehicle: Vehicle): boolean => {
+    if (!pickupDateTime) return true; // No time filter, show all vehicles
+    
+    // If vehicle has specific hours restriction
+    if (vehicle.availabilityType === "specific_hours" && vehicle.availableFromTime && vehicle.availableToTime) {
+      const pickupDate = new Date(pickupDateTime);
+      const pickupTime = pickupDate.toTimeString().substring(0, 5); // Get HH:MM format
+      
+      // Check if pickup time is within available hours
+      if (pickupTime < vehicle.availableFromTime || pickupTime > vehicle.availableToTime) {
+        return false;
+      }
+      
+      // Also check return time if provided
+      if (returnDateTime) {
+        const returnDate = new Date(returnDateTime);
+        const returnTime = returnDate.toTimeString().substring(0, 5);
+        
+        if (returnTime < vehicle.availableFromTime || returnTime > vehicle.availableToTime) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  };
 
   const filteredVehicles = vehicles?.filter((vehicle) => {
     const matchesSearch = vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,8 +69,9 @@ export default function Vehicles() {
                          vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = !selectedType || vehicle.type === selectedType;
     const matchesLocation = !selectedLocation || vehicle.location === selectedLocation;
+    const matchesTime = isVehicleAvailableAtTime(vehicle);
     
-    return matchesSearch && matchesType && matchesLocation;
+    return matchesSearch && matchesType && matchesLocation && matchesTime;
   }) || [];
 
   const uniqueLocations = Array.from(new Set(vehicles?.map(v => v.location) || []));
@@ -45,9 +80,11 @@ export default function Vehicles() {
     setSearchTerm("");
     setSelectedType("");
     setSelectedLocation("");
+    setPickupDateTime("");
+    setReturnDateTime("");
   };
 
-  const hasActiveFilters = searchTerm || selectedType || selectedLocation;
+  const hasActiveFilters = searchTerm || selectedType || selectedLocation || pickupDateTime || returnDateTime;
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -62,8 +99,8 @@ export default function Vehicles() {
         {/* Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-3">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -100,10 +137,28 @@ export default function Vehicles() {
                   ))}
                 </select>
               </div>
+              <div>
+                <Input
+                  type="datetime-local"
+                  value={pickupDateTime}
+                  onChange={(e) => setPickupDateTime(e.target.value)}
+                  placeholder="Pickup date & time"
+                  data-testid="input-pickup-filter"
+                />
+              </div>
+              <div>
+                <Input
+                  type="datetime-local"
+                  value={returnDateTime}
+                  onChange={(e) => setReturnDateTime(e.target.value)}
+                  placeholder="Return date & time"
+                  data-testid="input-return-filter"
+                />
+              </div>
             </div>
 
             {hasActiveFilters && (
-              <div className="mt-4 flex items-center gap-2">
+              <div className="mt-4 flex items-center gap-2 flex-wrap">
                 <span className="text-sm text-muted-foreground">Active filters:</span>
                 {searchTerm && (
                   <Badge variant="secondary" className="gap-1">
@@ -121,6 +176,18 @@ export default function Vehicles() {
                   <Badge variant="secondary" className="gap-1">
                     Location: {selectedLocation}
                     <X className="h-3 w-3 cursor-pointer" onClick={() => setSelectedLocation("")} />
+                  </Badge>
+                )}
+                {pickupDateTime && (
+                  <Badge variant="secondary" className="gap-1">
+                    Pickup: {new Date(pickupDateTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setPickupDateTime("")} />
+                  </Badge>
+                )}
+                {returnDateTime && (
+                  <Badge variant="secondary" className="gap-1">
+                    Return: {new Date(returnDateTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setReturnDateTime("")} />
                   </Badge>
                 )}
                 <Button variant="ghost" size="sm" onClick={clearFilters} data-testid="button-clear-filters">

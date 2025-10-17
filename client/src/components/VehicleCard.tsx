@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Fuel, Settings, MapPin } from "lucide-react";
+import { Users, Fuel, Settings, MapPin, Clock } from "lucide-react";
 import type { Vehicle } from "@shared/schema";
 
 interface VehicleCardProps {
@@ -41,7 +41,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-3">
           {vehicle.seats && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
@@ -61,6 +61,27 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
             <span>{vehicle.location}</span>
           </div>
         </div>
+
+        {/* Availability Hours */}
+        {vehicle.availabilityType === "specific_hours" && vehicle.availableFromTime && vehicle.availableToTime && (
+          <div className="mb-3 p-2 bg-muted/50 rounded-md">
+            <div className="flex items-center gap-1 text-sm">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="font-medium">Available:</span>
+              <span className="text-muted-foreground">
+                {vehicle.availableFromTime} - {vehicle.availableToTime}
+              </span>
+            </div>
+          </div>
+        )}
+        {vehicle.availabilityType === "always" && (
+          <div className="mb-3 p-2 bg-primary/10 rounded-md">
+            <div className="flex items-center gap-1 text-sm text-primary">
+              <Clock className="h-4 w-4" />
+              <span className="font-medium">Available 24/7</span>
+            </div>
+          </div>
+        )}
 
         <div className="flex items-center justify-between mb-4">
           <div>

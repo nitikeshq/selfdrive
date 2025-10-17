@@ -39,7 +39,7 @@ export default function Landing() {
     if (pickupDateTime) params.append("pickupTime", pickupDateTime);
     if (returnDateTime) params.append("returnTime", returnDateTime);
     if (searchType) params.append("type", searchType);
-    setLocation(`/browse-vehicles?${params.toString()}`);
+    setLocation(`/vehicles?${params.toString()}`);
   };
 
   return (
