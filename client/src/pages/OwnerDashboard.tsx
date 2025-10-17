@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Car, DollarSign, Calendar, TrendingUp, Plus } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import type { Vehicle, BookingWithDetails } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function OwnerDashboard() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   
   const { data: vehicles, isLoading: vehiclesLoading } = useQuery<Vehicle[]>({
     queryKey: ["/api/owner/vehicles"],
@@ -88,41 +89,41 @@ export default function OwnerDashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Link href="/owner/vehicles">
-            <a>
-              <Card className="hover-elevate cursor-pointer transition-all border-2 hover:border-primary">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <Car className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg">My Vehicles</h3>
-                      <p className="text-sm text-muted-foreground">Manage your vehicle listings</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
-          </Link>
+          <Card 
+            className="hover-elevate cursor-pointer transition-all border-2 hover:border-primary"
+            onClick={() => setLocation('/owner/vehicles')}
+            data-testid="card-quick-action-vehicles"
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <Car className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">My Vehicles</h3>
+                  <p className="text-sm text-muted-foreground">Manage your vehicle listings</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <Link href="/owner/transactions">
-            <a>
-              <Card className="hover-elevate cursor-pointer transition-all border-2 hover:border-primary">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <DollarSign className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg">Transactions</h3>
-                      <p className="text-sm text-muted-foreground">View earnings and commission</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
-          </Link>
+          <Card 
+            className="hover-elevate cursor-pointer transition-all border-2 hover:border-primary"
+            onClick={() => setLocation('/owner/transactions')}
+            data-testid="card-quick-action-transactions"
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <DollarSign className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Transactions</h3>
+                  <p className="text-sm text-muted-foreground">View earnings and commission</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Stats Cards */}
