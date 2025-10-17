@@ -60,13 +60,7 @@ export default function ListVehicle() {
   const [, setLocation] = useLocation();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
-
-  // Show auth modal if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      setShowAuthModal(true);
-    }
-  }, [isLoading, isAuthenticated]);
+  const [pendingVehicleData, setPendingVehicleData] = useState<VehicleFormData | null>(null);
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleFormSchema),
@@ -107,10 +101,16 @@ export default function ListVehicle() {
       const res = await apiRequest("POST", "/api/register", { ...data, role: "owner" });
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({ title: "Success!", description: "Owner account created successfully" });
       setShowAuthModal(false);
+      
+      // Automatically submit vehicle after successful registration
+      if (pendingVehicleData) {
+        createVehicleMutation.mutate(pendingVehicleData);
+        setPendingVehicleData(null);
+      }
     },
     onError: (error: any) => {
       toast({ title: "Registration failed", description: error.message || "Please try again", variant: "destructive" });
@@ -122,10 +122,16 @@ export default function ListVehicle() {
       const res = await apiRequest("POST", "/api/login", data);
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({ title: "Success!", description: "Logged in successfully" });
       setShowAuthModal(false);
+      
+      // Automatically submit vehicle after successful login
+      if (pendingVehicleData) {
+        createVehicleMutation.mutate(pendingVehicleData);
+        setPendingVehicleData(null);
+      }
     },
     onError: (error: any) => {
       toast({ title: "Login failed", description: error.message || "Please try again", variant: "destructive" });
@@ -158,7 +164,15 @@ export default function ListVehicle() {
   });
 
   const onSubmit = (data: VehicleFormData) => {
-    createVehicleMutation.mutate(data);
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Save vehicle data and show auth modal
+      setPendingVehicleData(data);
+      setShowAuthModal(true);
+    } else {
+      // User is authenticated, submit directly
+      createVehicleMutation.mutate(data);
+    }
   };
 
   const vehicleType = form.watch("type");
@@ -511,12 +525,12 @@ export default function ListVehicle() {
       </div>
 
       {/* Auth Modal */}
-      <Dialog open={showAuthModal} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Become a Vehicle Owner</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Just One More Step!</DialogTitle>
             <DialogDescription>
-              Create an owner account or login to list your vehicle and start earning
+              To list your vehicle, please create an account or login. Your vehicle details are saved.
             </DialogDescription>
           </DialogHeader>
           
