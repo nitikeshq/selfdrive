@@ -11,6 +11,13 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
+- **PayUMoney Payment Gateway Integration**: Replaced Stripe with PayUMoney for all payments:
+  - Booking payments with 30% platform commission and 70% owner earnings
+  - Membership payments (₹999 annual fee) with automatic activation
+  - Hash-based security verification for all payment callbacks
+  - Split payment support for owner settlements (pending 7-day implementation)
+  - Environment variables: PAYUMONEY_MERCHANT_KEY, PAYUMONEY_SALT, PAYUMONEY_MERCHANT_ID
+  - Dedicated PayUMoney service with hash generation and verification utilities
 - **Referral & Membership System**: Complete implementation of referral rewards and premium membership:
   - Referral system: Users earn ₹50 for each successful referral with 90-day expiry
   - Membership: ₹999 annual premium membership with exclusive benefits
