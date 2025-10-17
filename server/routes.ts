@@ -213,12 +213,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/vehicles/:id", async (req, res) => {
+  app.patch("/api/vehicles/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const vehicle = await storage.updateVehicle(req.params.id, req.body);
-      if (!vehicle) {
+      const userId = req.session.userId;
+      const vehicleId = req.params.id;
+      
+      // Check if vehicle exists and user owns it
+      const existingVehicle = await storage.getVehicle(vehicleId);
+      if (!existingVehicle) {
         return res.status(404).json({ error: "Vehicle not found" });
       }
+      
+      if (existingVehicle.ownerId !== userId) {
+        return res.status(403).json({ error: "You don't have permission to update this vehicle" });
+      }
+      
+      const vehicle = await storage.updateVehicle(vehicleId, req.body);
       res.json(vehicle);
     } catch (error) {
       res.status(500).json({ error: "Failed to update vehicle" });
