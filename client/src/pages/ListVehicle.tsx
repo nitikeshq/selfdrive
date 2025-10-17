@@ -371,20 +371,19 @@ export default function ListVehicle() {
                         <FormControl>
                           <GooglePlacesAutocomplete
                             value={field.value}
-                            onChange={field.onChange}
-                            onPlaceSelect={(details) => {
-                              form.setValue("location", details.address);
-                              form.setValue("locationPlaceId", details.placeId);
-                              form.setValue("locationLat", details.lat);
-                              form.setValue("locationLng", details.lng);
+                            onChange={(value, placeId, lat, lng) => {
+                              field.onChange(value);
+                              if (placeId) form.setValue("locationPlaceId", placeId);
+                              if (lat) form.setValue("locationLat", parseFloat(lat));
+                              if (lng) form.setValue("locationLng", parseFloat(lng));
                             }}
-                            placeholder="Search for parking location in Bhubaneswar"
+                            placeholder="Enter parking location"
                             restrictToBhubaneswar={true}
                             testId="input-location"
                           />
                         </FormControl>
                         <FormDescription className="text-xs">
-                          Select precise parking location using Google Maps
+                          Enter the parking location for your vehicle
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

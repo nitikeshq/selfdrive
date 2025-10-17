@@ -13,8 +13,7 @@ interface PlaceDetails {
 
 interface GooglePlacesAutocompleteProps {
   value: string;
-  onChange: (value: string) => void;
-  onPlaceSelect?: (details: PlaceDetails) => void;
+  onChange: (value: string, placeId?: string | null, lat?: string | null, lng?: string | null) => void;
   placeholder?: string;
   restrictToBhubaneswar?: boolean;
   testId?: string;
@@ -23,7 +22,6 @@ interface GooglePlacesAutocompleteProps {
 export default function GooglePlacesAutocomplete({
   value,
   onChange,
-  onPlaceSelect,
   placeholder = "Enter location",
   restrictToBhubaneswar = true,
   testId,
@@ -32,9 +30,15 @@ export default function GooglePlacesAutocomplete({
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const [inputValue, setInputValue] = useState(value);
 
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+  const hasApiKey = apiKey.length > 0;
+
+  // Only load Google Maps if we have an API key
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+    googleMapsApiKey: apiKey,
     libraries,
+    preventGoogleFontsLoading: true,
+    id: "google-maps-script",
   });
 
   useEffect(() => {
@@ -42,7 +46,7 @@ export default function GooglePlacesAutocomplete({
   }, [value]);
 
   useEffect(() => {
-    if (!isLoaded || !inputRef.current) return;
+    if (!hasApiKey || !isLoaded || !inputRef.current || loadError) return;
 
     // Bhubaneswar coordinates for location bias
     const bhubaneswarBounds = {
@@ -60,43 +64,38 @@ export default function GooglePlacesAutocomplete({
     // Restrict to Bhubaneswar area if enabled
     if (restrictToBhubaneswar) {
       options.bounds = bhubaneswarBounds;
-      options.strictBounds = false; // Allow selection outside bounds but prioritize inside
+      options.strictBounds = false;
     }
 
-    autocompleteRef.current = new google.maps.places.Autocomplete(
-      inputRef.current,
-      options
-    );
+    try {
+      autocompleteRef.current = new google.maps.places.Autocomplete(
+        inputRef.current,
+        options
+      );
 
-    autocompleteRef.current.addListener("place_changed", () => {
-      const place = autocompleteRef.current?.getPlace();
-      
-      if (place && place.geometry && place.geometry.location) {
-        const address = place.formatted_address || place.name || "";
-        const placeId = place.place_id || "";
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
+      autocompleteRef.current.addListener("place_changed", () => {
+        const place = autocompleteRef.current?.getPlace();
+        
+        if (place && place.geometry && place.geometry.location) {
+          const address = place.formatted_address || place.name || "";
+          const placeId = place.place_id || "";
+          const lat = place.geometry.location.lat().toString();
+          const lng = place.geometry.location.lng().toString();
 
-        setInputValue(address);
-        onChange(address);
-
-        if (onPlaceSelect) {
-          onPlaceSelect({
-            address,
-            placeId,
-            lat,
-            lng,
-          });
+          setInputValue(address);
+          onChange(address, placeId, lat, lng);
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error("Error initializing Google Places Autocomplete:", error);
+    }
 
     return () => {
       if (autocompleteRef.current) {
         google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
-  }, [isLoaded, onChange, onPlaceSelect, restrictToBhubaneswar]);
+  }, [hasApiKey, isLoaded, loadError, onChange, restrictToBhubaneswar]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -104,32 +103,10 @@ export default function GooglePlacesAutocomplete({
     onChange(newValue);
   };
 
-  if (loadError) {
-    return (
-      <Input
-        value={inputValue}
-        onChange={handleInputChange}
-        placeholder={placeholder}
-        data-testid={testId}
-      />
-    );
-  }
-
-  if (!isLoaded) {
-    return (
-      <Input
-        value={inputValue}
-        onChange={handleInputChange}
-        placeholder="Loading Google Maps..."
-        disabled
-        data-testid={testId}
-      />
-    );
-  }
-
+  // Always render as regular input - Google Places enhances it when available
   return (
     <Input
-      ref={inputRef}
+      ref={hasApiKey && isLoaded && !loadError ? inputRef : null}
       value={inputValue}
       onChange={handleInputChange}
       placeholder={placeholder}
