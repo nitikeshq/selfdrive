@@ -311,6 +311,12 @@ export const insertOwnerAddressSchema = createInsertSchema(ownerAddresses).omit(
 export const insertVehicleSchema = createInsertSchema(vehicles).omit({
   id: true,
   createdAt: true,
+}).extend({
+  pricePerHour: z.union([z.string(), z.number()]).transform(val => String(val)),
+  pricePerDay: z.union([z.string(), z.number()]).transform(val => String(val)),
+  extraInsuranceCost: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
+  locationLat: z.union([z.string(), z.number(), z.null()]).transform(val => val === null ? null : String(val)).optional(),
+  locationLng: z.union([z.string(), z.number(), z.null()]).transform(val => val === null ? null : String(val)).optional(),
 });
 
 export const insertVehicleDocumentSchema = createInsertSchema(vehicleDocuments).omit({
@@ -321,6 +327,13 @@ export const insertVehicleDocumentSchema = createInsertSchema(vehicleDocuments).
 export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
+}).extend({
+  totalAmount: z.union([z.string(), z.number()]).transform(val => String(val)),
+  deliveryCharge: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
+  insuranceCost: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
+  gpsCost: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
+  platformCommission: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
+  ownerEarnings: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
 });
 
 export const insertRatingSchema = createInsertSchema(ratings).omit({
@@ -331,6 +344,8 @@ export const insertRatingSchema = createInsertSchema(ratings).omit({
 export const insertChallanSchema = createInsertSchema(challans).omit({
   id: true,
   createdAt: true,
+}).extend({
+  fineAmount: z.union([z.string(), z.number()]).transform(val => String(val)),
 });
 
 export const insertVideoVerificationSchema = createInsertSchema(videoVerifications).omit({
@@ -341,16 +356,22 @@ export const insertVideoVerificationSchema = createInsertSchema(videoVerificatio
 export const insertTollFeeSchema = createInsertSchema(tollFees).omit({
   id: true,
   submittedAt: true,
+}).extend({
+  amount: z.union([z.string(), z.number()]).transform(val => String(val)),
 });
 
 export const insertAddonProductSchema = createInsertSchema(addonProducts).omit({
   id: true,
   createdAt: true,
+}).extend({
+  price: z.union([z.string(), z.number()]).transform(val => String(val)),
 });
 
 export const insertOwnerAddonPurchaseSchema = createInsertSchema(ownerAddonPurchases).omit({
   id: true,
   purchasedAt: true,
+}).extend({
+  totalAmount: z.union([z.string(), z.number()]).transform(val => String(val)),
 });
 
 // Types
