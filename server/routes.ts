@@ -795,12 +795,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).send("Invalid payment response");
       }
 
-      // Find booking by transaction ID
-      const bookings = await storage.getBookingsByUser(""); // Get all bookings
-      const booking = bookings.find((b: any) => b.paymentIntentId === txnid);
-
-      if (booking && status === "success") {
-        await storage.updateBooking(booking.id, {
+      // Get booking ID from udf1
+      const bookingId = udf1;
+      
+      if (bookingId && status === "success") {
+        await storage.updateBooking(bookingId, {
           paymentStatus: "paid",
           status: "confirmed",
           paymentIntentId: mihpayid || txnid,
@@ -808,7 +807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Redirect to success page
-      res.redirect(`/?payment=success&bookingId=${booking?.id}`);
+      res.redirect(`/?payment=success&bookingId=${bookingId}`);
     } catch (error) {
       console.error("Payment success callback error:", error);
       res.redirect("/?payment=error");
@@ -818,19 +817,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PayU failure callback
   app.post("/api/payment-failure", async (req, res) => {
     try {
-      const { txnid } = req.body;
+      const { txnid, udf1 } = req.body;
       
-      // Find booking by transaction ID and mark as failed
-      const bookings = await storage.getBookingsByUser(""); // Get all bookings
-      const booking = bookings.find((b: any) => b.paymentIntentId === txnid);
+      // Get booking ID from udf1
+      const bookingId = udf1;
 
-      if (booking) {
-        await storage.updateBooking(booking.id, {
+      if (bookingId) {
+        await storage.updateBooking(bookingId, {
           paymentStatus: "failed",
         });
       }
 
-      res.redirect(`/?payment=failed&bookingId=${booking?.id}`);
+      res.redirect(`/?payment=failed&bookingId=${bookingId}`);
     } catch (error) {
       console.error("Payment failure callback error:", error);
       res.redirect("/?payment=error");
