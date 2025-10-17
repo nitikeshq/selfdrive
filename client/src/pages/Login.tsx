@@ -62,7 +62,15 @@ export default function Login() {
       });
       
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setLocation("/");
+      
+      // Redirect based on user role
+      if (user.role === "owner") {
+        setLocation("/owner-dashboard");
+      } else if (user.role === "customer") {
+        setLocation("/browse-vehicles");
+      } else {
+        setLocation("/");
+      }
     } catch (error: any) {
       toast({
         title: "Login Failed",
@@ -86,7 +94,9 @@ export default function Login() {
       });
       
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setLocation("/");
+      
+      // Redirect customers to browse vehicles (owners register through /list-vehicle)
+      setLocation("/browse-vehicles");
     } catch (error: any) {
       toast({
         title: "Registration Failed",
