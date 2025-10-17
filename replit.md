@@ -11,6 +11,30 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
+- **AWS S3 File Storage Configuration**: Configured AWS S3 for file uploads and object storage:
+  - Updated storage provider to use AWS_S3_BUCKET_NAME environment variable
+  - Supports both AWS_S3_BUCKET and AWS_S3_BUCKET_NAME for flexibility
+  - S3 provider handles vehicle images, documents (RC, Insurance, PUC), and user KYC documents
+  - Storage provider auto-fallback to local storage if S3 credentials missing
+  - Environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET_NAME, STORAGE_PROVIDER=s3
+- **SEO Optimization**: Implemented comprehensive SEO across all pages:
+  - Created reusable SEO component with meta tags, Open Graph, and Twitter cards
+  - Landing page: Optimized for "car rental Bhubaneswar" and related local keywords
+  - Vehicles page: Generic browse/search optimization
+  - Book Vehicle page: Dynamic SEO with vehicle-specific titles, descriptions, and OG images
+  - All pages include proper canonical URLs for search engine indexing
+  - Loading and error states also have appropriate SEO meta tags
+- **Wallet Payment System**: Added wallet balance payment option for bookings:
+  - Users can pay for bookings using wallet balance via /api/pay-booking-wallet endpoint
+  - Automatic wallet balance validation and deduction
+  - Insufficient balance warnings with clear error messages
+  - Dual payment methods: wallet (instant) or PayUMoney (redirect to gateway)
+- **Performance Documentation**: Created PERFORMANCE_RECOMMENDATIONS.md with optimization strategies:
+  - Bundle size reduction techniques (code splitting, tree shaking)
+  - Lazy loading patterns for routes and heavy components
+  - React.memo and useMemo optimization guidelines
+  - Pagination strategies for large data sets
+  - Image optimization recommendations
 - **PayUMoney Payment Gateway Integration**: Replaced Stripe with PayUMoney for all payments:
   - Booking payments with 30% platform commission and 70% owner earnings
   - Membership payments (₹999 annual fee) with automatic activation
