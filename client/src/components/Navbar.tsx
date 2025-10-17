@@ -1,5 +1,5 @@
-import { Link } from "wouter";
-import { Car, Menu, X, User, LogOut } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Car, Menu, X, User, LogOut, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "./ThemeToggle";
@@ -8,7 +8,12 @@ import { useState } from "react";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [location, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
+  
+  // Determine if user is in owner mode based on current route
+  const isOwnerMode = location.startsWith('/owner') || location === '/owner-dashboard';
+  const hasVehicles = user && (user as any).role === 'owner';
 
   return (
     <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -24,26 +29,76 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/vehicles">
-              <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse">
-                Browse Vehicles
-              </span>
-            </Link>
-            <Link href="/become-owner">
-              <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-become-owner">
-                Become an Owner
-              </span>
-            </Link>
-            {!isLoading && isAuthenticated && (
+            {!isLoading && isAuthenticated ? (
               <>
-                <Link href="/dashboard">
-                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard">
-                    My Bookings
+                {isOwnerMode ? (
+                  // Owner Mode Navigation
+                  <>
+                    <Link href="/owner/vehicles">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-my-vehicles">
+                        My Vehicles
+                      </span>
+                    </Link>
+                    <Link href="/owner/transactions">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-transactions">
+                        Transactions
+                      </span>
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setLocation('/dashboard')}
+                      data-testid="button-switch-customer"
+                    >
+                      <ArrowRightLeft className="h-4 w-4 mr-2" />
+                      Switch to Customer
+                    </Button>
+                  </>
+                ) : (
+                  // Customer Mode Navigation
+                  <>
+                    <Link href="/vehicles">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse">
+                        Browse Vehicles
+                      </span>
+                    </Link>
+                    <Link href="/dashboard">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard">
+                        My Bookings
+                      </span>
+                    </Link>
+                    {hasVehicles && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setLocation('/owner-dashboard')}
+                        data-testid="button-switch-owner"
+                      >
+                        <ArrowRightLeft className="h-4 w-4 mr-2" />
+                        Switch to Owner
+                      </Button>
+                    )}
+                    {!hasVehicles && (
+                      <Link href="/become-owner">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-become-owner">
+                          Become an Owner
+                        </span>
+                      </Link>
+                    )}
+                  </>
+                )}
+              </>
+            ) : (
+              // Not Authenticated Navigation
+              <>
+                <Link href="/vehicles">
+                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse">
+                    Browse Vehicles
                   </span>
                 </Link>
-                <Link href="/list-vehicle">
-                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle">
-                    List Vehicle
+                <Link href="/become-owner">
+                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-become-owner">
+                    Become an Owner
                   </span>
                 </Link>
               </>
@@ -109,26 +164,82 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col gap-4">
-              <Link href="/vehicles">
-                <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse-mobile">
-                  Browse Vehicles
-                </span>
-              </Link>
-              <Link href="/become-owner">
-                <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-become-owner-mobile">
-                  Become an Owner
-                </span>
-              </Link>
-              {!isLoading && isAuthenticated && (
+              {!isLoading && isAuthenticated ? (
                 <>
-                  <Link href="/dashboard">
-                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard-mobile">
-                      My Bookings
+                  {isOwnerMode ? (
+                    // Owner Mode Navigation
+                    <>
+                      <Link href="/owner/vehicles">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-my-vehicles-mobile">
+                          My Vehicles
+                        </span>
+                      </Link>
+                      <Link href="/owner/transactions">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-transactions-mobile">
+                          Transactions
+                        </span>
+                      </Link>
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => {
+                          setLocation('/dashboard');
+                          setMobileMenuOpen(false);
+                        }}
+                        data-testid="button-switch-customer-mobile"
+                      >
+                        <ArrowRightLeft className="h-4 w-4 mr-2" />
+                        Switch to Customer
+                      </Button>
+                    </>
+                  ) : (
+                    // Customer Mode Navigation
+                    <>
+                      <Link href="/vehicles">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse-mobile">
+                          Browse Vehicles
+                        </span>
+                      </Link>
+                      <Link href="/dashboard">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard-mobile">
+                          My Bookings
+                        </span>
+                      </Link>
+                      {hasVehicles && (
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => {
+                            setLocation('/owner-dashboard');
+                            setMobileMenuOpen(false);
+                          }}
+                          data-testid="button-switch-owner-mobile"
+                        >
+                          <ArrowRightLeft className="h-4 w-4 mr-2" />
+                          Switch to Owner
+                        </Button>
+                      )}
+                      {!hasVehicles && (
+                        <Link href="/become-owner">
+                          <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-become-owner-mobile">
+                            Become an Owner
+                          </span>
+                        </Link>
+                      )}
+                    </>
+                  )}
+                </>
+              ) : (
+                // Not Authenticated Navigation
+                <>
+                  <Link href="/vehicles">
+                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse-mobile">
+                      Browse Vehicles
                     </span>
                   </Link>
-                  <Link href="/list-vehicle">
-                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-list-vehicle-mobile">
-                      List Vehicle
+                  <Link href="/become-owner">
+                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-become-owner-mobile">
+                      Become an Owner
                     </span>
                   </Link>
                 </>
