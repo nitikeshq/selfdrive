@@ -8,6 +8,52 @@ DriveEase is a full-stack vehicle rental platform that enables customers to book
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### Owner Onboarding Flow (October 17, 2025)
+
+**Restructured owner registration and vehicle listing flow:**
+
+1. **BecomeOwner Page** (/become-owner):
+   - Converted to pure marketing page with no registration forms
+   - Features hero section with "Anyone Can Earn" messaging
+   - Benefits section explaining passive income opportunities
+   - Interactive profit calculator showing realistic earnings projections
+   - 4-step process explaining how to get started
+   - "Start Earning Today" CTA redirects to /list-vehicle
+
+2. **ListVehicle Page** (/list-vehicle):
+   - Implemented authentication gate with non-dismissible modal
+   - Modal appears automatically for unauthenticated users
+   - Dual-tab interface: Register (creates owner account) and Login
+   - Registration form collects: firstName, lastName, email, password
+   - Owner role is automatically set during registration
+   - After successful auth, modal closes and user can access listing form
+   - Vehicle creation now POSTs to /api/vehicles backend endpoint
+   - Features proper cache invalidation and success feedback
+   - Uses router navigation for smooth UX after vehicle creation
+
+3. **Owner Dashboard** (/owner-dashboard):
+   - "Add Vehicle" button links to /list-vehicle for seamless addition
+   - Each vehicle card has "Edit" button linking to /edit-vehicle/:id
+   - Toggle availability functionality per vehicle
+   - Stats cards showing earnings, bookings, and vehicle metrics
+
+4. **EditVehicle Page** (/edit-vehicle/:id):
+   - Pre-fills form with existing vehicle data
+   - Updates vehicles via PATCH /api/vehicles/:id
+   - Redirects to dashboard after successful update
+
+**Complete User Journey:**
+- User visits /become-owner → sees marketing content and profit calculator
+- Clicks "Start Earning" → redirects to /list-vehicle
+- Auth modal appears (cannot be dismissed) → user registers or logs in
+- After auth → modal closes → user fills vehicle form
+- Submits vehicle → POSTed to backend → saves to database
+- Success toast shown → redirects to /owner-dashboard
+- Dashboard displays newly listed vehicle
+- Owner can add more vehicles or edit existing ones
+
 ## System Architecture
 
 ### Frontend Architecture
