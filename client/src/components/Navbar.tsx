@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Car, Menu, X, User, LogOut, ArrowRightLeft, Wallet, Crown } from "lucide-react";
+import { Car, Menu, X, User, LogOut, ArrowRightLeft, Gift, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -71,10 +71,10 @@ export function Navbar() {
                         My Bookings
                       </span>
                     </Link>
-                    <Link href="/wallet">
-                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer flex items-center gap-1" data-testid="link-wallet">
-                        <Wallet className="h-4 w-4" />
-                        Wallet
+                    <Link href="/rewards">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer flex items-center gap-1" data-testid="link-rewards">
+                        <Gift className="h-4 w-4" />
+                        Rewards
                       </span>
                     </Link>
                     <Link href="/membership">

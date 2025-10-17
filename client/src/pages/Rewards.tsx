@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Wallet as WalletIcon, TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { Gift, TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { format } from "date-fns";
 import type { WalletTransaction } from "@shared/schema";
 
-export default function Wallet() {
+export default function Rewards() {
   const { data: balanceData } = useQuery<{ balance: number }>({
     queryKey: ["/api/wallet/balance"],
   });
@@ -29,10 +29,10 @@ export default function Wallet() {
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2" data-testid="text-wallet-title">
-            My Wallet
+          <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2" data-testid="text-rewards-title">
+            My Rewards
           </h1>
-          <p className="text-muted-foreground">Manage your wallet balance and transactions</p>
+          <p className="text-muted-foreground">View your rewards balance and transaction history</p>
         </div>
 
         {/* Balance Card */}
@@ -40,10 +40,10 @@ export default function Wallet() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg">Wallet Balance</CardTitle>
-                <CardDescription>Available credits</CardDescription>
+                <CardTitle className="text-lg">Rewards Balance</CardTitle>
+                <CardDescription>Available rewards credits</CardDescription>
               </div>
-              <WalletIcon className="h-8 w-8 text-primary" />
+              <Gift className="h-8 w-8 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
@@ -63,12 +63,12 @@ export default function Wallet() {
         <Card>
           <CardHeader>
             <CardTitle>Transaction History</CardTitle>
-            <CardDescription>Your recent wallet transactions</CardDescription>
+            <CardDescription>Your recent rewards transactions</CardDescription>
           </CardHeader>
           <CardContent>
             {transactions.length === 0 ? (
               <div className="text-center py-12">
-                <WalletIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <Gift className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No transactions yet</p>
               </div>
             ) : (
