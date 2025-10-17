@@ -125,6 +125,12 @@ export const vehicles = pgTable("vehicles", {
   available: boolean("available").notNull().default(true),
   isPaused: boolean("is_paused").notNull().default(false),
   currentStatus: text("current_status").notNull().default("idle"), // idle, rented, in_maintenance
+  
+  // Time-based Availability
+  availabilityType: text("availability_type").notNull().default("always"), // always, specific_hours
+  availableFromTime: text("available_from_time"), // HH:MM format (e.g., "09:00")
+  availableToTime: text("available_to_time"), // HH:MM format (e.g., "17:00")
+  
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   ownerIdx: index("vehicles_owner_idx").on(table.ownerId),
