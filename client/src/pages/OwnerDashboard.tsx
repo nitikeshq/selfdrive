@@ -48,6 +48,10 @@ export default function OwnerDashboard() {
     return sum;
   }, 0) || 0;
 
+  // Calculate commission (30% to platform, 70% to owner)
+  const platformCommission = totalEarnings * 0.3;
+  const netEarnings = totalEarnings * 0.7;
+
   const activeBookings = bookings?.filter(b => b.status === "active" || b.status === "confirmed").length || 0;
   const totalVehicles = vehicles?.length || 0;
   const availableVehicles = vehicles?.filter(v => v.available).length || 0;
@@ -86,26 +90,26 @@ export default function OwnerDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <Card className="hover-elevate transition-all">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
+              <CardTitle className="text-sm font-medium">Your Earnings</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-total-earnings">₹{totalEarnings.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400" data-testid="text-net-earnings">₹{netEarnings.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                From all bookings
+                Net earnings (70%)
               </p>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate transition-all">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Bookings</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Platform Commission</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-active-bookings">{activeBookings}</div>
+              <div className="text-2xl font-bold" data-testid="text-platform-commission">₹{platformCommission.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Current rentals
+                30% platform fee
               </p>
             </CardContent>
           </Card>
@@ -125,13 +129,13 @@ export default function OwnerDashboard() {
 
           <Card className="hover-elevate transition-all">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Available Now</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Active Bookings</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-available-vehicles">{availableVehicles}</div>
+              <div className="text-2xl font-bold" data-testid="text-active-bookings">{activeBookings}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Ready to rent
+                Current rentals
               </p>
             </CardContent>
           </Card>
