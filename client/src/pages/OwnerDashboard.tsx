@@ -69,27 +69,6 @@ export default function OwnerDashboard() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Quick Navigation */}
-        <div className="flex items-center gap-3 mb-6 text-sm">
-          <Link href="/">
-            <a className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-home">
-              Home
-            </a>
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <Link href="/vehicles">
-            <a className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-browse-vehicles">
-              Browse Vehicles
-            </a>
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <Link href="/dashboard">
-            <a className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-customer-dashboard">
-              My Bookings
-            </a>
-          </Link>
-        </div>
-
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2" data-testid="text-owner-dashboard-title">
@@ -103,6 +82,45 @@ export default function OwnerDashboard() {
                 <Plus className="h-5 w-5 mr-2" />
                 Add Vehicle
               </Button>
+            </a>
+          </Link>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <Link href="/owner/vehicles">
+            <a>
+              <Card className="hover-elevate cursor-pointer transition-all border-2 hover:border-primary">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <Car className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">My Vehicles</h3>
+                      <p className="text-sm text-muted-foreground">Manage your vehicle listings</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          </Link>
+
+          <Link href="/owner/transactions">
+            <a>
+              <Card className="hover-elevate cursor-pointer transition-all border-2 hover:border-primary">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <DollarSign className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">Transactions</h3>
+                      <p className="text-sm text-muted-foreground">View earnings and commission</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </a>
           </Link>
         </div>

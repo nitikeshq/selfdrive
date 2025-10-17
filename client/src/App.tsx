@@ -17,6 +17,8 @@ const Vehicles = lazy(() => import("@/pages/Vehicles"));
 const BookVehicle = lazy(() => import("@/pages/BookVehicle"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const OwnerDashboard = lazy(() => import("@/pages/OwnerDashboard"));
+const MyVehicles = lazy(() => import("@/pages/owner/MyVehicles"));
+const Transactions = lazy(() => import("@/pages/owner/Transactions"));
 const ListVehicle = lazy(() => import("@/pages/ListVehicle"));
 const Login = lazy(() => import("@/pages/Login"));
 const BookingDetails = lazy(() => import("@/pages/BookingDetails"));
@@ -53,6 +55,8 @@ function Router() {
         <Route path="/booking/:id" component={BookingDetails} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/owner-dashboard" component={OwnerDashboard} />
+        <Route path="/owner/vehicles" component={MyVehicles} />
+        <Route path="/owner/transactions" component={Transactions} />
         <Route path="/list-vehicle" component={ListVehicle} />
         <Route path="/edit-vehicle/:id" component={EditVehicle} />
         <Route path="/become-owner" component={BecomeOwner} />
