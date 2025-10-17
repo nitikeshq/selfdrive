@@ -439,6 +439,7 @@ export default function EditVehicle() {
                             <Input 
                               type="time" 
                               {...field} 
+                              value={field.value || ""}
                               data-testid="input-available-from"
                             />
                           </FormControl>
@@ -457,6 +458,7 @@ export default function EditVehicle() {
                             <Input 
                               type="time" 
                               {...field} 
+                              value={field.value || ""}
                               data-testid="input-available-to"
                             />
                           </FormControl>

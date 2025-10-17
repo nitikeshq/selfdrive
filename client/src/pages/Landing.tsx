@@ -23,7 +23,8 @@ import type { Vehicle } from "@shared/schema";
 export default function Landing() {
   const [, setLocation] = useLocation();
   const [searchLocation, setSearchLocation] = useState("Bhubaneswar");
-  const [searchDate, setSearchDate] = useState("");
+  const [pickupDateTime, setPickupDateTime] = useState("");
+  const [returnDateTime, setReturnDateTime] = useState("");
   const [searchType, setSearchType] = useState("");
 
   const { data: vehicles, isLoading } = useQuery<Vehicle[]>({
@@ -35,8 +36,10 @@ export default function Landing() {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (searchLocation) params.append("location", searchLocation);
+    if (pickupDateTime) params.append("pickupTime", pickupDateTime);
+    if (returnDateTime) params.append("returnTime", returnDateTime);
     if (searchType) params.append("type", searchType);
-    setLocation(`/vehicles?${params.toString()}`);
+    setLocation(`/browse-vehicles?${params.toString()}`);
   };
 
   return (
@@ -65,7 +68,7 @@ export default function Landing() {
             {/* Search Bar */}
             <Card className="bg-white/95 dark:bg-card/95 backdrop-blur-md shadow-2xl">
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">Location</label>
                     <div className="relative">
@@ -84,9 +87,18 @@ export default function Landing() {
                     <label className="text-sm font-medium mb-2 block">Pickup Date & Time</label>
                     <Input 
                       type="datetime-local"
-                      value={searchDate}
-                      onChange={(e) => setSearchDate(e.target.value)}
-                      data-testid="input-search-datetime"
+                      value={pickupDateTime}
+                      onChange={(e) => setPickupDateTime(e.target.value)}
+                      data-testid="input-pickup-datetime"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Return Date & Time</label>
+                    <Input 
+                      type="datetime-local"
+                      value={returnDateTime}
+                      onChange={(e) => setReturnDateTime(e.target.value)}
+                      data-testid="input-return-datetime"
                     />
                   </div>
                   <div>
