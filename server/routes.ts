@@ -670,8 +670,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Required payment details missing" });
       }
 
-      const key = process.env.PAYU_MERCHANT_KEY;
-      const salt = process.env.PAYU_SALT;
+      const key = process.env.PAYUMONEY_MERCHANT_KEY;
+      const salt = process.env.PAYUMONEY_SALT;
       
       if (!key || !salt) {
         return res.status(500).json({ error: "Payment gateway not configured" });
@@ -764,8 +764,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { txnid, status, hash: responseHash, mihpayid } = req.body;
       
-      const salt = process.env.PAYU_SALT;
-      const key = process.env.PAYU_MERCHANT_KEY;
+      const salt = process.env.PAYUMONEY_SALT;
+      const key = process.env.PAYUMONEY_MERCHANT_KEY;
 
       // Verify hash to ensure response is authentic
       const hashString = `${salt}|${status}|||||||||||${req.body.email}|${req.body.firstname}|${req.body.productinfo}|${req.body.amount}|${txnid}|${key}`;
@@ -1481,13 +1481,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Membership Routes
   app.post("/api/membership/purchase", isAuthenticated, async (req: any, res) => {
     try {
-      const { paymentMethod } = req.body; // "wallet" or "online"
+      const { paymentMethod } = req.body; // "wallet" or "payu"
       const { purchaseMembership } = await import("./services/membership");
       
-      await purchaseMembership(req.session.userId, paymentMethod);
-      res.json({ success: true, message: "Membership activated successfully!" });
+      if (paymentMethod === "wallet") {
+        await purchaseMembership(req.session.userId, paymentMethod);
+        res.json({ success: true, message: "Membership activated successfully!" });
+      } else if (paymentMethod === "payu") {
+        // Generate PayUMoney payment for membership
+        const user = await storage.getUser(req.session.userId);
+        if (!user) {
+          return res.status(404).json({ error: "User not found" });
+        }
+
+        const key = process.env.PAYUMONEY_MERCHANT_KEY;
+        const salt = process.env.PAYUMONEY_SALT;
+        
+        if (!key || !salt) {
+          return res.status(500).json({ error: "Payment gateway not configured" });
+        }
+
+        const amount = "999"; // Membership price
+        const txnid = `MEMBERSHIP${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+        const productinfo = "DriveEase Premium Membership - 1 Year";
+        const firstname = user.firstName || user.email.split('@')[0];
+        const email = user.email;
+        const phone = user.phone || "0000000000";
+        
+        const domain = process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000';
+        const surl = `${domain}/api/membership-payment-success`;
+        const furl = `${domain}/api/membership-payment-failure`;
+
+        // Generate hash
+        const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
+        const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+
+        const paymentData = {
+          key,
+          txnid,
+          amount,
+          productinfo,
+          firstname,
+          email,
+          phone,
+          surl,
+          furl,
+          hash,
+          udf1: req.session.userId, // Store user ID for callback
+          paymentUrl: process.env.NODE_ENV === 'production' 
+            ? 'https://secure.payu.in/_payment'
+            : 'https://test.payu.in/_payment'
+        };
+
+        res.json(paymentData);
+      } else {
+        res.status(400).json({ error: "Invalid payment method" });
+      }
     } catch (error: any) {
       res.status(400).json({ error: error.message || "Failed to purchase membership" });
+    }
+  });
+
+  // Membership payment success callback
+  app.post("/api/membership-payment-success", async (req, res) => {
+    try {
+      const { txnid, status, hash: responseHash, udf1: userId, mihpayid } = req.body;
+      
+      const salt = process.env.PAYUMONEY_SALT;
+      const key = process.env.PAYUMONEY_MERCHANT_KEY;
+
+      // Verify hash
+      const hashString = `${salt}|${status}|||||||||||${req.body.email}|${req.body.firstname}|${req.body.productinfo}|${req.body.amount}|${txnid}|${key}`;
+      const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
+
+      if (calculatedHash !== responseHash) {
+        return res.status(400).send("Invalid payment response");
+      }
+
+      if (status === "success" && userId) {
+        // Activate membership
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 365);
+        
+        await db.update(users)
+          .set({
+            hasMembership: true,
+            membershipPurchasedAt: new Date(),
+            membershipExpiresAt: expiresAt,
+          })
+          .where(eq(users.id, userId));
+      }
+
+      res.redirect(`/membership?payment=success`);
+    } catch (error) {
+      console.error("Membership payment success error:", error);
+      res.redirect("/membership?payment=error");
+    }
+  });
+
+  // Membership payment failure callback
+  app.post("/api/membership-payment-failure", async (req, res) => {
+    try {
+      res.redirect(`/membership?payment=failed`);
+    } catch (error) {
+      console.error("Membership payment failure error:", error);
+      res.redirect("/membership?payment=error");
     }
   });
 

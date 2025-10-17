@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,8 @@ interface MembershipStatus {
 
 export default function Membership() {
   const { toast } = useToast();
-  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "online">("online");
+  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "payu">("payu");
+  const paymentFormRef = useRef<HTMLFormElement>(null);
 
   const { data: membershipStatus } = useQuery<MembershipStatus>({
     queryKey: ["/api/membership/status"],
@@ -27,17 +28,42 @@ export default function Membership() {
   });
 
   const purchaseMutation = useMutation({
-    mutationFn: async (method: "wallet" | "online") => {
+    mutationFn: async (method: "wallet" | "payu") => {
       return apiRequest("POST", "/api/membership/purchase", { paymentMethod: method });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/membership/status"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/wallet/balance"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "Membership Activated!",
-        description: "You now have access to all premium benefits.",
-      });
+    onSuccess: (data: any) => {
+      if (data.paymentUrl) {
+        // PayUMoney payment - create and submit form
+        const form = paymentFormRef.current;
+        if (form) {
+          // Clear existing inputs
+          form.innerHTML = '';
+          
+          // Add all payment fields
+          Object.entries(data).forEach(([key, value]) => {
+            if (key !== 'paymentUrl') {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = key;
+              input.value = String(value);
+              form.appendChild(input);
+            }
+          });
+          
+          form.action = data.paymentUrl;
+          form.method = 'POST';
+          form.submit();
+        }
+      } else {
+        // Wallet payment success
+        queryClient.invalidateQueries({ queryKey: ["/api/membership/status"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/wallet/balance"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        toast({
+          title: "Membership Activated!",
+          description: "You now have access to all premium benefits.",
+        });
+      }
     },
     onError: (error: any) => {
       toast({
@@ -47,6 +73,30 @@ export default function Membership() {
       });
     },
   });
+
+  // Check for payment status in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    
+    if (paymentStatus === 'success') {
+      queryClient.invalidateQueries({ queryKey: ["/api/membership/status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({
+        title: "Membership Activated!",
+        description: "You now have access to all premium benefits.",
+      });
+      // Clean URL
+      window.history.replaceState({}, '', '/membership');
+    } else if (paymentStatus === 'failed') {
+      toast({
+        title: "Payment Failed",
+        description: "Your membership purchase was not completed.",
+        variant: "destructive",
+      });
+      window.history.replaceState({}, '', '/membership');
+    }
+  }, [toast]);
 
   const benefits = [
     {
@@ -168,12 +218,12 @@ export default function Membership() {
                     Pay from Wallet (₹{walletData?.balance.toFixed(2) || "0.00"})
                   </Button>
                   <Button
-                    variant={paymentMethod === "online" ? "default" : "outline"}
+                    variant={paymentMethod === "payu" ? "default" : "outline"}
                     className="flex-1"
-                    onClick={() => setPaymentMethod("online")}
+                    onClick={() => setPaymentMethod("payu")}
                     data-testid="button-payment-online"
                   >
-                    Pay Online
+                    Pay with PayUMoney
                   </Button>
                 </div>
 
@@ -203,6 +253,9 @@ export default function Membership() {
             </CardContent>
           </Card>
         )}
+
+        {/* Hidden PayUMoney payment form */}
+        <form ref={paymentFormRef} style={{ display: 'none' }} />
       </div>
     </div>
   );
