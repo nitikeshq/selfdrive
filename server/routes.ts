@@ -1435,6 +1435,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wallet & Referral Routes
+  app.get("/api/wallet/balance", isAuthenticated, async (req: any, res) => {
+    try {
+      const { getActiveWalletBalance } = await import("./services/wallet");
+      const balance = await getActiveWalletBalance(req.session.userId);
+      res.json({ balance });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch wallet balance" });
+    }
+  });
+
+  app.get("/api/wallet/transactions", isAuthenticated, async (req: any, res) => {
+    try {
+      const { getWalletTransactions } = await import("./services/wallet");
+      const transactions = await getWalletTransactions(req.session.userId);
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+  });
+
+  app.post("/api/referral/apply", isAuthenticated, async (req: any, res) => {
+    try {
+      const { referralCode } = req.body;
+      const { processReferral } = await import("./services/wallet");
+      
+      await processReferral(referralCode, req.session.userId);
+      res.json({ success: true, message: "Referral applied successfully! ₹50 credited to referrer's wallet." });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to apply referral code" });
+    }
+  });
+
+  app.post("/api/referral/generate", isAuthenticated, async (req: any, res) => {
+    try {
+      const { generateReferralCode } = await import("./services/wallet");
+      const code = await generateReferralCode(req.session.userId);
+      res.json({ referralCode: code });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to generate referral code" });
+    }
+  });
+
+  // Membership Routes
+  app.post("/api/membership/purchase", isAuthenticated, async (req: any, res) => {
+    try {
+      const { paymentMethod } = req.body; // "wallet" or "online"
+      const { purchaseMembership } = await import("./services/membership");
+      
+      await purchaseMembership(req.session.userId, paymentMethod);
+      res.json({ success: true, message: "Membership activated successfully!" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to purchase membership" });
+    }
+  });
+
+  app.get("/api/membership/status", isAuthenticated, async (req: any, res) => {
+    try {
+      const { hasActiveMembership } = await import("./services/membership");
+      const isActive = await hasActiveMembership(req.session.userId);
+      
+      // Get user details for expiry date
+      const user = await storage.getUser(req.session.userId);
+      
+      res.json({ 
+        isActive, 
+        expiresAt: user?.membershipExpiresAt,
+        purchasedAt: user?.membershipPurchasedAt
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check membership status" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
