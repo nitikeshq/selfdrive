@@ -102,21 +102,33 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-card-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            © 2025 DriveEase. All rights reserved.
-          </p>
-          <div className="flex gap-6">
-            <Link href="/terms-and-conditions">
-              <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-terms">
-                Terms of Service
-              </span>
-            </Link>
-            <Link href="/privacy-policy">
-              <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-privacy">
-                Privacy Policy
-              </span>
-            </Link>
+        <div className="pt-8 border-t border-card-border">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+              <p className="text-sm text-muted-foreground">
+                © 2025 DriveEase. All rights reserved.
+              </p>
+              <div className="flex gap-2 items-center">
+                <span className="text-xs px-2 py-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-md border border-orange-500/20 font-medium">
+                  🇮🇳 Made in India
+                </span>
+                <span className="text-xs px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-md border border-green-500/20 font-medium">
+                  Made in Odisha
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-6">
+              <Link href="/terms-and-conditions">
+                <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-terms">
+                  Terms of Service
+                </span>
+              </Link>
+              <Link href="/privacy-policy">
+                <span className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-privacy">
+                  Privacy Policy
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
