@@ -835,6 +835,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wallet payment for booking
+  app.post("/api/booking/pay-with-wallet", isAuthenticated, async (req: any, res) => {
+    try {
+      const { bookingId } = req.body;
+      const userId = req.session.userId;
+
+      if (!bookingId) {
+        return res.status(400).json({ error: "Booking ID required" });
+      }
+
+      // Get booking details
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+
+      if (booking.userId !== userId) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      // Get user's wallet balance
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const { getAvailableBalance } = await import("./services/wallet");
+      const availableBalance = await getAvailableBalance(userId);
+      const totalAmount = parseFloat(booking.totalAmount);
+
+      if (availableBalance < totalAmount) {
+        return res.status(400).json({ 
+          error: "Insufficient wallet balance",
+          required: totalAmount,
+          available: availableBalance
+        });
+      }
+
+      // Deduct from wallet
+      const { deductFromWallet } = await import("./services/wallet");
+      await deductFromWallet(userId, totalAmount, `Booking payment - ${bookingId}`);
+
+      // Calculate platform commission (30%) and owner earnings (70%)
+      const PLATFORM_COMMISSION_RATE = 0.30;
+      const platformCommission = totalAmount * PLATFORM_COMMISSION_RATE;
+      const ownerEarnings = totalAmount * (1 - PLATFORM_COMMISSION_RATE);
+
+      // Update booking status
+      await storage.updateBooking(bookingId, {
+        paymentStatus: "paid",
+        status: "confirmed",
+        paymentIntentId: `WALLET_${Date.now()}`,
+        platformCommission: platformCommission.toFixed(2),
+        ownerEarnings: ownerEarnings.toFixed(2),
+      });
+
+      res.json({ 
+        success: true, 
+        bookingId,
+        message: "Booking confirmed! Payment deducted from wallet."
+      });
+    } catch (error: any) {
+      console.error("Wallet payment error:", error);
+      res.status(500).json({ error: error.message || "Failed to process wallet payment" });
+    }
+  });
+
   // User routes
   app.get("/api/users/:id", async (req, res) => {
     try {
