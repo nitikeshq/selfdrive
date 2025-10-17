@@ -17,6 +17,7 @@ import {
   Star
 } from "lucide-react";
 import { VehicleCard } from "@/components/VehicleCard";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { useQuery } from "@tanstack/react-query";
 import type { Vehicle } from "@shared/schema";
 
@@ -85,19 +86,19 @@ export default function Landing() {
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">Pickup Date & Time</label>
-                    <Input 
-                      type="datetime-local"
+                    <DateTimePicker
                       value={pickupDateTime}
-                      onChange={(e) => setPickupDateTime(e.target.value)}
+                      onChange={setPickupDateTime}
+                      placeholder="Select pickup date & time"
                       data-testid="input-pickup-datetime"
                     />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">Return Date & Time</label>
-                    <Input 
-                      type="datetime-local"
+                    <DateTimePicker
                       value={returnDateTime}
-                      onChange={(e) => setReturnDateTime(e.target.value)}
+                      onChange={setReturnDateTime}
+                      placeholder="Select return date & time"
                       data-testid="input-return-datetime"
                     />
                   </div>
