@@ -383,6 +383,8 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
 }).extend({
+  startDate: z.union([z.string(), z.date()]).transform(val => typeof val === 'string' ? new Date(val) : val),
+  endDate: z.union([z.string(), z.date()]).transform(val => typeof val === 'string' ? new Date(val) : val),
   totalAmount: z.union([z.string(), z.number()]).transform(val => String(val)),
   deliveryCharge: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
   insuranceCost: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
