@@ -46,7 +46,6 @@ export default function BookVehicle() {
   const [, setLocation] = useLocation();
   const vehicleId = params?.id;
   const [selectedOption, setSelectedOption] = useState<"parking" | "delivery">("parking");
-  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "payu">("payu");
   const [paymentData, setPaymentData] = useState<any | null>(null);
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -61,7 +60,7 @@ export default function BookVehicle() {
     enabled: !!vehicleId,
   });
 
-  const { data: walletData } = useQuery<{ balance: number }>({
+  const { data: rewardsData } = useQuery<{ balance: number }>({
     queryKey: ["/api/wallet/balance"],
     enabled: isAuthenticated,
   });
@@ -126,43 +125,17 @@ export default function BookVehicle() {
       return response.json();
     },
     onSuccess: async (booking) => {
-      if (paymentMethod === "wallet") {
-        // Pay with wallet
-        try {
-          const response = await apiRequest("POST", "/api/booking/pay-with-wallet", {
-            bookingId: booking.id,
-          });
-          const data = await response.json();
-          
-          queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
-          queryClient.invalidateQueries({ queryKey: ["/api/wallet/balance"] });
-          
-          toast({
-            title: "Booking Confirmed!",
-            description: data.message || "Payment deducted from wallet",
-          });
-          
-          setLocation(`/bookings/${booking.id}`);
-        } catch (error: any) {
-          toast({
-            title: "Payment Failed",
-            description: error.message || "Insufficient wallet balance",
-            variant: "destructive",
-          });
-        }
-      } else {
-        // Pay with PayUMoney
-        const response = await apiRequest("POST", "/api/create-payment", {
-          amount: totalAmount,
-          bookingId: booking.id,
-          userEmail: (user as any).email,
-          userFirstName: (user as any).firstName,
-          userPhone: (user as any).phone || "0000000000",
-        });
-        const data = await response.json();
-        setPaymentData(data);
-        queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
-      }
+      // Always use PayUMoney - rewards are auto-applied as discount
+      const response = await apiRequest("POST", "/api/create-payment", {
+        amount: totalAmount,
+        bookingId: booking.id,
+        userEmail: (user as any).email,
+        userFirstName: (user as any).firstName,
+        userPhone: (user as any).phone || "0000000000",
+      });
+      const data = await response.json();
+      setPaymentData(data);
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
     },
     onError: (error: Error) => {
       toast({
@@ -467,35 +440,30 @@ export default function BookVehicle() {
                   </span>
                 </div>
 
-                {/* Payment Method Selection */}
-                <div className="space-y-3 py-4 border-y border-border">
-                  <h4 className="font-semibold text-sm">Payment Method</h4>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant={paymentMethod === "wallet" ? "default" : "outline"}
-                      className="flex-1"
-                      onClick={() => setPaymentMethod("wallet")}
-                      data-testid="button-payment-wallet"
-                    >
-                      Wallet (₹{walletData?.balance.toFixed(2) || "0.00"})
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={paymentMethod === "payu" ? "default" : "outline"}
-                      className="flex-1"
-                      onClick={() => setPaymentMethod("payu")}
-                      data-testid="button-payment-payu"
-                    >
-                      PayUMoney
-                    </Button>
-                  </div>
-                  {paymentMethod === "wallet" && walletData && walletData.balance < totalAmount && (
-                    <p className="text-sm text-red-600 dark:text-red-400">
-                      Insufficient wallet balance. Please use PayUMoney or add funds to wallet.
+                {/* Rewards Discount (if applicable) */}
+                {rewardsData && rewardsData.balance > 0 && (
+                  <div className="space-y-2 py-4 border-y border-border">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-green-600 dark:text-green-400 font-medium">Rewards Discount</span>
+                      <span className="text-green-600 dark:text-green-400 font-medium">
+                        - ₹{Math.min(rewardsData.balance, totalAmount).toFixed(2)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Your rewards balance of ₹{rewardsData.balance.toFixed(2)} will be automatically applied to this booking
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
+
+                {/* Final Payment Amount */}
+                {rewardsData && rewardsData.balance > 0 && (
+                  <div className="flex justify-between items-center pt-2">
+                    <span className="text-lg font-semibold">Final Payment Amount</span>
+                    <span className="text-2xl font-bold text-primary">
+                      ₹{Math.max(0, totalAmount - rewardsData.balance).toFixed(2)}
+                    </span>
+                  </div>
+                )}
 
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <p className="text-sm text-muted-foreground">

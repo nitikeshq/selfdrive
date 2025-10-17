@@ -16,20 +16,19 @@ interface MembershipStatus {
 
 export default function Membership() {
   const { toast } = useToast();
-  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "payu">("payu");
   const paymentFormRef = useRef<HTMLFormElement>(null);
 
   const { data: membershipStatus } = useQuery<MembershipStatus>({
     queryKey: ["/api/membership/status"],
   });
 
-  const { data: walletData } = useQuery<{ balance: number }>({
+  const { data: rewardsData } = useQuery<{ balance: number }>({
     queryKey: ["/api/wallet/balance"],
   });
 
   const purchaseMutation = useMutation({
-    mutationFn: async (method: "wallet" | "payu") => {
-      return apiRequest("POST", "/api/membership/purchase", { paymentMethod: method });
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/membership/purchase", { paymentMethod: "payu" });
     },
     onSuccess: (data: any) => {
       if (data.paymentUrl) {
@@ -122,7 +121,6 @@ export default function Membership() {
   ];
 
   const hasActiveMembership = membershipStatus?.isActive;
-  const canAffordWalletPayment = (walletData?.balance || 0) >= 999;
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -205,45 +203,28 @@ export default function Membership() {
                 <p className="text-muted-foreground">per year</p>
               </div>
 
-              {/* Payment Method Selection */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant={paymentMethod === "wallet" ? "default" : "outline"}
-                    className="flex-1"
-                    onClick={() => setPaymentMethod("wallet")}
-                    disabled={!canAffordWalletPayment}
-                    data-testid="button-payment-wallet"
-                  >
-                    Pay from Wallet (₹{walletData?.balance.toFixed(2) || "0.00"})
-                  </Button>
-                  <Button
-                    variant={paymentMethod === "payu" ? "default" : "outline"}
-                    className="flex-1"
-                    onClick={() => setPaymentMethod("payu")}
-                    data-testid="button-payment-online"
-                  >
-                    Pay with PayUMoney
-                  </Button>
-                </div>
-
-                {!canAffordWalletPayment && paymentMethod === "wallet" && (
-                  <p className="text-sm text-red-600 dark:text-red-400">
-                    Insufficient wallet balance. Use online payment or add funds to your wallet.
+              {/* Rewards Discount Info */}
+              {rewardsData && rewardsData.balance > 0 && (
+                <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    <strong>Rewards Applied!</strong> Your ₹{Math.min(rewardsData.balance, 999).toFixed(2)} rewards will be automatically deducted.
                   </p>
-                )}
+                  <p className="text-lg font-bold text-green-600 dark:text-green-400 mt-2">
+                    Final Amount: ₹{Math.max(0, 999 - rewardsData.balance).toFixed(2)}
+                  </p>
+                </div>
+              )}
 
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={() => purchaseMutation.mutate(paymentMethod)}
-                  disabled={purchaseMutation.isPending || (paymentMethod === "wallet" && !canAffordWalletPayment)}
-                  data-testid="button-purchase-membership"
-                >
-                  <Crown className="h-5 w-5 mr-2" />
-                  {purchaseMutation.isPending ? "Processing..." : "Activate Membership"}
-                </Button>
-              </div>
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={() => purchaseMutation.mutate()}
+                disabled={purchaseMutation.isPending}
+                data-testid="button-purchase-membership"
+              >
+                <Crown className="h-5 w-5 mr-2" />
+                {purchaseMutation.isPending ? "Redirecting to Payment..." : "Activate Membership"}
+              </Button>
 
               <div className="text-center text-sm text-muted-foreground">
                 <p>✓ One-time payment of ₹999</p>
