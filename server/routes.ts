@@ -235,13 +235,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/vehicles/:id/toggle-pause", async (req, res) => {
+  app.patch("/api/vehicles/:id/toggle-pause", isAuthenticated, async (req: any, res) => {
     try {
-      const vehicle = await storage.getVehicle(req.params.id);
+      const userId = req.session.userId;
+      const vehicleId = req.params.id;
+      
+      const vehicle = await storage.getVehicle(vehicleId);
       if (!vehicle) {
         return res.status(404).json({ error: "Vehicle not found" });
       }
-      const updatedVehicle = await storage.updateVehicle(req.params.id, { 
+      
+      // Verify ownership
+      if (vehicle.ownerId !== userId) {
+        return res.status(403).json({ error: "You don't have permission to modify this vehicle" });
+      }
+      
+      const updatedVehicle = await storage.updateVehicle(vehicleId, { 
         isPaused: !vehicle.isPaused 
       });
       res.json(updatedVehicle);
@@ -250,12 +259,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/vehicles/:id", async (req, res) => {
+  app.delete("/api/vehicles/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const deleted = await storage.deleteVehicle(req.params.id);
-      if (!deleted) {
+      const userId = req.session.userId;
+      const vehicleId = req.params.id;
+      
+      // Check if vehicle exists and user owns it
+      const vehicle = await storage.getVehicle(vehicleId);
+      if (!vehicle) {
         return res.status(404).json({ error: "Vehicle not found" });
       }
+      
+      // Verify ownership
+      if (vehicle.ownerId !== userId) {
+        return res.status(403).json({ error: "You don't have permission to delete this vehicle" });
+      }
+      
+      const deleted = await storage.deleteVehicle(vehicleId);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete vehicle" });
