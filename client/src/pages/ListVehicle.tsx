@@ -6,8 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Car, Upload, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 
 const vehicleFormSchema = z.object({
@@ -31,10 +37,34 @@ const vehicleFormSchema = z.object({
   imageUrl: z.string().url("Valid image URL is required"),
 });
 
+const ownerRegistrationSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+});
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(1, "Password is required"),
+});
+
 type VehicleFormData = z.infer<typeof vehicleFormSchema>;
+type OwnerRegistrationForm = z.infer<typeof ownerRegistrationSchema>;
+type LoginForm = z.infer<typeof loginSchema>;
 
 export default function ListVehicle() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const { toast } = useToast();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
+
+  // Show auth modal if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      setShowAuthModal(true);
+    }
+  }, [isLoading, isAuthenticated]);
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleFormSchema),
@@ -57,6 +87,46 @@ export default function ListVehicle() {
       ownerLocation: "",
       features: "",
       imageUrl: "",
+    },
+  });
+
+  const registerForm = useForm<OwnerRegistrationForm>({
+    resolver: zodResolver(ownerRegistrationSchema),
+    defaultValues: { email: "", password: "", firstName: "", lastName: "" },
+  });
+
+  const loginForm = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: async (data: OwnerRegistrationForm) => {
+      const res = await apiRequest("POST", "/api/register", { ...data, role: "owner" });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ title: "Success!", description: "Owner account created successfully" });
+      setShowAuthModal(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Registration failed", description: error.message || "Please try again", variant: "destructive" });
+    },
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: async (data: LoginForm) => {
+      const res = await apiRequest("POST", "/api/login", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ title: "Success!", description: "Logged in successfully" });
+      setShowAuthModal(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Login failed", description: error.message || "Please try again", variant: "destructive" });
     },
   });
 
@@ -407,6 +477,135 @@ export default function ListVehicle() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Auth Modal */}
+      <Dialog open={showAuthModal} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Become a Vehicle Owner</DialogTitle>
+            <DialogDescription>
+              Create an owner account or login to list your vehicle and start earning
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Tabs defaultValue="register" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="register">Register</TabsTrigger>
+              <TabsTrigger value="login">Login</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="register">
+              <Form {...registerForm}>
+                <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={registerForm.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="John" {...field} data-testid="input-register-first-name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Doe" {...field} data-testid="input-register-last-name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={registerForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="owner@example.com" {...field} data-testid="input-register-email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Minimum 6 characters" {...field} data-testid="input-register-password" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    disabled={registerMutation.isPending}
+                    data-testid="button-register"
+                  >
+                    {registerMutation.isPending ? "Creating Account..." : "Create Owner Account"}
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+            
+            <TabsContent value="login">
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-4">
+                  <FormField
+                    control={loginForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="owner@example.com" {...field} data-testid="input-login-email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Your password" {...field} data-testid="input-login-password" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    disabled={loginMutation.isPending}
+                    data-testid="button-login"
+                  >
+                    {loginMutation.isPending ? "Logging in..." : "Login as Owner"}
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
