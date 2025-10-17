@@ -19,6 +19,7 @@ import {
 import { VehicleCard } from "@/components/VehicleCard";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { SEO } from "@/components/SEO";
+import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { useQuery } from "@tanstack/react-query";
 import type { Vehicle } from "@shared/schema";
 
@@ -53,6 +54,7 @@ export default function Landing() {
         ogImage="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070"
         canonical="https://driveease.in"
       />
+      <LocalBusinessSchema />
       {/* Hero Section */}
       <section className="relative min-h-[70vh] md:h-[80vh] flex items-center py-12 md:py-0">
         <div className="absolute inset-0 z-0">

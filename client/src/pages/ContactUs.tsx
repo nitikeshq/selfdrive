@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SEO } from "@/components/SEO";
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -63,16 +64,23 @@ export default function ContactUs() {
   };
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-muted/30">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-display font-bold mb-4" data-testid="text-contact-title">
-            Contact Us
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Have a question or need assistance? We're here to help! Reach out to us through any of the following channels.
-          </p>
-        </div>
+    <>
+      <SEO
+        title="Contact Us - DriveEase | Self-Drive Car & Bike Rental Bhubaneswar"
+        description="Get in touch with DriveEase for self-drive car and bike rentals in Bhubaneswar, Odisha. Call us at +91 674 212 3456 or visit our office in Patia. 24/7 customer support available."
+        keywords="contact driveease, car rental bhubaneswar contact, bike rental odisha support, self drive rental customer care, bhubaneswar vehicle rental help"
+        ogImage="/og-contact.jpg"
+      />
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-muted/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-display font-bold mb-4" data-testid="text-contact-title">
+              Contact Us
+            </h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Have a question or need assistance? We're here to help! Reach out to us through any of the following channels.
+            </p>
+          </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Contact Information Cards */}
@@ -275,5 +283,6 @@ export default function ContactUs() {
         </Card>
       </div>
     </div>
+    </>
   );
 }
