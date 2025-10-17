@@ -20,6 +20,7 @@ import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 const vehicleFormSchema = z.object({
   name: z.string().min(1, "Vehicle name is required"),
   type: z.enum(["car", "bike"]),
+  category: z.string().min(1, "Category is required"),
   brand: z.string().min(1, "Brand is required"),
   model: z.string().min(1, "Model is required"),
   year: z.number().min(1900).max(new Date().getFullYear() + 1),
@@ -70,6 +71,7 @@ export default function ListVehicle() {
     defaultValues: {
       name: "",
       type: "car",
+      category: "economy",
       brand: "",
       model: "",
       year: new Date().getFullYear(),
@@ -233,6 +235,44 @@ export default function ListVehicle() {
                           >
                             <option value="car">Car</option>
                             <option value="bike">Bike</option>
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <FormControl>
+                          <select
+                            {...field}
+                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            data-testid="select-category"
+                          >
+                            {vehicleType === "car" ? (
+                              <>
+                                <option value="economy">Economy Cars</option>
+                                <option value="hatchback">Hatchback</option>
+                                <option value="sedan">Sedan</option>
+                                <option value="compact">Compact Cars</option>
+                                <option value="suv">SUV/XUV</option>
+                                <option value="premium">Premium Cars</option>
+                                <option value="luxury">Luxury Cars</option>
+                                <option value="supercars">Super Cars</option>
+                              </>
+                            ) : (
+                              <>
+                                <option value="commuter_bike">Commuter Bikes</option>
+                                <option value="sports_bike">Sports Bikes</option>
+                                <option value="cruiser_bike">Cruiser Bikes</option>
+                                <option value="premium_bike">Premium Bikes</option>
+                              </>
+                            )}
                           </select>
                         </FormControl>
                         <FormMessage />

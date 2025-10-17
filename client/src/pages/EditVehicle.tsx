@@ -44,6 +44,7 @@ export default function EditVehicle() {
     values: vehicle ? {
       name: vehicle.name,
       type: vehicle.type,
+      category: vehicle.category,
       brand: vehicle.brand,
       model: vehicle.model,
       year: vehicle.year,
@@ -71,6 +72,8 @@ export default function EditVehicle() {
       availableToTime: vehicle.availableToTime || "17:00",
     } : undefined,
   });
+
+  const vehicleType = form.watch("type");
 
   const updateVehicleMutation = useMutation({
     mutationFn: async (data: VehicleFormData) => {
@@ -179,6 +182,45 @@ export default function EditVehicle() {
                           <SelectContent>
                             <SelectItem value="car">Car</SelectItem>
                             <SelectItem value="bike">Bike</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-category">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {vehicleType === "car" ? (
+                              <>
+                                <SelectItem value="economy">Economy Cars</SelectItem>
+                                <SelectItem value="hatchback">Hatchback</SelectItem>
+                                <SelectItem value="sedan">Sedan</SelectItem>
+                                <SelectItem value="compact">Compact Cars</SelectItem>
+                                <SelectItem value="suv">SUV/XUV</SelectItem>
+                                <SelectItem value="premium">Premium Cars</SelectItem>
+                                <SelectItem value="luxury">Luxury Cars</SelectItem>
+                                <SelectItem value="supercars">Super Cars</SelectItem>
+                              </>
+                            ) : (
+                              <>
+                                <SelectItem value="commuter_bike">Commuter Bikes</SelectItem>
+                                <SelectItem value="sports_bike">Sports Bikes</SelectItem>
+                                <SelectItem value="cruiser_bike">Cruiser Bikes</SelectItem>
+                                <SelectItem value="premium_bike">Premium Bikes</SelectItem>
+                              </>
+                            )}
                           </SelectContent>
                         </Select>
                         <FormMessage />
