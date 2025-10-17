@@ -43,6 +43,15 @@ export const users = pgTable("users", {
   securityDepositPaid: boolean("security_deposit_paid").notNull().default(false),
   securityDepositAmount: decimal("security_deposit_amount", { precision: 10, scale: 2 }),
   
+  // Membership
+  hasMembership: boolean("has_membership").notNull().default(false),
+  membershipPurchasedAt: timestamp("membership_purchased_at"),
+  membershipExpiresAt: timestamp("membership_expires_at"),
+  
+  // Referral System
+  referralCode: varchar("referral_code").unique(),
+  referredBy: varchar("referred_by").references(() => users.id), // Who referred this user
+  
   // User Rating (as a customer)
   averageRatingAsCustomer: decimal("average_rating_as_customer", { precision: 3, scale: 2 }).default("0"),
   totalRatingsAsCustomer: integer("total_ratings_as_customer").default(0),
@@ -210,6 +219,13 @@ export const bookings = pgTable("bookings", {
   returnVideoApprovedByOwner: boolean("return_video_approved_by_owner").default(false),
   returnVideoApprovedAt: timestamp("return_video_approved_at"),
   
+  // Late Return Charges
+  actualReturnTime: timestamp("actual_return_time"), // When customer actually returned
+  isLateReturn: boolean("is_late_return").default(false),
+  lateReturnMinutes: integer("late_return_minutes").default(0),
+  lateReturnCharge: decimal("late_return_charge", { precision: 10, scale: 2 }).default("0"), // 2x hourly rate
+  lateFeeWaived: boolean("late_fee_waived").default(false), // If 30 min waived for members
+  
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   userIdx: index("bookings_user_idx").on(table.userId),
@@ -303,6 +319,39 @@ export const videoVerifications = pgTable("video_verifications", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Referrals table - Track referral rewards
+export const referrals = pgTable("referrals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  referrerId: varchar("referrer_id").notNull().references(() => users.id), // Who referred
+  refereeId: varchar("referee_id").notNull().references(() => users.id), // Who was referred
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull().default("50"), // ₹50 referral bonus
+  status: text("status").notNull().default("pending"), // pending, credited, expired
+  expiresAt: timestamp("expires_at").notNull(), // 90 days from creation
+  creditedAt: timestamp("credited_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  referrerIdx: index("referrals_referrer_idx").on(table.referrerId),
+  refereeIdx: index("referrals_referee_idx").on(table.refereeId),
+}));
+
+// Wallet Transactions table - Track all wallet balance changes
+export const walletTransactions = pgTable("wallet_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // credit, debit
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  balanceAfter: decimal("balance_after", { precision: 10, scale: 2 }).notNull(),
+  source: text("source").notNull(), // referral, booking_refund, membership_purchase, booking_payment, etc.
+  description: text("description").notNull(),
+  referralId: varchar("referral_id").references(() => referrals.id), // If from referral
+  bookingId: varchar("booking_id").references(() => bookings.id), // If related to booking
+  expiresAt: timestamp("expires_at"), // For referral credits that expire
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdx: index("wallet_transactions_user_idx").on(table.userId),
+  typeIdx: index("wallet_transactions_type_idx").on(table.type),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -380,6 +429,21 @@ export const insertOwnerAddonPurchaseSchema = createInsertSchema(ownerAddonPurch
   totalAmount: z.union([z.string(), z.number()]).transform(val => String(val)),
 });
 
+export const insertReferralSchema = createInsertSchema(referrals).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  amount: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
+});
+
+export const insertWalletTransactionSchema = createInsertSchema(walletTransactions).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  amount: z.union([z.string(), z.number()]).transform(val => String(val)),
+  balanceAfter: z.union([z.string(), z.number()]).transform(val => String(val)),
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -414,6 +478,12 @@ export type InsertAddonProduct = z.infer<typeof insertAddonProductSchema>;
 
 export type OwnerAddonPurchase = typeof ownerAddonPurchases.$inferSelect;
 export type InsertOwnerAddonPurchase = z.infer<typeof insertOwnerAddonPurchaseSchema>;
+
+export type Referral = typeof referrals.$inferSelect;
+export type InsertReferral = z.infer<typeof insertReferralSchema>;
+
+export type WalletTransaction = typeof walletTransactions.$inferSelect;
+export type InsertWalletTransaction = z.infer<typeof insertWalletTransactionSchema>;
 
 // Extended booking type with vehicle and user details
 export type BookingWithDetails = Booking & {
