@@ -211,6 +211,14 @@ Preferred communication style: Simple, everyday language.
 - Prevents session loss on server restart
 - Configurable TTL and automatic cleanup
 
+**Email Service (SMTP)**
+- Nodemailer for sending transactional emails via SMTP
+- Configurable SMTP settings via environment variables (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM)
+- HTML email templates in emailtemplates/ folder for customization
+- Template system with placeholder replacement ({{firstName}}, {{vehicleName}}, etc.)
+- Email scenarios: welcome, booking confirmations, cancellations, payment success
+- Graceful fallback: logs email details to console if SMTP not configured
+
 **Validation & Type Safety**
 - Zod schemas for runtime validation of API requests
 - drizzle-zod for automatic schema generation from database models
