@@ -11,6 +11,14 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
+- **UI Rebrand & Performance Optimization** (Latest):
+  - Renamed "Wallet" to "Rewards" across entire platform (navbar, routes, page titles)
+  - Rewards page displays balance and transaction history only (no payment options)
+  - Membership activation properly redirects to PayUMoney payment gateway
+  - Hero image optimized: responsive srcset (400w/800w/1200w), reduced quality (q=60), auto WebP format
+  - Added preconnect to images.unsplash.com for faster image loading
+  - Updated browserslist for modern browser targeting
+  - Significant performance improvements targeting 1-2 second page loads
 - **Contact Form & Email Integration**: Fully functional contact form with email delivery:
   - Updated email service to support Gmail configuration (GMAIL_EMAIL, GMAIL_APP_PASSWORD)
   - Created /api/contact endpoint for form submissions
