@@ -339,11 +339,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       vehicles = vehiclesWithStatus;
       
-      // Filter by location (default to Bhubaneswar)
-      const filterLocation = (location as string) || "Bhubaneswar";
-      vehicles = vehicles.filter(v => 
-        v.location.toLowerCase().includes(filterLocation.toLowerCase())
-      );
+      // Filter by location only if explicitly provided
+      if (location && typeof location === 'string') {
+        vehicles = vehicles.filter(v => 
+          v.location.toLowerCase().includes(location.toLowerCase())
+        );
+      }
       
       // Filter by search query
       if (search && typeof search === 'string') {
