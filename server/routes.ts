@@ -131,6 +131,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName: user.lastName,
         role: user.role,
         profileImageUrl: user.profileImageUrl,
+        // Payment details
+        bankAccountHolderName: user.bankAccountHolderName,
+        bankAccountNumber: user.bankAccountNumber,
+        bankIfscCode: user.bankIfscCode,
+        upiId: user.upiId,
+        payuVendorId: user.payuVendorId,
+        panNumber: user.panNumber,
+        gstNumber: user.gstNumber,
+        isPayuVendorVerified: user.isPayuVendorVerified,
+        // KYC details
+        aadharNumber: user.aadharNumber,
+        dlNumber: user.dlNumber,
+        // Membership & wallet
+        hasMembership: user.hasMembership,
+        membershipExpiresAt: user.membershipExpiresAt,
+        walletBalance: user.walletBalance,
+        referralCode: user.referralCode,
       });
     } catch (error) {
       console.error("Error fetching user:", error);

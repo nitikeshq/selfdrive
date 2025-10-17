@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,15 +42,30 @@ export default function PaymentDetails() {
   const form = useForm<PaymentDetailsForm>({
     resolver: zodResolver(paymentDetailsSchema),
     defaultValues: {
-      bankAccountHolderName: user?.bankAccountHolderName || "",
-      bankAccountNumber: user?.bankAccountNumber || "",
-      bankIfscCode: user?.bankIfscCode || "",
-      upiId: user?.upiId || "",
-      payuVendorId: user?.payuVendorId || "",
-      panNumber: user?.panNumber || "",
-      gstNumber: user?.gstNumber || "",
+      bankAccountHolderName: "",
+      bankAccountNumber: "",
+      bankIfscCode: "",
+      upiId: "",
+      payuVendorId: "",
+      panNumber: "",
+      gstNumber: "",
     },
   });
+
+  // Reset form when user data loads
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        bankAccountHolderName: user.bankAccountHolderName || "",
+        bankAccountNumber: user.bankAccountNumber || "",
+        bankIfscCode: user.bankIfscCode || "",
+        upiId: user.upiId || "",
+        payuVendorId: user.payuVendorId || "",
+        panNumber: user.panNumber || "",
+        gstNumber: user.gstNumber || "",
+      });
+    }
+  }, [user, form]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: PaymentDetailsForm) => {
