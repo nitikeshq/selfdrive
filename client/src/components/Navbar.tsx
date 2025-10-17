@@ -12,7 +12,10 @@ export function Navbar() {
   const { user, isAuthenticated, isLoading } = useAuth();
   
   // Determine if user is in owner mode based on current route
-  const isOwnerMode = location.startsWith('/owner') || location === '/owner-dashboard';
+  const isOwnerMode = location.startsWith('/owner') || 
+                      location === '/owner-dashboard' || 
+                      location === '/list-vehicle' ||
+                      location.startsWith('/edit-vehicle');
   const hasVehicles = user && (user as any).role === 'owner';
 
   return (
