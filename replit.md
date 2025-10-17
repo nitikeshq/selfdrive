@@ -23,13 +23,13 @@ Preferred communication style: Simple, everyday language.
    - "Start Earning Today" CTA redirects to /list-vehicle
 
 2. **ListVehicle Page** (/list-vehicle):
-   - Implemented authentication gate with non-dismissible modal
-   - Modal appears automatically for unauthenticated users
+   - Users can fill vehicle form without authentication (no upfront barrier)
+   - Authentication modal appears only when user clicks "List Vehicle" button
    - Dual-tab interface: Register (creates owner account) and Login
    - Registration form collects: firstName, lastName, email, password
    - Owner role is automatically set during registration
-   - After successful auth, modal closes and user can access listing form
-   - Vehicle creation now POSTs to /api/vehicles backend endpoint
+   - After successful auth, vehicle data is automatically submitted
+   - Vehicle creation POSTs to /api/vehicles backend endpoint
    - Features proper cache invalidation and success feedback
    - Uses router navigation for smooth UX after vehicle creation
 
@@ -47,9 +47,12 @@ Preferred communication style: Simple, everyday language.
 **Complete User Journey:**
 - User visits /become-owner → sees marketing content and profit calculator
 - Clicks "Start Earning" → redirects to /list-vehicle
-- Auth modal appears (cannot be dismissed) → user registers or logs in
-- After auth → modal closes → user fills vehicle form
-- Submits vehicle → POSTed to backend → saves to database
+- User fills vehicle form (no authentication required)
+- Clicks "List Vehicle" button
+- If not authenticated → auth modal appears with "Just One More Step!" message
+- User registers as owner or logs in
+- After successful auth → vehicle is automatically submitted
+- Vehicle POSTed to backend → saves to database
 - Success toast shown → redirects to /owner-dashboard
 - Dashboard displays newly listed vehicle
 - Owner can add more vehicles or edit existing ones
