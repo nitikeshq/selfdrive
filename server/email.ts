@@ -11,6 +11,21 @@ export interface EmailOptions {
 
 // Create SMTP transporter
 function createTransporter() {
+  // Check for Gmail configuration first
+  const gmailEmail = process.env.GMAIL_EMAIL;
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+  
+  if (gmailEmail && gmailAppPassword) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: gmailEmail,
+        pass: gmailAppPassword,
+      },
+    });
+  }
+  
+  // Fall back to generic SMTP configuration
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
   const smtpUser = process.env.SMTP_USER;
@@ -64,7 +79,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 
   try {
     const html = loadTemplate(options.template, options.data);
-    const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+    const from = process.env.GMAIL_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
 
     await transporter.sendMail({
       from: `"DriveEase" <${from}>`,
