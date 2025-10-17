@@ -34,6 +34,7 @@ const Profile = lazy(() => import("@/pages/Profile"));
 const AdminAddons = lazy(() => import("@/pages/AdminAddons"));
 const Rewards = lazy(() => import("@/pages/Rewards"));
 const Membership = lazy(() => import("@/pages/Membership"));
+const PickupVerification = lazy(() => import("@/pages/PickupVerification"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 // Loading skeleton component
@@ -72,6 +73,7 @@ function Router() {
         <Route path="/profile" component={Profile} />
         <Route path="/rewards" component={Rewards} />
         <Route path="/membership" component={Membership} />
+        <Route path="/pickup-verification/:bookingId" component={PickupVerification} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/terms-and-conditions" component={TermsAndConditions} />

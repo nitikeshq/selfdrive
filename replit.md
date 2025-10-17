@@ -11,7 +11,18 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
-- **Owner Payment Details System** (Latest):
+- **Legal Compliance System** (Latest):
+  - **Agreement Tracking Database**: Created agreementAcceptances table to track all legal agreement acceptances with IP address, user agent, digital signatures, and timestamps
+  - **Owner Terms & Conditions**: Comprehensive legal document covering 7-day payment split (30% platform commission, 70% owner earnings), liability, insurance, cancellation policies, tax compliance, and dispute resolution
+  - **Owner Terms Acceptance Flow**: Mandatory terms acceptance dialog shown to owners before listing first vehicle, blocking vehicle listing until terms are digitally signed
+  - **Rental Agreement Template**: Dynamic rental agreement generation with booking details, vehicle information, and terms covering vehicle condition, damages, late fees, and legal jurisdiction
+  - **Pickup Verification Page** (/pickup-verification/:bookingId): Complete vehicle handover workflow with three steps:
+    1. Digital signature collection for rental agreement from both owner and customer
+    2. Video upload for vehicle condition verification (fuel level, odometer, damages)
+    3. Completion confirmation with both agreement and video verification recorded
+  - **Storage & API**: Full backend support with storage methods and API endpoints for creating/retrieving agreement acceptances by user, type, and booking
+  - **Legal Safeguards**: All agreements legally binding with digital signatures, IP tracking, and video evidence for dispute resolution
+- **Owner Payment Details System**:
   - Added UPI ID and GST number fields to users schema for payment configuration
   - Created comprehensive payment details page at /owner/payment-details
   - Form captures bank account (account number, IFSC, holder name), UPI ID, PAN, GST number
