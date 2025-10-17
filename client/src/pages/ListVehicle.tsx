@@ -11,13 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Car, Upload, MapPin, FileText, Shield, Leaf, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
+import OwnerTermsDialog from "@/components/legal/OwnerTermsDialog";
 
 const vehicleFormSchema = z.object({
   name: z.string().min(1, "Vehicle name is required"),
@@ -68,6 +69,7 @@ export default function ListVehicle() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showOwnerTerms, setShowOwnerTerms] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [pendingVehicleData, setPendingVehicleData] = useState<VehicleFormData | null>(null);
   
@@ -75,6 +77,19 @@ export default function ListVehicle() {
   const [rcDocUrl, setRcDocUrl] = useState<string>("");
   const [insuranceDocUrl, setInsuranceDocUrl] = useState<string>("");
   const [pucDocUrl, setPucDocUrl] = useState<string>("");
+
+  // Check if owner has accepted terms
+  const { data: termsAcceptance, isLoading: isCheckingTerms } = useQuery({
+    queryKey: ["/api/agreement-acceptances/check/owner_terms"],
+    enabled: isAuthenticated && !!user,
+  });
+
+  // Show terms dialog if authenticated and terms not accepted
+  useEffect(() => {
+    if (isAuthenticated && termsAcceptance && !(termsAcceptance as any).accepted && !isLoading && !isCheckingTerms) {
+      setShowOwnerTerms(true);
+    }
+  }, [isAuthenticated, termsAcceptance, isLoading, isCheckingTerms]);
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleFormSchema),
@@ -908,6 +923,11 @@ export default function ListVehicle() {
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      <OwnerTermsDialog 
+        open={showOwnerTerms} 
+        onAccepted={() => setShowOwnerTerms(false)} 
+      />
     </div>
   );
 }
