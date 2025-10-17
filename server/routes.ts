@@ -210,6 +210,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Addon Products routes (Admin only)
+  app.get("/api/addon-products", async (req, res) => {
+    try {
+      const products = await storage.getAllAddonProducts();
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching addon products:", error);
+      res.status(500).json({ message: "Failed to fetch addon products" });
+    }
+  });
+
+  app.post("/api/addon-products", isAuthenticated, isAdmin, async (req: any, res) => {
+    try {
+      const { name, description, category, price, imageUrl } = req.body;
+      
+      const product = await storage.createAddonProduct({
+        name,
+        description,
+        category,
+        price,
+        imageUrl: imageUrl || null,
+        isActive: true,
+        createdByAdminId: req.session.userId,
+      });
+      
+      res.status(201).json(product);
+    } catch (error) {
+      console.error("Error creating addon product:", error);
+      res.status(500).json({ message: "Failed to create addon product" });
+    }
+  });
+
+  app.patch("/api/addon-products/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const product = await storage.updateAddonProduct(id, updates);
+      res.json(product);
+    } catch (error) {
+      console.error("Error updating addon product:", error);
+      res.status(500).json({ message: "Failed to update addon product" });
+    }
+  });
+
+  app.delete("/api/addon-products/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteAddonProduct(id);
+      res.json({ message: "Product deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting addon product:", error);
+      res.status(500).json({ message: "Failed to delete addon product" });
+    }
+  });
+
+  // Owner Addon Purchases routes
+  app.get("/api/owner/addon-purchases", isAuthenticated, isOwner, async (req: any, res) => {
+    try {
+      const ownerId = req.session.userId;
+      const purchases = await storage.getOwnerAddonPurchases(ownerId);
+      res.json(purchases);
+    } catch (error) {
+      console.error("Error fetching purchases:", error);
+      res.status(500).json({ message: "Failed to fetch purchases" });
+    }
+  });
+
+  app.post("/api/owner/addon-purchases", isAuthenticated, isOwner, async (req: any, res) => {
+    try {
+      const ownerId = req.session.userId;
+      const { addonProductId, vehicleId, quantity } = req.body;
+      
+      // Get product details for price calculation
+      const product = await storage.getAddonProduct(addonProductId);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      
+      const totalAmount = parseFloat(product.price) * quantity;
+      
+      const purchase = await storage.createOwnerAddonPurchase({
+        ownerId,
+        vehicleId: vehicleId || null,
+        addonProductId,
+        quantity,
+        totalAmount: totalAmount.toString(),
+        paymentStatus: "pending",
+        paymentIntentId: null,
+      });
+      
+      res.status(201).json(purchase);
+    } catch (error) {
+      console.error("Error creating purchase:", error);
+      res.status(500).json({ message: "Failed to create purchase" });
+    }
+  });
+
   // Vehicles routes
   app.get("/api/vehicles", async (req, res) => {
     try {

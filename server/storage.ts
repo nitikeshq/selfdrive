@@ -18,6 +18,12 @@ import {
   type InsertVehicleDocument,
   type OwnerAddress,
   type InsertOwnerAddress,
+  type AddonProduct,
+  type InsertAddonProduct,
+  type OwnerAddonPurchase,
+  type InsertOwnerAddonPurchase,
+  type TollFee,
+  type InsertTollFee,
   users,
   vehicles,
   bookings,
@@ -25,7 +31,10 @@ import {
   challans,
   videoVerifications,
   vehicleDocuments,
-  ownerAddresses
+  ownerAddresses,
+  addonProducts,
+  ownerAddonPurchases,
+  tollFees
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte } from "drizzle-orm";
@@ -93,6 +102,22 @@ export interface IStorage {
   getAllUsers(role?: string): Promise<User[]>;
   getAdminAnalytics(): Promise<any>;
   getGuestBookingsByEmail(email: string): Promise<BookingWithDetails[]>;
+
+  // Addon Product methods
+  getAllAddonProducts(): Promise<AddonProduct[]>;
+  getAddonProduct(id: string): Promise<AddonProduct | undefined>;
+  createAddonProduct(product: InsertAddonProduct): Promise<AddonProduct>;
+  updateAddonProduct(id: string, data: Partial<AddonProduct>): Promise<AddonProduct | undefined>;
+  deleteAddonProduct(id: string): Promise<boolean>;
+
+  // Owner Addon Purchase methods
+  getOwnerAddonPurchases(ownerId: string): Promise<OwnerAddonPurchase[]>;
+  createOwnerAddonPurchase(purchase: InsertOwnerAddonPurchase): Promise<OwnerAddonPurchase>;
+
+  // Toll Fee methods
+  getTollFeesByBooking(bookingId: string): Promise<TollFee[]>;
+  createTollFee(tollFee: InsertTollFee): Promise<TollFee>;
+  updateTollFee(id: string, data: Partial<TollFee>): Promise<TollFee | undefined>;
 }
 
 export class DbStorage implements IStorage {
@@ -442,6 +467,56 @@ export class DbStorage implements IStorage {
 
   async getVehicleDocuments(vehicleId: string): Promise<VehicleDocument[]> {
     return await db.select().from(vehicleDocuments).where(eq(vehicleDocuments.vehicleId, vehicleId));
+  }
+
+  // Addon Product methods
+  async getAllAddonProducts(): Promise<AddonProduct[]> {
+    return await db.select().from(addonProducts);
+  }
+
+  async getAddonProduct(id: string): Promise<AddonProduct | undefined> {
+    const result = await db.select().from(addonProducts).where(eq(addonProducts.id, id)).limit(1);
+    return result[0];
+  }
+
+  async createAddonProduct(product: InsertAddonProduct): Promise<AddonProduct> {
+    const result = await db.insert(addonProducts).values(product).returning();
+    return result[0];
+  }
+
+  async updateAddonProduct(id: string, data: Partial<AddonProduct>): Promise<AddonProduct | undefined> {
+    const result = await db.update(addonProducts).set(data).where(eq(addonProducts.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteAddonProduct(id: string): Promise<boolean> {
+    await db.delete(addonProducts).where(eq(addonProducts.id, id));
+    return true;
+  }
+
+  // Owner Addon Purchase methods
+  async getOwnerAddonPurchases(ownerId: string): Promise<OwnerAddonPurchase[]> {
+    return await db.select().from(ownerAddonPurchases).where(eq(ownerAddonPurchases.ownerId, ownerId));
+  }
+
+  async createOwnerAddonPurchase(purchase: InsertOwnerAddonPurchase): Promise<OwnerAddonPurchase> {
+    const result = await db.insert(ownerAddonPurchases).values(purchase).returning();
+    return result[0];
+  }
+
+  // Toll Fee methods
+  async getTollFeesByBooking(bookingId: string): Promise<TollFee[]> {
+    return await db.select().from(tollFees).where(eq(tollFees.bookingId, bookingId));
+  }
+
+  async createTollFee(tollFee: InsertTollFee): Promise<TollFee> {
+    const result = await db.insert(tollFees).values(tollFee).returning();
+    return result[0];
+  }
+
+  async updateTollFee(id: string, data: Partial<TollFee>): Promise<TollFee | undefined> {
+    const result = await db.update(tollFees).set(data).where(eq(tollFees.id, id)).returning();
+    return result[0];
   }
 }
 
