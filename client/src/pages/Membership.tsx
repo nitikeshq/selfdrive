@@ -28,7 +28,8 @@ export default function Membership() {
 
   const purchaseMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("POST", "/api/membership/purchase", { paymentMethod: "payu" });
+      const response = await apiRequest("POST", "/api/membership/purchase", { paymentMethod: "payu" });
+      return response.json();
     },
     onSuccess: (data: any) => {
       if (data.paymentUrl) {
