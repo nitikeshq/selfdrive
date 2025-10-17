@@ -62,9 +62,11 @@ export const users = pgTable("users", {
   
   // PayU Vendor/Settlement Details (for owners)
   payuVendorId: text("payu_vendor_id"), // PayU sub-merchant ID for direct settlement
+  upiId: text("upi_id"), // UPI ID for payments
   bankAccountNumber: text("bank_account_number"),
   bankIfscCode: text("bank_ifsc_code"),
   bankAccountHolderName: text("bank_account_holder_name"),
+  gstNumber: text("gst_number"), // Optional GST number
   isPayuVendorVerified: boolean("is_payu_vendor_verified").notNull().default(false),
   
   createdAt: timestamp("created_at").defaultNow(),
