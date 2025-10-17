@@ -49,6 +49,11 @@ export default function BookVehicle() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
+  // Get pickup/return times from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const pickupFromUrl = urlParams.get('pickup') || "";
+  const returnFromUrl = urlParams.get('return') || "";
+
   const { data: vehicle, isLoading } = useQuery<Vehicle>({
     queryKey: ["/api/vehicles", vehicleId],
     enabled: !!vehicleId,
@@ -58,8 +63,8 @@ export default function BookVehicle() {
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       pickupOption: "parking",
-      startDate: "",
-      endDate: "",
+      startDate: pickupFromUrl,
+      endDate: returnFromUrl,
       deliveryAddress: "",
     },
   });

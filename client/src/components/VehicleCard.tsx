@@ -7,9 +7,20 @@ import type { Vehicle } from "@shared/schema";
 
 interface VehicleCardProps {
   vehicle: Vehicle;
+  pickupDateTime?: string;
+  returnDateTime?: string;
 }
 
-export function VehicleCard({ vehicle }: VehicleCardProps) {
+export function VehicleCard({ vehicle, pickupDateTime, returnDateTime }: VehicleCardProps) {
+  // Build the book URL with pickup/return params if available
+  const getBookUrl = () => {
+    const baseUrl = `/book/${vehicle.id}`;
+    if (pickupDateTime && returnDateTime) {
+      return `${baseUrl}?pickup=${encodeURIComponent(pickupDateTime)}&return=${encodeURIComponent(returnDateTime)}`;
+    }
+    return baseUrl;
+  };
+
   return (
     <Card className="overflow-hidden hover-elevate active-elevate-2 transition-all" data-testid={`card-vehicle-${vehicle.id}`}>
       <div className="relative h-48 overflow-hidden bg-muted">
@@ -98,7 +109,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
           </div>
         </div>
 
-        <Link href={`/book/${vehicle.id}`}>
+        <Link href={getBookUrl()}>
           <Button 
             className="w-full" 
             disabled={!vehicle.available}

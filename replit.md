@@ -10,6 +10,43 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### New Features Added (October 17, 2025 - Latest)
+
+**1. Database Schema Enhancements:**
+- Added `tollFees` table: Tracks toll charges submitted by owners after bookings with proof uploads
+- Added `addonProducts` table: Marketplace for GPS devices, insurance, safety equipment
+- Added `ownerAddonPurchases` table: Tracks owner purchases from addon marketplace
+
+**2. Customer Profile & Documents:**
+- Created `/profile` page for customers to manage their information
+- Document upload interface for Aadhar, Driving License, and Profile Photo
+- Documents stored in user profile for reuse across bookings (reduces friction)
+- Backend API routes: GET `/api/profile` and POST `/api/profile/documents`
+- Note: Document storage currently uses placeholders - needs object storage integration
+
+**3. Seamless Booking Flow:**
+- Pickup/return times now passed via URL params from browse to checkout
+- BookVehicle page pre-fills date/time from URL query parameters
+- VehicleCard component constructs booking URL with `?pickup=...&return=...`
+- Consistent booking experience - no need to re-enter selected times
+
+**4. Multi-Day Availability (Pending Implementation):**
+- Schema supports time-based availability
+- Logic exists to filter by pickup/return times
+- TODO: Add validation to hide vehicles when requested days exceed available days
+
+**5. Challans & Toll Fees System (Schema Ready):**
+- Database tables created for challan tracking and toll fee submission
+- Owners can submit charges with proof after booking ends
+- Customers pay pending fees from security deposit
+- UI pages pending implementation
+
+**6. Addons Marketplace (Schema Ready):**
+- Super admin can add products (GPS, insurance, helmets, etc.)
+- Owners can browse and purchase after listing vehicles
+- Purchase history tracked in database
+- UI pages pending implementation
+
 ### Owner/Customer Mode Switching System (October 17, 2025)
 
 **Implemented dual-mode navigation system for seamless role switching:**

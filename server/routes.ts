@@ -15,6 +15,13 @@ import { z } from "zod";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import crypto from "crypto";
+import multer from "multer";
+
+// Configure multer for file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup auth middleware
@@ -129,6 +136,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
+
+  // Profile routes
+  app.get("/api/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      res.status(500).json({ message: "Failed to fetch profile" });
+    }
+  });
+
+  app.post("/api/profile/documents", isAuthenticated, upload.fields([
+    { name: 'aadhar', maxCount: 1 },
+    { name: 'dl', maxCount: 1 },
+    { name: 'profilePhoto', maxCount: 1 }
+  ]), async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      const updates: any = {};
+
+      // TODO: Implement proper object storage upload
+      // For now, using placeholder URLs
+      
+      // Upload Aadhar
+      if (files.aadhar && files.aadhar[0]) {
+        const aadharFile = files.aadhar[0];
+        updates.aadharPhotoUrl = `/uploads/aadhar-${userId}-${Date.now()}.${aadharFile.mimetype.split('/')[1]}`;
+      }
+
+      // Upload DL
+      if (files.dl && files.dl[0]) {
+        const dlFile = files.dl[0];
+        updates.dlPhotoUrl = `/uploads/dl-${userId}-${Date.now()}.${dlFile.mimetype.split('/')[1]}`;
+      }
+
+      // Upload Profile Photo
+      if (files.profilePhoto && files.profilePhoto[0]) {
+        const photoFile = files.profilePhoto[0];
+        updates.profileImageUrl = `/uploads/profile-${userId}-${Date.now()}.${photoFile.mimetype.split('/')[1]}`;
+      }
+
+      // Update user in database
+      const updatedUser = await storage.updateUser(userId, updates);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error uploading documents:", error);
+      res.status(500).json({ message: "Failed to upload documents" });
+    }
+  });
+
   // Vehicles routes
   app.get("/api/vehicles", async (req, res) => {
     try {

@@ -239,7 +239,12 @@ export default function Vehicles() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredVehicles.map((vehicle) => (
-                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+                <VehicleCard 
+                  key={vehicle.id} 
+                  vehicle={vehicle} 
+                  pickupDateTime={pickupDateTime}
+                  returnDateTime={returnDateTime}
+                />
               ))}
             </div>
           </>
