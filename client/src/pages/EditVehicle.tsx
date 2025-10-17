@@ -66,6 +66,9 @@ export default function EditVehicle() {
       gpsDeviceId: vehicle.gpsDeviceId,
       available: vehicle.available,
       isPaused: vehicle.isPaused,
+      availabilityType: vehicle.availabilityType || "always",
+      availableFromTime: vehicle.availableFromTime || "09:00",
+      availableToTime: vehicle.availableToTime || "17:00",
     } : undefined,
   });
 
@@ -393,6 +396,76 @@ export default function EditVehicle() {
                     </FormItem>
                   )}
                 />
+              </CardContent>
+            </Card>
+
+            {/* Availability */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Vehicle Availability</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="availabilityType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Availability Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-availability-type">
+                            <SelectValue placeholder="Select availability type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="always">Always Available (system auto-checks bookings)</SelectItem>
+                          <SelectItem value="specific_hours">Specific Hours Only</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch("availabilityType") === "specific_hours" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="availableFromTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Available From</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="time" 
+                              {...field} 
+                              data-testid="input-available-from"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="availableToTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Available To</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="time" 
+                              {...field} 
+                              data-testid="input-available-to"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
 

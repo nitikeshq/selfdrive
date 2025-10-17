@@ -36,6 +36,9 @@ const vehicleFormSchema = z.object({
   ownerLocation: z.string().min(1, "Owner location is required"),
   features: z.string().optional(),
   imageUrl: z.string().url("Valid image URL is required"),
+  availabilityType: z.enum(["always", "specific_hours"]).default("always"),
+  availableFromTime: z.string().optional(),
+  availableToTime: z.string().optional(),
 });
 
 const ownerRegistrationSchema = z.object({
@@ -83,6 +86,9 @@ export default function ListVehicle() {
       ownerLocation: "",
       features: "",
       imageUrl: "",
+      availabilityType: "always",
+      availableFromTime: "09:00",
+      availableToTime: "17:00",
     },
   });
 
@@ -506,6 +512,81 @@ export default function ListVehicle() {
                     </FormItem>
                   )}
                 />
+
+                {/* Availability Section */}
+                <div className="space-y-4 pt-4 border-t">
+                  <h3 className="text-lg font-semibold">Vehicle Availability</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="availabilityType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Availability Type</FormLabel>
+                        <FormControl>
+                          <select
+                            {...field}
+                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            data-testid="select-availability-type"
+                          >
+                            <option value="always">Always Available (system auto-checks bookings)</option>
+                            <option value="specific_hours">Specific Hours Only</option>
+                          </select>
+                        </FormControl>
+                        <FormDescription>
+                          Choose "Always Available" if vehicle can be rented anytime, or "Specific Hours" for limited availability
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch("availabilityType") === "specific_hours" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="availableFromTime"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Available From</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="time" 
+                                {...field} 
+                                data-testid="input-available-from"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              e.g., 09:00 AM
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="availableToTime"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Available To</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="time" 
+                                {...field} 
+                                data-testid="input-available-to"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              e.g., 05:00 PM
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+                </div>
 
                 <Button 
                   type="submit" 
