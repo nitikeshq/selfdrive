@@ -11,6 +11,23 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
+- **Contact Form & Email Integration**: Fully functional contact form with email delivery:
+  - Updated email service to support Gmail configuration (GMAIL_EMAIL, GMAIL_APP_PASSWORD)
+  - Created /api/contact endpoint for form submissions
+  - Emails sent to nitikesh@qwegle.com with subject "Selfdrive - Inquiry has been received"
+  - Professional HTML email template with all inquiry details and timestamp
+  - ContactUs page with SEO meta tags optimized for "contact driveease bhubaneswar"
+- **Local Business SEO Enhancement**: Comprehensive local SEO implementation for Bhubaneswar/Odisha:
+  - Added schema.org LocalBusiness JSON-LD markup to landing page
+  - Includes complete business details: address, phone, hours, geo-coordinates
+  - Service catalog with hourly/daily/weekly rental offerings
+  - Local keywords integration for better search visibility in Odisha region
+  - Founder information (Nitikesh Pattanayak, Chinmay Gayan) in structured data
+- **Rewards System Update**: Converted wallet to automatic rewards discount system:
+  - Removed wallet as payment method option
+  - Rewards balance now automatically deducts from booking total
+  - Membership activation goes directly to PayUMoney (no wallet option)
+  - Clear display of rewards discount and final payment amount
 - **AWS S3 File Storage Configuration**: Configured AWS S3 for file uploads and object storage:
   - Updated storage provider to use AWS_S3_BUCKET_NAME environment variable
   - Supports both AWS_S3_BUCKET and AWS_S3_BUCKET_NAME for flexibility
