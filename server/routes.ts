@@ -308,30 +308,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Vehicles routes
+  // Vehicles routes - Returns ALL vehicles with status badges
   app.get("/api/vehicles", async (req, res) => {
     try {
       const { search, location } = req.query;
       let vehicles = await storage.getAllVehicles();
       
-      // Filter out paused vehicles
-      vehicles = vehicles.filter(v => !v.isPaused);
-      
-      // Filter out currently rented vehicles
+      // Add status to each vehicle (Available, Paused, or Booked)
       const now = new Date();
-      const availableVehicles = [];
-      for (const vehicle of vehicles) {
-        const activeBookings = await storage.getActiveBookingsForVehicle(vehicle.id);
-        const isCurrentlyRented = activeBookings.some((booking: typeof activeBookings[number]) => 
-          booking.status !== 'cancelled' && 
-          new Date(booking.startDate) <= now && 
-          new Date(booking.endDate) >= now
-        );
-        if (!isCurrentlyRented) {
-          availableVehicles.push(vehicle);
+      const vehiclesWithStatus = await Promise.all(vehicles.map(async (vehicle) => {
+        let status = "Available";
+        
+        if (vehicle.isPaused) {
+          status = "Paused";
+        } else {
+          // Check if currently rented
+          const activeBookings = await storage.getActiveBookingsForVehicle(vehicle.id);
+          const isCurrentlyRented = activeBookings.some((booking: typeof activeBookings[number]) => 
+            booking.status !== 'cancelled' && 
+            new Date(booking.startDate) <= now && 
+            new Date(booking.endDate) >= now
+          );
+          if (isCurrentlyRented) {
+            status = "Booked";
+          }
         }
-      }
-      vehicles = availableVehicles;
+        
+        return { ...vehicle, status };
+      }));
+      
+      vehicles = vehiclesWithStatus;
       
       // Filter by location (default to Bhubaneswar)
       const filterLocation = (location as string) || "Bhubaneswar";

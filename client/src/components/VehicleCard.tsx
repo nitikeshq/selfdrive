@@ -6,7 +6,7 @@ import { Users, Fuel, Settings, MapPin, Clock } from "lucide-react";
 import type { Vehicle } from "@shared/schema";
 
 interface VehicleCardProps {
-  vehicle: Vehicle;
+  vehicle: Vehicle & { status?: string };
   pickupDateTime?: string;
   returnDateTime?: string;
 }
@@ -21,6 +21,20 @@ export function VehicleCard({ vehicle, pickupDateTime, returnDateTime }: Vehicle
     return baseUrl;
   };
 
+  // Get status badge styling
+  const getStatusBadge = () => {
+    const status = vehicle.status || (vehicle.isPaused ? "Paused" : "Available");
+    
+    if (status === "Available") {
+      return <Badge className="bg-green-500/90 hover:bg-green-500/90 text-white backdrop-blur-sm">Available</Badge>;
+    } else if (status === "Paused") {
+      return <Badge className="bg-yellow-500/90 hover:bg-yellow-500/90 text-white backdrop-blur-sm">Paused</Badge>;
+    } else if (status === "Booked") {
+      return <Badge className="bg-orange-500/90 hover:bg-orange-500/90 text-white backdrop-blur-sm">Booked</Badge>;
+    }
+    return <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm">Unknown</Badge>;
+  };
+
   return (
     <Card className="overflow-hidden hover-elevate active-elevate-2 transition-all" data-testid={`card-vehicle-${vehicle.id}`}>
       <div className="relative h-48 overflow-hidden bg-muted">
@@ -30,16 +44,14 @@ export function VehicleCard({ vehicle, pickupDateTime, returnDateTime }: Vehicle
           loading="lazy"
           className="w-full h-full object-cover"
         />
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex gap-2">
           <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm">
             {vehicle.type === "car" ? "Car" : "Bike"}
           </Badge>
         </div>
-        {!vehicle.available && (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
-            <Badge variant="destructive">Not Available</Badge>
-          </div>
-        )}
+        <div className="absolute top-3 left-3">
+          {getStatusBadge()}
+        </div>
       </div>
       
       <CardContent className="p-4">
@@ -112,10 +124,10 @@ export function VehicleCard({ vehicle, pickupDateTime, returnDateTime }: Vehicle
         <Link href={getBookUrl()}>
           <Button 
             className="w-full" 
-            disabled={!vehicle.available}
+            disabled={vehicle.status === "Booked" || vehicle.status === "Paused"}
             data-testid={`button-book-${vehicle.id}`}
           >
-            Book Now
+            {vehicle.status === "Booked" ? "Currently Booked" : vehicle.status === "Paused" ? "Unavailable" : "Book Now"}
           </Button>
         </Link>
       </CardContent>
