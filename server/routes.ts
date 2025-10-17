@@ -1260,6 +1260,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Owner payment details
+  app.patch("/api/owner/payment-details", isAuthenticated, isOwner, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const { 
+        bankAccountHolderName, 
+        bankAccountNumber, 
+        bankIfscCode, 
+        upiId, 
+        payuVendorId, 
+        panNumber, 
+        gstNumber 
+      } = req.body;
+
+      const updateData: any = {};
+      if (bankAccountHolderName) updateData.bankAccountHolderName = bankAccountHolderName;
+      if (bankAccountNumber) updateData.bankAccountNumber = bankAccountNumber;
+      if (bankIfscCode) updateData.bankIfscCode = bankIfscCode;
+      if (upiId !== undefined) updateData.upiId = upiId;
+      if (payuVendorId !== undefined) updateData.payuVendorId = payuVendorId;
+      if (panNumber) updateData.panNumber = panNumber;
+      if (gstNumber !== undefined) updateData.gstNumber = gstNumber;
+
+      const user = await storage.updateUser(userId, updateData);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating payment details:", error);
+      res.status(500).json({ error: "Failed to update payment details" });
+    }
+  });
+
   // KYC verification routes
   app.patch("/api/users/kyc", isAuthenticated, async (req: any, res) => {
     try {
