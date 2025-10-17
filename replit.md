@@ -10,6 +10,57 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### Owner/Customer Mode Switching System (October 17, 2025)
+
+**Implemented dual-mode navigation system for seamless role switching:**
+
+1. **Mode Detection & Switching**:
+   - System automatically detects current mode based on URL path
+   - Users in owner mode (/owner/*) see owner-specific navigation
+   - Users in customer mode see customer-specific navigation
+   - "Switch to Owner" button appears for users with owner role
+   - "Switch to Customer" button appears when in owner mode
+
+2. **Navigation Structure**:
+   - **Customer Mode Navigation**: Browse Vehicles, My Bookings, Switch to Owner (if owner)
+   - **Owner Mode Navigation**: My Vehicles, Transactions, Switch to Customer
+   - Smart display: "Become an Owner" shown only to non-owners
+   - Mode switch buttons use router navigation for instant switching
+
+3. **Owner-Specific Pages**:
+   - **/owner/vehicles** (My Vehicles):
+     - Full vehicle management dashboard
+     - List all vehicles with status (Active/Paused/Unavailable)
+     - Summary stats: Total vehicles, Active listings, Paused count
+     - Actions: Add, Edit, Pause/Resume, Delete vehicles
+     - Confirmation dialogs for destructive actions
+     
+   - **/owner/transactions** (Transactions):
+     - Financial overview dashboard
+     - Stats: Total Revenue, Net Earnings (70%), Platform Commission (30%), Wallet Balance
+     - Detailed transaction history
+     - Shows booking details, customer info, payment status
+     - Earnings breakdown per transaction
+
+4. **Owner Dashboard** (/owner-dashboard):
+   - Quick action cards linking to My Vehicles and Transactions
+   - Overview stats: Earnings, Commission, Total Vehicles, Active Bookings
+   - "Add Vehicle" button for quick listing
+   - Commission calculation (30% platform, 70% owner)
+
+5. **Security & Authentication**:
+   - All owner endpoints require session authentication
+   - Owner-only routes verify ownership before mutations
+   - Vehicle management operations secured with ownership checks
+   - Role-based redirects after login (owners→/owner-dashboard, customers→/browse-vehicles)
+
+**User Experience Flow:**
+- Single user account can be both customer AND owner
+- Users rent vehicles in customer mode
+- Users manage their rental business in owner mode
+- Seamless switching between modes via navbar button
+- Clean separation of concerns: renting vs earning
+
 ### Owner Onboarding Flow (October 17, 2025)
 
 **Restructured owner registration and vehicle listing flow:**
