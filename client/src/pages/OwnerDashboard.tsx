@@ -69,6 +69,27 @@ export default function OwnerDashboard() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Quick Navigation */}
+        <div className="flex items-center gap-3 mb-6 text-sm">
+          <Link href="/">
+            <a className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-home">
+              Home
+            </a>
+          </Link>
+          <span className="text-muted-foreground">/</span>
+          <Link href="/vehicles">
+            <a className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-browse-vehicles">
+              Browse Vehicles
+            </a>
+          </Link>
+          <span className="text-muted-foreground">/</span>
+          <Link href="/dashboard">
+            <a className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-customer-dashboard">
+              My Bookings
+            </a>
+          </Link>
+        </div>
+
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2" data-testid="text-owner-dashboard-title">
