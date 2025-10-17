@@ -81,6 +81,7 @@ export const vehicles = pgTable("vehicles", {
   ownerId: varchar("owner_id").notNull().references(() => users.id),
   name: text("name").notNull(),
   type: text("type").notNull(), // car, bike
+  category: text("category").notNull().default("economy"), // supercars, economy, premium, compact, suv, hatchback, sedan, luxury, sports_bike, cruiser_bike, commuter_bike
   brand: text("brand").notNull(),
   model: text("model").notNull(),
   year: integer("year").notNull(),
