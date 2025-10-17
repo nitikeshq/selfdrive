@@ -21,6 +21,7 @@ const MyVehicles = lazy(() => import("@/pages/owner/MyVehicles"));
 const Transactions = lazy(() => import("@/pages/owner/Transactions"));
 const ListVehicle = lazy(() => import("@/pages/ListVehicle"));
 const Login = lazy(() => import("@/pages/Login"));
+const Register = lazy(() => import("@/pages/Register"));
 const BookingDetails = lazy(() => import("@/pages/BookingDetails"));
 const EditVehicle = lazy(() => import("@/pages/EditVehicle"));
 const BecomeOwner = lazy(() => import("@/pages/BecomeOwner"));
@@ -62,6 +63,7 @@ function Router() {
         <Route path="/become-owner" component={BecomeOwner} />
         <Route path="/admin-dashboard" component={AdminDashboard} />
         <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
         <Route path="/terms-and-conditions" component={TermsAndConditions} />
         <Route path="/privacy-policy" component={PrivacyPolicy} />
         <Route path="/contact-us" component={ContactUs} />
