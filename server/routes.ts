@@ -432,12 +432,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Owner bookings routes
-  app.get("/api/owner/bookings", async (req, res) => {
+  app.get("/api/owner/bookings", isAuthenticated, async (req: any, res) => {
     try {
-      // TODO: Get ownerId from authenticated session
-      const ownerId = req.query.ownerId as string;
+      const ownerId = req.session.userId;
       if (!ownerId) {
-        return res.status(400).json({ error: "Owner ID required" });
+        return res.status(401).json({ error: "Unauthorized" });
       }
       const bookings = await storage.getBookingsByOwner(ownerId);
       res.json(bookings);
