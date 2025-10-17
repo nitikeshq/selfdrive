@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Car, Upload, MapPin } from "lucide-react";
+import { Car, Upload, MapPin, FileText, Shield, Leaf, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
@@ -16,6 +16,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 
 const vehicleFormSchema = z.object({
   name: z.string().min(1, "Vehicle name is required"),
@@ -40,6 +42,9 @@ const vehicleFormSchema = z.object({
   availabilityType: z.enum(["always", "specific_hours"]).default("always"),
   availableFromTime: z.string().optional(),
   availableToTime: z.string().optional(),
+  rcDocumentUrl: z.string().optional(),
+  insuranceDocumentUrl: z.string().optional(),
+  pucDocumentUrl: z.string().optional(),
 });
 
 const ownerRegistrationSchema = z.object({
@@ -65,6 +70,11 @@ export default function ListVehicle() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [pendingVehicleData, setPendingVehicleData] = useState<VehicleFormData | null>(null);
+  
+  // Document upload states
+  const [rcDocUrl, setRcDocUrl] = useState<string>("");
+  const [insuranceDocUrl, setInsuranceDocUrl] = useState<string>("");
+  const [pucDocUrl, setPucDocUrl] = useState<string>("");
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleFormSchema),
@@ -155,6 +165,9 @@ export default function ListVehicle() {
       const payload = {
         ...data,
         features: featuresArray,
+        rcDocumentUrl: rcDocUrl,
+        insuranceDocumentUrl: insuranceDocUrl,
+        pucDocumentUrl: pucDocUrl || undefined,
       };
       
       const res = await apiRequest("POST", "/api/vehicles", payload);
@@ -172,6 +185,16 @@ export default function ListVehicle() {
   });
 
   const onSubmit = (data: VehicleFormData) => {
+    // Validate required documents
+    if (!rcDocUrl || !insuranceDocUrl) {
+      toast({ 
+        title: "Missing Documents", 
+        description: "Please upload RC and Insurance documents before submitting", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
     // Check if user is authenticated
     if (!isAuthenticated) {
       // Save vehicle data and show auth modal
@@ -230,7 +253,7 @@ export default function ListVehicle() {
                         <FormControl>
                           <select
                             {...field}
-                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            className="w-full h-10 md:h-9 rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base touch-manipulation"
                             data-testid="select-vehicle-type"
                           >
                             <option value="car">Car</option>
@@ -251,7 +274,7 @@ export default function ListVehicle() {
                         <FormControl>
                           <select
                             {...field}
-                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            className="w-full h-10 md:h-9 rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base touch-manipulation"
                             data-testid="select-category"
                           >
                             {vehicleType === "car" ? (
@@ -357,7 +380,7 @@ export default function ListVehicle() {
                         <FormControl>
                           <select
                             {...field}
-                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            className="w-full h-10 md:h-9 rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base touch-manipulation"
                             data-testid="select-fuel-type"
                           >
                             <option value="petrol">Petrol</option>
@@ -379,7 +402,7 @@ export default function ListVehicle() {
                         <FormControl>
                           <select
                             {...field}
-                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            className="w-full h-10 md:h-9 rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base touch-manipulation"
                             data-testid="select-transmission"
                           >
                             <option value="manual">Manual</option>
@@ -445,7 +468,7 @@ export default function ListVehicle() {
                         <FormControl>
                           <select
                             {...field}
-                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            className="w-full h-10 md:h-9 rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base touch-manipulation"
                             data-testid="select-owner-location"
                           >
                             <option value="">Select your location</option>
@@ -566,7 +589,7 @@ export default function ListVehicle() {
                         <FormControl>
                           <select
                             {...field}
-                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            className="w-full h-10 md:h-9 rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base touch-manipulation"
                             data-testid="select-availability-type"
                           >
                             <option value="always">Always Available (system auto-checks bookings)</option>
@@ -628,11 +651,124 @@ export default function ListVehicle() {
                   )}
                 </div>
 
+                {/* Vehicle Documents Section */}
+                <div className="space-y-4 pt-4 border-t">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Vehicle Documents
+                  </h3>
+                  <p className="text-sm text-muted-foreground">Upload required documents for vehicle verification</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* RC Document */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        RC (Registration Certificate) *
+                      </label>
+                      {rcDocUrl ? (
+                        <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                          <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
+                        </div>
+                      ) : (
+                        <ObjectUploader
+                          maxNumberOfFiles={1}
+                          maxFileSize={5242880}
+                          onGetUploadParameters={async () => {
+                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                            const data = await response.json();
+                            return { method: "PUT" as const, url: data.uploadURL };
+                          }}
+                          onComplete={(result) => {
+                            if (result.successful && result.successful[0]) {
+                              setRcDocUrl(result.successful[0].uploadURL || "");
+                              toast({ title: "RC Document uploaded successfully" });
+                            }
+                          }}
+                          buttonClassName="w-full"
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload RC
+                        </ObjectUploader>
+                      )}
+                    </div>
+
+                    {/* Insurance Document */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Insurance Certificate *
+                      </label>
+                      {insuranceDocUrl ? (
+                        <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                          <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
+                        </div>
+                      ) : (
+                        <ObjectUploader
+                          maxNumberOfFiles={1}
+                          maxFileSize={5242880}
+                          onGetUploadParameters={async () => {
+                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                            const data = await response.json();
+                            return { method: "PUT" as const, url: data.uploadURL };
+                          }}
+                          onComplete={(result) => {
+                            if (result.successful && result.successful[0]) {
+                              setInsuranceDocUrl(result.successful[0].uploadURL || "");
+                              toast({ title: "Insurance document uploaded successfully" });
+                            }
+                          }}
+                          buttonClassName="w-full"
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Insurance
+                        </ObjectUploader>
+                      )}
+                    </div>
+
+                    {/* PUC Document */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center gap-2">
+                        <Leaf className="h-4 w-4" />
+                        PUC (Optional)
+                      </label>
+                      {pucDocUrl ? (
+                        <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                          <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
+                        </div>
+                      ) : (
+                        <ObjectUploader
+                          maxNumberOfFiles={1}
+                          maxFileSize={5242880}
+                          onGetUploadParameters={async () => {
+                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                            const data = await response.json();
+                            return { method: "PUT" as const, url: data.uploadURL };
+                          }}
+                          onComplete={(result) => {
+                            if (result.successful && result.successful[0]) {
+                              setPucDocUrl(result.successful[0].uploadURL || "");
+                              toast({ title: "PUC document uploaded successfully" });
+                            }
+                          }}
+                          buttonClassName="w-full"
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload PUC
+                        </ObjectUploader>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <Button 
                   type="submit" 
                   size="lg" 
                   className="w-full" 
-                  disabled={createVehicleMutation.isPending}
+                  disabled={createVehicleMutation.isPending || !rcDocUrl || !insuranceDocUrl}
                   data-testid="button-submit-vehicle"
                 >
                   <Upload className="h-5 w-5 mr-2" />

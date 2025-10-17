@@ -46,7 +46,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center">
+      <section className="relative min-h-[70vh] md:h-[80vh] flex items-center py-12 md:py-0">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070"
@@ -59,10 +59,10 @@ export default function Landing() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="max-w-3xl">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold text-white mb-6" data-testid="text-hero-title">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-display font-bold text-white mb-4 md:mb-6" data-testid="text-hero-title">
               Your Journey, Your Vehicle, Your Schedule
             </h1>
-            <p className="text-xl sm:text-2xl text-white/90 mb-8" data-testid="text-hero-subtitle">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 md:mb-8" data-testid="text-hero-subtitle">
               Book self-drive cars & bikes with instant confirmation
             </p>
 
@@ -73,9 +73,9 @@ export default function Landing() {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Location</label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
                       <select 
-                        className="w-full h-9 rounded-md border border-input bg-background pl-10 pr-3 text-sm"
+                        className="w-full h-11 md:h-9 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm md:text-base touch-manipulation"
                         value={searchLocation}
                         onChange={(e) => setSearchLocation(e.target.value)}
                         data-testid="select-search-location"
@@ -105,7 +105,7 @@ export default function Landing() {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Vehicle Type</label>
                     <select 
-                      className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                      className="w-full h-11 md:h-9 rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base touch-manipulation"
                       value={searchType}
                       onChange={(e) => setSearchType(e.target.value)}
                       data-testid="select-vehicle-type"

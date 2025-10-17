@@ -107,6 +107,11 @@ export const vehicles = pgTable("vehicles", {
   imageUrl: text("image_url").notNull(),
   features: text("features").array(),
   
+  // Vehicle Documents
+  rcDocumentUrl: text("rc_document_url"),
+  insuranceDocumentUrl: text("insurance_document_url"),
+  pucDocumentUrl: text("puc_document_url"),
+  
   // Insurance & GPS
   hasExtraInsurance: boolean("has_extra_insurance").notNull().default(false),
   extraInsuranceCost: decimal("extra_insurance_cost", { precision: 10, scale: 2 }).default("0"),
