@@ -11,6 +11,19 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
+- **Vehicle Document Upload System**: Implemented complete document upload workflow for vehicle listing:
+  - Added rcDocumentUrl, insuranceDocumentUrl, pucDocumentUrl fields to vehicles table
+  - RC and Insurance documents are mandatory; PUC is optional
+  - ObjectUploader component integration for secure file uploads to object storage
+  - Visual feedback with green badges when documents are uploaded
+  - Client-side validation prevents submission without required documents
+  - Backend ready for additional validation to ensure document URLs are present
+- **Mobile Responsiveness Improvements**: Enhanced mobile experience across the platform:
+  - DateTimePicker now responsive (h-11 mobile, h-10 desktop) with text truncation
+  - Landing page search form optimized for mobile (1 col mobile, 2 cols sm, 4 cols lg)
+  - All select elements have proper touch targets (h-11 mobile, h-10 desktop)
+  - Added touch-manipulation CSS for better mobile interaction
+  - Responsive padding (p-4 mobile, p-6 desktop) and gap spacing
 - **Vehicle Categories**: Added category field to vehicles with Indian market categories (Super cars, Economy, Premium Cars, Compact cars, XUVs, Hatchbacks, Bikes, Scooters, Electric Bikes, Electric Cars)
 - **Status Badge System**: Browse vehicles page now displays ALL vehicles with color-coded status badges:
   - Green badge: Available vehicles (ready to book)
