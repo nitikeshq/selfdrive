@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VehicleCard } from "@/components/VehicleCard";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { Search, Filter, X } from "lucide-react";
 import type { Vehicle } from "@shared/schema";
 
@@ -163,19 +164,17 @@ export default function Vehicles() {
                 </select>
               </div>
               <div>
-                <Input
-                  type="datetime-local"
+                <DateTimePicker
                   value={pickupDateTime}
-                  onChange={(e) => setPickupDateTime(e.target.value)}
+                  onChange={setPickupDateTime}
                   placeholder="Pickup date & time"
                   data-testid="input-pickup-filter"
                 />
               </div>
               <div>
-                <Input
-                  type="datetime-local"
+                <DateTimePicker
                   value={returnDateTime}
-                  onChange={(e) => setReturnDateTime(e.target.value)}
+                  onChange={setReturnDateTime}
                   placeholder="Return date & time"
                   data-testid="input-return-filter"
                 />
