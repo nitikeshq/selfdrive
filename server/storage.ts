@@ -24,6 +24,8 @@ import {
   type InsertOwnerAddonPurchase,
   type TollFee,
   type InsertTollFee,
+  type AgreementAcceptance,
+  type InsertAgreementAcceptance,
   users,
   vehicles,
   bookings,
@@ -34,7 +36,8 @@ import {
   ownerAddresses,
   addonProducts,
   ownerAddonPurchases,
-  tollFees
+  tollFees,
+  agreementAcceptances
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte } from "drizzle-orm";
@@ -118,6 +121,13 @@ export interface IStorage {
   getTollFeesByBooking(bookingId: string): Promise<TollFee[]>;
   createTollFee(tollFee: InsertTollFee): Promise<TollFee>;
   updateTollFee(id: string, data: Partial<TollFee>): Promise<TollFee | undefined>;
+
+  // Agreement Acceptance methods
+  getAgreementAcceptance(id: string): Promise<AgreementAcceptance | undefined>;
+  getAgreementAcceptancesByUser(userId: string): Promise<AgreementAcceptance[]>;
+  getAgreementAcceptanceByType(userId: string, agreementType: string): Promise<AgreementAcceptance | undefined>;
+  getAgreementAcceptanceByBooking(bookingId: string): Promise<AgreementAcceptance[]>;
+  createAgreementAcceptance(acceptance: InsertAgreementAcceptance): Promise<AgreementAcceptance>;
 }
 
 export class DbStorage implements IStorage {
@@ -516,6 +526,35 @@ export class DbStorage implements IStorage {
 
   async updateTollFee(id: string, data: Partial<TollFee>): Promise<TollFee | undefined> {
     const result = await db.update(tollFees).set(data).where(eq(tollFees.id, id)).returning();
+    return result[0];
+  }
+
+  // Agreement Acceptance methods
+  async getAgreementAcceptance(id: string): Promise<AgreementAcceptance | undefined> {
+    const result = await db.select().from(agreementAcceptances).where(eq(agreementAcceptances.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAgreementAcceptancesByUser(userId: string): Promise<AgreementAcceptance[]> {
+    return await db.select().from(agreementAcceptances).where(eq(agreementAcceptances.userId, userId));
+  }
+
+  async getAgreementAcceptanceByType(userId: string, agreementType: string): Promise<AgreementAcceptance | undefined> {
+    const result = await db.select().from(agreementAcceptances)
+      .where(and(
+        eq(agreementAcceptances.userId, userId),
+        eq(agreementAcceptances.agreementType, agreementType)
+      ))
+      .limit(1);
+    return result[0];
+  }
+
+  async getAgreementAcceptanceByBooking(bookingId: string): Promise<AgreementAcceptance[]> {
+    return await db.select().from(agreementAcceptances).where(eq(agreementAcceptances.bookingId, bookingId!));
+  }
+
+  async createAgreementAcceptance(acceptance: InsertAgreementAcceptance): Promise<AgreementAcceptance> {
+    const result = await db.insert(agreementAcceptances).values(acceptance).returning();
     return result[0];
   }
 }

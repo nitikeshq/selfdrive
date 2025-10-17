@@ -9,7 +9,8 @@ import {
   insertChallanSchema,
   insertVideoVerificationSchema,
   insertVehicleDocumentSchema,
-  insertOwnerAddressSchema
+  insertOwnerAddressSchema,
+  insertAgreementAcceptanceSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
@@ -1185,6 +1186,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(verification);
     } catch (error) {
       res.status(500).json({ error: "Failed to approve video verification" });
+    }
+  });
+
+  // Agreement Acceptance routes
+  app.post("/api/agreement-acceptances", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertAgreementAcceptanceSchema.parse({
+        ...req.body,
+        userId: (req.session as any).userId,
+        ipAddress: req.ip || req.headers['x-forwarded-for'] || 'unknown',
+        userAgent: req.headers['user-agent'] || 'unknown'
+      });
+      const acceptance = await storage.createAgreementAcceptance(validatedData);
+      res.status(201).json(acceptance);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create agreement acceptance" });
+    }
+  });
+
+  app.get("/api/agreement-acceptances/user/:userId", isAuthenticated, async (req, res) => {
+    try {
+      const acceptances = await storage.getAgreementAcceptancesByUser(req.params.userId);
+      res.json(acceptances);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch agreement acceptances" });
+    }
+  });
+
+  app.get("/api/agreement-acceptances/check/:agreementType", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.session as any).userId;
+      const acceptance = await storage.getAgreementAcceptanceByType(userId, req.params.agreementType);
+      res.json({ accepted: !!acceptance, acceptance });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check agreement acceptance" });
+    }
+  });
+
+  app.get("/api/agreement-acceptances/booking/:bookingId", isAuthenticated, async (req, res) => {
+    try {
+      const acceptances = await storage.getAgreementAcceptanceByBooking(req.params.bookingId);
+      res.json(acceptances);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch booking agreement acceptances" });
     }
   });
 

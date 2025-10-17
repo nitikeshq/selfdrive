@@ -10,7 +10,10 @@ interface RentalAgreementProps {
 }
 
 export default function RentalAgreement({ booking, vehicle, owner, customer, guestName }: RentalAgreementProps) {
-  const customerName = customer?.name || guestName || "Guest Customer";
+  const ownerName = owner.firstName && owner.lastName ? `${owner.firstName} ${owner.lastName}` : owner.email;
+  const customerName = customer?.firstName && customer?.lastName 
+    ? `${customer.firstName} ${customer.lastName}` 
+    : guestName || booking.guestName || "Guest Customer";
   const customerEmail = customer?.email || booking.guestEmail || "";
   const customerPhone = customer?.phone || booking.guestPhone || "";
 
@@ -37,7 +40,7 @@ export default function RentalAgreement({ booking, vehicle, owner, customer, gue
         
         <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg mb-4">
           <h3 className="font-semibold mb-2">OWNER (First Party):</h3>
-          <p><strong>Name:</strong> {owner.name}</p>
+          <p><strong>Name:</strong> {ownerName}</p>
           <p><strong>Email:</strong> {owner.email}</p>
           <p><strong>Phone:</strong> {owner.phone}</p>
         </div>
@@ -53,12 +56,12 @@ export default function RentalAgreement({ booking, vehicle, owner, customer, gue
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Vehicle Details</h2>
         <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-          <p><strong>Make & Model:</strong> {vehicle.make} {vehicle.model}</p>
+          <p><strong>Make & Model:</strong> {vehicle.brand} {vehicle.model}</p>
           <p><strong>Year:</strong> {vehicle.year}</p>
           <p><strong>Registration Number:</strong> {vehicle.registrationNumber}</p>
           <p><strong>Vehicle Type:</strong> {vehicle.type}</p>
           <p><strong>Fuel Type:</strong> {vehicle.fuelType}</p>
-          <p><strong>Color:</strong> {vehicle.color}</p>
+          <p><strong>Transmission:</strong> {vehicle.transmission}</p>
         </div>
       </section>
 
@@ -68,7 +71,6 @@ export default function RentalAgreement({ booking, vehicle, owner, customer, gue
           <p><strong>Pickup Date & Time:</strong> {format(new Date(booking.startDate), 'PPP p')}</p>
           <p><strong>Return Date & Time:</strong> {format(new Date(booking.endDate), 'PPP p')}</p>
           <p><strong>Rental Amount:</strong> ₹{booking.totalAmount}</p>
-          <p><strong>Security Deposit:</strong> ₹{booking.securityDeposit || 0}</p>
           <p><strong>Payment Status:</strong> {booking.paymentStatus}</p>
         </div>
       </section>
