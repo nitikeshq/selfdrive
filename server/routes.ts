@@ -189,9 +189,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/vehicles", async (req, res) => {
+  app.post("/api/vehicles", isAuthenticated, async (req: any, res) => {
     try {
-      const validatedData = insertVehicleSchema.parse(req.body);
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Add ownerId from authenticated session
+      const dataWithOwner = {
+        ...req.body,
+        ownerId: userId,
+      };
+
+      const validatedData = insertVehicleSchema.parse(dataWithOwner);
       const vehicle = await storage.createVehicle(validatedData);
       res.status(201).json(vehicle);
     } catch (error) {
@@ -242,12 +253,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Owner vehicles routes
-  app.get("/api/owner/vehicles", async (req, res) => {
+  app.get("/api/owner/vehicles", isAuthenticated, async (req: any, res) => {
     try {
-      // TODO: Get ownerId from authenticated session
-      const ownerId = req.query.ownerId as string;
+      const ownerId = req.session.userId;
       if (!ownerId) {
-        return res.status(400).json({ error: "Owner ID required" });
+        return res.status(401).json({ error: "Unauthorized" });
       }
       const vehicles = await storage.getVehiclesByOwner(ownerId);
       res.json(vehicles);
