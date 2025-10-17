@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar, MapPin, TruckIcon, CreditCard, Users, Fuel, Settings, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -207,6 +208,11 @@ export default function BookVehicle() {
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      <SEO
+        title={vehicle ? `Book ${vehicle.name} - ${vehicle.type === 'car' ? 'Car' : 'Bike'} Rental` : 'Book Vehicle'}
+        description={vehicle ? `Book ${vehicle.name} for hourly or daily rental. ${vehicle.brand} ${vehicle.model} available for self-drive. Instant confirmation with flexible payment options.` : 'Complete your vehicle booking'}
+        keywords="book car, book bike, vehicle booking, rental confirmation, payment options"
+      />
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-display font-bold mb-2" data-testid="text-booking-title">Book Your Vehicle</h1>

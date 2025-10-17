@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { VehicleCard } from "@/components/VehicleCard";
 import { DateTimePicker } from "@/components/DateTimePicker";
+import { SEO } from "@/components/SEO";
 import { useQuery } from "@tanstack/react-query";
 import type { Vehicle } from "@shared/schema";
 
@@ -45,6 +46,13 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title="DriveEase - Self-Drive Car & Bike Rentals in Bhubaneswar, Odisha"
+        description="Rent self-drive cars and bikes with instant confirmation in Bhubaneswar. Hourly, daily, or weekly rentals. Free home delivery available. Book now!"
+        keywords="car rental Bhubaneswar, self drive cars, bike rental Odisha, car hire Bhubaneswar, vehicle rental India, hourly car rental"
+        ogImage="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070"
+        canonical="https://driveease.in"
+      />
       {/* Hero Section */}
       <section className="relative min-h-[70vh] md:h-[80vh] flex items-center py-12 md:py-0">
         <div className="absolute inset-0 z-0">

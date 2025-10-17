@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VehicleCard } from "@/components/VehicleCard";
 import { DateTimePicker } from "@/components/DateTimePicker";
+import { SEO } from "@/components/SEO";
 import { Search, Filter, X } from "lucide-react";
 import type { Vehicle } from "@shared/schema";
 
@@ -114,6 +115,11 @@ export default function Vehicles() {
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <SEO
+        title="Browse Vehicles - Find Your Perfect Ride"
+        description="Explore our wide range of self-drive cars and bikes available for rent. Filter by location, type, and availability. Book instantly with hourly or daily rates."
+        keywords="available cars, bike rentals, vehicle search, car booking, hourly rental, daily rental"
+      />
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2" data-testid="text-vehicles-title">
