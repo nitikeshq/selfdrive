@@ -68,14 +68,14 @@ export default function Landing() {
 
             {/* Search Bar */}
             <Card className="bg-white/95 dark:bg-card/95 backdrop-blur-md shadow-2xl">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
+              <CardContent className="p-4 sm:p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="w-full">
                     <label className="text-sm font-medium mb-2 block">Location</label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
                       <select 
-                        className="w-full h-11 md:h-9 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm md:text-base touch-manipulation"
+                        className="w-full h-11 md:h-10 rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm touch-manipulation"
                         value={searchLocation}
                         onChange={(e) => setSearchLocation(e.target.value)}
                         data-testid="select-search-location"
@@ -84,28 +84,34 @@ export default function Landing() {
                       </select>
                     </div>
                   </div>
-                  <div>
+                  <div className="w-full">
                     <label className="text-sm font-medium mb-2 block">Pickup Date & Time</label>
-                    <DateTimePicker
-                      value={pickupDateTime}
-                      onChange={setPickupDateTime}
-                      placeholder="Select pickup date & time"
-                      data-testid="input-pickup-datetime"
-                    />
+                    <div className="w-full">
+                      <DateTimePicker
+                        value={pickupDateTime}
+                        onChange={setPickupDateTime}
+                        placeholder="Select pickup date & time"
+                        data-testid="input-pickup-datetime"
+                        className="w-full"
+                      />
+                    </div>
                   </div>
-                  <div>
+                  <div className="w-full">
                     <label className="text-sm font-medium mb-2 block">Return Date & Time</label>
-                    <DateTimePicker
-                      value={returnDateTime}
-                      onChange={setReturnDateTime}
-                      placeholder="Select return date & time"
-                      data-testid="input-return-datetime"
-                    />
+                    <div className="w-full">
+                      <DateTimePicker
+                        value={returnDateTime}
+                        onChange={setReturnDateTime}
+                        placeholder="Select return date & time"
+                        data-testid="input-return-datetime"
+                        className="w-full"
+                      />
+                    </div>
                   </div>
-                  <div>
+                  <div className="w-full">
                     <label className="text-sm font-medium mb-2 block">Vehicle Type</label>
                     <select 
-                      className="w-full h-11 md:h-9 rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base touch-manipulation"
+                      className="w-full h-11 md:h-10 rounded-md border border-input bg-background px-3 py-2 text-sm touch-manipulation"
                       value={searchType}
                       onChange={(e) => setSearchType(e.target.value)}
                       data-testid="select-vehicle-type"
@@ -116,7 +122,7 @@ export default function Landing() {
                     </select>
                   </div>
                 </div>
-                <Button size="lg" className="w-full mt-4" onClick={handleSearch} data-testid="button-search">
+                <Button size="lg" className="w-full mt-4 h-11 md:h-10" onClick={handleSearch} data-testid="button-search">
                   <Search className="h-5 w-5 mr-2" />
                   Search Vehicles
                 </Button>

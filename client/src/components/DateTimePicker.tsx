@@ -63,14 +63,14 @@ export function DateTimePicker({ value, onChange, placeholder = "Select date & t
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal h-9",
+            "w-full justify-start text-left font-normal h-11 md:h-10",
             !dateValue && "text-muted-foreground",
             className
           )}
           data-testid={dataTestId}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {displayText}
+          <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+          <span className="truncate text-sm">{displayText}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
