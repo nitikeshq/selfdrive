@@ -243,6 +243,47 @@ export const challans = pgTable("challans", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Toll Fees table (submitted by owner after booking)
+export const tollFees = pgTable("toll_fees", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bookingId: varchar("booking_id").notNull().references(() => bookings.id),
+  vehicleId: varchar("vehicle_id").notNull().references(() => vehicles.id),
+  customerId: varchar("customer_id").notNull().references(() => users.id),
+  ownerId: varchar("owner_id").notNull().references(() => users.id),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  proofUrl: text("proof_url").notNull(), // Receipt/proof uploaded by owner
+  description: text("description"), // e.g., "Highway toll - Bhubaneswar to Cuttack"
+  status: text("status").notNull().default("pending"), // pending, paid, disputed
+  paidAt: timestamp("paid_at"),
+  submittedAt: timestamp("submitted_at").notNull().defaultNow(),
+});
+
+// Addon Products table (GPS, insurance, helmets, etc.)
+export const addonProducts = pgTable("addon_products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // insurance, gps, accessories, safety
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  imageUrl: text("image_url"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdByAdminId: varchar("created_by_admin_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Owner Addon Purchases table (owners buy addons for their vehicles)
+export const ownerAddonPurchases = pgTable("owner_addon_purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ownerId: varchar("owner_id").notNull().references(() => users.id),
+  vehicleId: varchar("vehicle_id").references(() => vehicles.id), // Can be null if bought before listing
+  addonProductId: varchar("addon_product_id").notNull().references(() => addonProducts.id),
+  quantity: integer("quantity").notNull().default(1),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, failed
+  paymentIntentId: text("payment_intent_id"),
+  purchasedAt: timestamp("purchased_at").notNull().defaultNow(),
+});
+
 // Video Verifications table
 export const videoVerifications = pgTable("video_verifications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -297,6 +338,21 @@ export const insertVideoVerificationSchema = createInsertSchema(videoVerificatio
   createdAt: true,
 });
 
+export const insertTollFeeSchema = createInsertSchema(tollFees).omit({
+  id: true,
+  submittedAt: true,
+});
+
+export const insertAddonProductSchema = createInsertSchema(addonProducts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertOwnerAddonPurchaseSchema = createInsertSchema(ownerAddonPurchases).omit({
+  id: true,
+  purchasedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -322,6 +378,15 @@ export type InsertChallan = z.infer<typeof insertChallanSchema>;
 
 export type VideoVerification = typeof videoVerifications.$inferSelect;
 export type InsertVideoVerification = z.infer<typeof insertVideoVerificationSchema>;
+
+export type TollFee = typeof tollFees.$inferSelect;
+export type InsertTollFee = z.infer<typeof insertTollFeeSchema>;
+
+export type AddonProduct = typeof addonProducts.$inferSelect;
+export type InsertAddonProduct = z.infer<typeof insertAddonProductSchema>;
+
+export type OwnerAddonPurchase = typeof ownerAddonPurchases.$inferSelect;
+export type InsertOwnerAddonPurchase = z.infer<typeof insertOwnerAddonPurchaseSchema>;
 
 // Extended booking type with vehicle and user details
 export type BookingWithDetails = Booking & {
