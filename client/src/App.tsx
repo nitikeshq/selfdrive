@@ -31,6 +31,8 @@ const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const ContactUs = lazy(() => import("@/pages/ContactUs"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const AdminAddons = lazy(() => import("@/pages/AdminAddons"));
+const Wallet = lazy(() => import("@/pages/Wallet"));
+const Membership = lazy(() => import("@/pages/Membership"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 // Loading skeleton component
@@ -66,6 +68,8 @@ function Router() {
         <Route path="/admin-dashboard" component={AdminDashboard} />
         <Route path="/admin/addons" component={AdminAddons} />
         <Route path="/profile" component={Profile} />
+        <Route path="/wallet" component={Wallet} />
+        <Route path="/membership" component={Membership} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/terms-and-conditions" component={TermsAndConditions} />

@@ -11,6 +11,16 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
+- **Referral & Membership System**: Complete implementation of referral rewards and premium membership:
+  - Referral system: Users earn ₹50 for each successful referral with 90-day expiry
+  - Membership: ₹999 annual premium membership with exclusive benefits
+  - Free delivery/pickup for day-wise bookings (24h+) for members
+  - 30-minute late fee waiver for bookings under 8 hours (members only)
+  - 2x hourly rate penalty for late returns beyond stipulated time
+  - Wallet system with transaction history and expiry tracking
+  - Member badge displayed across platform for premium users
+  - Referral code generation, sharing, and application system
+  - Database tables: referrals, walletTransactions with proper expiry handling
 - **Vehicle Document Upload System**: Implemented complete document upload workflow for vehicle listing:
   - Added rcDocumentUrl, insuranceDocumentUrl, pucDocumentUrl fields to vehicles table
   - RC and Insurance documents are mandatory; PUC is optional

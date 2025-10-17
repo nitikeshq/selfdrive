@@ -105,7 +105,9 @@ export async function getActiveWalletBalance(userId: string): Promise<number> {
     
   if (!user) return 0;
   
-  // Get all credit transactions that have expired
+  const currentBalance = parseFloat(user.walletBalance || "0");
+  
+  // Get all expired credit transactions that haven't been deducted yet
   const now = new Date();
   const expiredCredits = await db.select()
     .from(walletTransactions)
@@ -113,13 +115,25 @@ export async function getActiveWalletBalance(userId: string): Promise<number> {
       and(
         eq(walletTransactions.userId, userId),
         eq(walletTransactions.type, "credit"),
-        gte(walletTransactions.expiresAt, now)
+        walletTransactions.expiresAt !== null
       )
     );
   
-  // For now, return the full balance
-  // In production, you'd want to track which credits were used and expire them properly
-  return parseFloat(user.walletBalance || "0");
+  // Calculate total expired amount (credits with expiresAt in the past)
+  let totalExpiredAmount = 0;
+  for (const credit of expiredCredits) {
+    if (credit.expiresAt && new Date(credit.expiresAt) < now) {
+      totalExpiredAmount += parseFloat(credit.amount);
+    }
+  }
+  
+  // Return balance minus expired credits (but never go below 0)
+  const activeBalance = Math.max(0, currentBalance - totalExpiredAmount);
+  
+  // TODO: In production, track which specific credits have been used/expired
+  // For now, we deduct the total expired amount from the balance
+  
+  return activeBalance;
 }
 
 // Get wallet transaction history

@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { Car, Menu, X, User, LogOut, ArrowRightLeft } from "lucide-react";
+import { Car, Menu, X, User, LogOut, ArrowRightLeft, Wallet, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
@@ -68,6 +69,23 @@ export function Navbar() {
                     <Link href="/dashboard">
                       <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard">
                         My Bookings
+                      </span>
+                    </Link>
+                    <Link href="/wallet">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer flex items-center gap-1" data-testid="link-wallet">
+                        <Wallet className="h-4 w-4" />
+                        Wallet
+                      </span>
+                    </Link>
+                    <Link href="/membership">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer flex items-center gap-1" data-testid="link-membership">
+                        <Crown className="h-4 w-4" />
+                        {(user as any).hasMembership ? (
+                          <span className="flex items-center gap-1">
+                            Membership
+                            <Badge variant="default" className="bg-yellow-500 text-white text-xs px-1 py-0">Member</Badge>
+                          </span>
+                        ) : "Membership"}
                       </span>
                     </Link>
                     {hasVehicles && (
