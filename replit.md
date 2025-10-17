@@ -11,7 +11,16 @@ DriveEase is a full-stack vehicle rental platform facilitating hourly, daily, or
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 17, 2025)
-- **UI Rebrand & Performance Optimization** (Latest):
+- **Owner Payment Details System** (Latest):
+  - Added UPI ID and GST number fields to users schema for payment configuration
+  - Created comprehensive payment details page at /owner/payment-details
+  - Form captures bank account (account number, IFSC, holder name), UPI ID, PAN, GST number
+  - Payment details required for owners to receive earnings (70% of booking amount)
+  - Fixed booking date validation to accept string dates and convert to Date objects
+  - Extended /api/auth/user endpoint to return all payment and KYC fields
+  - Navigation links added to owner mode (desktop + mobile)
+  - Validates payment details before allowing booking payments
+- **UI Rebrand & Performance Optimization**:
   - Renamed "Wallet" to "Rewards" across entire platform (navbar, routes, page titles)
   - Rewards page displays balance and transaction history only (no payment options)
   - Membership activation properly redirects to PayUMoney payment gateway
