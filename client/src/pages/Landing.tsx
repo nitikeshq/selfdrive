@@ -59,7 +59,11 @@ export default function Landing() {
       <section className="relative min-h-[70vh] md:h-[80vh] flex items-center py-12 md:py-0">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070"
+            src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=60&w=800&auto=format&fit=crop"
+            srcSet="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=60&w=400&auto=format&fit=crop 400w,
+                    https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=60&w=800&auto=format&fit=crop 800w,
+                    https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=60&w=1200&auto=format&fit=crop 1200w"
+            sizes="100vw"
             alt="Hero"
             loading="eager"
             className="w-full h-full object-cover"
