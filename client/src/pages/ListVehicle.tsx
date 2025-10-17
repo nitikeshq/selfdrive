@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 
 const vehicleFormSchema = z.object({
@@ -56,6 +57,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function ListVehicle() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
 
@@ -130,9 +132,33 @@ export default function ListVehicle() {
     },
   });
 
+  const createVehicleMutation = useMutation({
+    mutationFn: async (data: VehicleFormData) => {
+      const featuresArray = data.features
+        ? data.features.split(",").map((f) => f.trim()).filter(Boolean)
+        : [];
+      
+      const payload = {
+        ...data,
+        features: featuresArray,
+      };
+      
+      const res = await apiRequest("POST", "/api/vehicles", payload);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/owner/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      toast({ title: "Success!", description: "Vehicle listed successfully" });
+      setLocation("/owner-dashboard");
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to list vehicle", description: error.message || "Please try again", variant: "destructive" });
+    },
+  });
+
   const onSubmit = (data: VehicleFormData) => {
-    console.log("Vehicle data:", data);
-    // This will be connected to backend in Phase 2
+    createVehicleMutation.mutate(data);
   };
 
   const vehicleType = form.watch("type");
@@ -468,9 +494,15 @@ export default function ListVehicle() {
                   )}
                 />
 
-                <Button type="submit" size="lg" className="w-full" data-testid="button-submit-vehicle">
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full" 
+                  disabled={createVehicleMutation.isPending}
+                  data-testid="button-submit-vehicle"
+                >
                   <Upload className="h-5 w-5 mr-2" />
-                  List Vehicle
+                  {createVehicleMutation.isPending ? "Listing Vehicle..." : "List Vehicle"}
                 </Button>
               </form>
             </Form>
