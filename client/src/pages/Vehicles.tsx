@@ -42,21 +42,46 @@ export default function Vehicles() {
     // If vehicle has specific hours restriction
     if (vehicle.availabilityType === "specific_hours" && vehicle.availableFromTime && vehicle.availableToTime) {
       const pickupDate = new Date(pickupDateTime);
-      const pickupTime = pickupDate.toTimeString().substring(0, 5); // Get HH:MM format
+      const pickupHour = pickupDate.getHours();
+      const pickupMinute = pickupDate.getMinutes();
       
-      // Check if pickup time is within available hours
-      if (pickupTime < vehicle.availableFromTime || pickupTime > vehicle.availableToTime) {
-        return false;
+      // Convert availability times to minutes from midnight
+      const [fromHour, fromMin] = vehicle.availableFromTime.split(':').map(Number);
+      const [toHour, toMin] = vehicle.availableToTime.split(':').map(Number);
+      
+      const pickupMinutes = pickupHour * 60 + pickupMinute;
+      const fromMinutes = fromHour * 60 + fromMin;
+      const toMinutes = toHour * 60 + toMin;
+      
+      // Check if availability window crosses midnight
+      const crossesMidnight = toMinutes < fromMinutes;
+      
+      let pickupValid = false;
+      if (crossesMidnight) {
+        // Available from fromMinutes to 23:59 AND from 00:00 to toMinutes
+        pickupValid = pickupMinutes >= fromMinutes || pickupMinutes <= toMinutes;
+      } else {
+        // Normal case: available from fromMinutes to toMinutes
+        pickupValid = pickupMinutes >= fromMinutes && pickupMinutes <= toMinutes;
       }
+      
+      if (!pickupValid) return false;
       
       // Also check return time if provided
       if (returnDateTime) {
         const returnDate = new Date(returnDateTime);
-        const returnTime = returnDate.toTimeString().substring(0, 5);
+        const returnHour = returnDate.getHours();
+        const returnMinute = returnDate.getMinutes();
+        const returnMinutes = returnHour * 60 + returnMinute;
         
-        if (returnTime < vehicle.availableFromTime || returnTime > vehicle.availableToTime) {
-          return false;
+        let returnValid = false;
+        if (crossesMidnight) {
+          returnValid = returnMinutes >= fromMinutes || returnMinutes <= toMinutes;
+        } else {
+          returnValid = returnMinutes >= fromMinutes && returnMinutes <= toMinutes;
         }
+        
+        if (!returnValid) return false;
       }
     }
     
