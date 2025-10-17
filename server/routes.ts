@@ -16,6 +16,7 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import crypto from "crypto";
 import multer from "multer";
+import { StorageFactory } from "./storage-providers";
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -160,28 +161,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.session.userId;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const storageProvider = StorageFactory.getProvider();
       
       const updates: any = {};
 
-      // TODO: Implement proper object storage upload
-      // For now, using placeholder URLs
-      
-      // Upload Aadhar
+      // Upload Aadhar to storage
       if (files.aadhar && files.aadhar[0]) {
         const aadharFile = files.aadhar[0];
-        updates.aadharPhotoUrl = `/uploads/aadhar-${userId}-${Date.now()}.${aadharFile.mimetype.split('/')[1]}`;
+        const aadharKey = await storageProvider.upload(
+          aadharFile.buffer,
+          aadharFile.originalname,
+          aadharFile.mimetype,
+          `documents/aadhar/${userId}`
+        );
+        updates.aadharPhotoUrl = await storageProvider.getSignedUrl(aadharKey, 86400 * 30); // 30 days
       }
 
-      // Upload DL
+      // Upload DL to storage
       if (files.dl && files.dl[0]) {
         const dlFile = files.dl[0];
-        updates.dlPhotoUrl = `/uploads/dl-${userId}-${Date.now()}.${dlFile.mimetype.split('/')[1]}`;
+        const dlKey = await storageProvider.upload(
+          dlFile.buffer,
+          dlFile.originalname,
+          dlFile.mimetype,
+          `documents/dl/${userId}`
+        );
+        updates.dlPhotoUrl = await storageProvider.getSignedUrl(dlKey, 86400 * 30); // 30 days
       }
 
-      // Upload Profile Photo
+      // Upload Profile Photo to storage
       if (files.profilePhoto && files.profilePhoto[0]) {
         const photoFile = files.profilePhoto[0];
-        updates.profileImageUrl = `/uploads/profile-${userId}-${Date.now()}.${photoFile.mimetype.split('/')[1]}`;
+        const photoKey = await storageProvider.upload(
+          photoFile.buffer,
+          photoFile.originalname,
+          photoFile.mimetype,
+          `profile-photos/${userId}`
+        );
+        updates.profileImageUrl = await storageProvider.getSignedUrl(photoKey, 86400 * 30); // 30 days
       }
 
       // Update user in database
