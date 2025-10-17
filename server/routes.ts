@@ -718,9 +718,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const surl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/api/payment-success`;
       const furl = `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/api/payment-failure`;
 
-      // Generate hash: sha512(key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||SALT)
-      const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
-      const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+      // Generate hash using PayUMoney service
+      const { generatePayUHash } = await import("./services/payumoney");
+      const hash = generatePayUHash({
+        txnid,
+        amount: amount.toString(),
+        productinfo,
+        firstname,
+        email,
+        phone,
+        surl,
+        furl,
+        udf1: bookingId,
+      });
 
       // Store txnid and payment split details with bookingId
       await storage.updateBooking(bookingId, {
@@ -762,16 +772,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PayU success callback
   app.post("/api/payment-success", async (req, res) => {
     try {
-      const { txnid, status, hash: responseHash, mihpayid } = req.body;
+      const { txnid, status, hash: responseHash, mihpayid, udf1, udf2, udf3, udf4, udf5 } = req.body;
       
-      const salt = process.env.PAYUMONEY_SALT;
-      const key = process.env.PAYUMONEY_MERCHANT_KEY;
+      // Verify hash using PayUMoney service
+      const { verifyPayUHash } = await import("./services/payumoney");
+      const isValid = verifyPayUHash(
+        status,
+        req.body.firstname,
+        req.body.amount,
+        txnid,
+        req.body.productinfo,
+        req.body.email,
+        udf1 || "",
+        udf2 || "",
+        udf3 || "",
+        udf4 || "",
+        udf5 || "",
+        responseHash
+      );
 
-      // Verify hash to ensure response is authentic
-      const hashString = `${salt}|${status}|||||||||||${req.body.email}|${req.body.firstname}|${req.body.productinfo}|${req.body.amount}|${txnid}|${key}`;
-      const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
-
-      if (calculatedHash !== responseHash) {
+      if (!isValid) {
         return res.status(400).send("Invalid payment response");
       }
 
@@ -1512,9 +1532,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const surl = `${domain}/api/membership-payment-success`;
         const furl = `${domain}/api/membership-payment-failure`;
 
-        // Generate hash
-        const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
-        const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+        // Generate hash using PayUMoney service
+        const { generatePayUHash } = await import("./services/payumoney");
+        const hash = generatePayUHash({
+          txnid,
+          amount,
+          productinfo,
+          firstname,
+          email,
+          phone,
+          surl,
+          furl,
+          udf1: req.session.userId,
+        });
 
         const paymentData = {
           key,
@@ -1545,16 +1575,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Membership payment success callback
   app.post("/api/membership-payment-success", async (req, res) => {
     try {
-      const { txnid, status, hash: responseHash, udf1: userId, mihpayid } = req.body;
+      const { txnid, status, hash: responseHash, udf1: userId, mihpayid, udf2, udf3, udf4, udf5 } = req.body;
       
-      const salt = process.env.PAYUMONEY_SALT;
-      const key = process.env.PAYUMONEY_MERCHANT_KEY;
+      // Verify hash using PayUMoney service
+      const { verifyPayUHash } = await import("./services/payumoney");
+      const isValid = verifyPayUHash(
+        status,
+        req.body.firstname,
+        req.body.amount,
+        txnid,
+        req.body.productinfo,
+        req.body.email,
+        userId || "",
+        udf2 || "",
+        udf3 || "",
+        udf4 || "",
+        udf5 || "",
+        responseHash
+      );
 
-      // Verify hash
-      const hashString = `${salt}|${status}|||||||||||${req.body.email}|${req.body.firstname}|${req.body.productinfo}|${req.body.amount}|${txnid}|${key}`;
-      const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
-
-      if (calculatedHash !== responseHash) {
+      if (!isValid) {
         return res.status(400).send("Invalid payment response");
       }
 
