@@ -77,13 +77,11 @@ export default function OwnerDashboard() {
             </h1>
             <p className="text-muted-foreground">Manage your vehicles and track earnings</p>
           </div>
-          <Link href="/list-vehicle">
-            <a>
-              <Button size="lg" data-testid="button-add-vehicle">
-                <Plus className="h-5 w-5 mr-2" />
-                Add Vehicle
-              </Button>
-            </a>
+          <Link href="/list-vehicle" asChild>
+            <Button size="lg" data-testid="button-add-vehicle">
+              <Plus className="h-5 w-5 mr-2" />
+              Add Vehicle
+            </Button>
           </Link>
         </div>
 
@@ -193,13 +191,11 @@ export default function OwnerDashboard() {
               <p className="text-muted-foreground mb-4">
                 Start earning by listing your first vehicle
               </p>
-              <Link href="/list-vehicle">
-                <a>
-                  <Button data-testid="button-list-first-vehicle">
-                    <Plus className="h-4 w-4 mr-2" />
-                    List Your Vehicle
-                  </Button>
-                </a>
+              <Link href="/list-vehicle" asChild>
+                <Button data-testid="button-list-first-vehicle">
+                  <Plus className="h-4 w-4 mr-2" />
+                  List Your Vehicle
+                </Button>
               </Link>
             </Card>
           ) : (
@@ -234,7 +230,7 @@ export default function OwnerDashboard() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Link href={`/edit-vehicle/${vehicle.id}`}>
+                      <Link href={`/edit-vehicle/${vehicle.id}`} asChild>
                         <Button variant="outline" className="flex-1" data-testid={`button-edit-vehicle-${vehicle.id}`}>
                           Edit
                         </Button>
