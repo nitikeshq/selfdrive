@@ -49,7 +49,7 @@ export const users = pgTable("users", {
   membershipExpiresAt: timestamp("membership_expires_at"),
   
   // Referral System
-  referralCode: varchar("referral_code").unique(),
+  referralCode: varchar("referral_code"),
   referredBy: varchar("referred_by").references(() => users.id), // Who referred this user
   
   // User Rating (as a customer)
