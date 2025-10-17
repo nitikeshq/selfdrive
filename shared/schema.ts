@@ -354,6 +354,21 @@ export const walletTransactions = pgTable("wallet_transactions", {
   typeIdx: index("wallet_transactions_type_idx").on(table.type),
 }));
 
+// Agreement Acceptances table - Track legal agreement acceptances
+export const agreementAcceptances = pgTable("agreement_acceptances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  agreementType: text("agreement_type").notNull(), // owner_terms, rental_agreement
+  bookingId: varchar("booking_id").references(() => bookings.id), // For rental agreements
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  digitalSignature: text("digital_signature"), // Customer/owner name typed as signature
+  agreedAt: timestamp("agreed_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdx: index("agreement_acceptances_user_idx").on(table.userId),
+  bookingIdx: index("agreement_acceptances_booking_idx").on(table.bookingId),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -448,6 +463,11 @@ export const insertWalletTransactionSchema = createInsertSchema(walletTransactio
   balanceAfter: z.union([z.string(), z.number()]).transform(val => String(val)),
 });
 
+export const insertAgreementAcceptanceSchema = createInsertSchema(agreementAcceptances).omit({
+  id: true,
+  agreedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -488,6 +508,9 @@ export type InsertReferral = z.infer<typeof insertReferralSchema>;
 
 export type WalletTransaction = typeof walletTransactions.$inferSelect;
 export type InsertWalletTransaction = z.infer<typeof insertWalletTransactionSchema>;
+
+export type AgreementAcceptance = typeof agreementAcceptances.$inferSelect;
+export type InsertAgreementAcceptance = z.infer<typeof insertAgreementAcceptanceSchema>;
 
 // Extended booking type with vehicle and user details
 export type BookingWithDetails = Booking & {
