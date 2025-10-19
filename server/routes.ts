@@ -10,7 +10,8 @@ import {
   insertVideoVerificationSchema,
   insertVehicleDocumentSchema,
   insertOwnerAddressSchema,
-  insertAgreementAcceptanceSchema
+  insertAgreementAcceptanceSchema,
+  users
 } from "@shared/schema";
 import { z } from "zod";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
@@ -18,6 +19,8 @@ import { ObjectPermission } from "./objectAcl";
 import crypto from "crypto";
 import multer from "multer";
 import { StorageFactory } from "./storage-providers";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -879,8 +882,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "User not found" });
       }
 
-      const { getAvailableBalance } = await import("./services/wallet");
-      const availableBalance = await getAvailableBalance(userId);
+      const { getActiveWalletBalance } = await import("./services/wallet");
+      const availableBalance = await getActiveWalletBalance(userId);
       const totalAmount = parseFloat(booking.totalAmount);
 
       if (availableBalance < totalAmount) {
@@ -892,8 +895,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Deduct from wallet
-      const { deductFromWallet } = await import("./services/wallet");
-      await deductFromWallet(userId, totalAmount, `Booking payment - ${bookingId}`);
+      const { deductWalletBalance } = await import("./services/wallet");
+      await deductWalletBalance(userId, totalAmount.toString(), "booking_payment", `Booking payment - ${bookingId}`, bookingId);
 
       // Calculate platform commission (30%) and owner earnings (70%)
       const PLATFORM_COMMISSION_RATE = 0.30;
