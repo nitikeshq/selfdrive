@@ -48,6 +48,11 @@ export function VehicleCard({ vehicle, pickupDateTime, returnDateTime }: Vehicle
           <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm">
             {vehicle.type === "car" ? "Car" : "Bike"}
           </Badge>
+          {vehicle.category && (
+            <Badge variant="outline" className="bg-primary/90 text-primary-foreground border-primary backdrop-blur-sm">
+              {vehicle.category}
+            </Badge>
+          )}
         </div>
         <div className="absolute top-3 left-3">
           {getStatusBadge()}
