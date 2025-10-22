@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
   maxFileSize?: number;
-  onGetUploadParameters: () => Promise<{
+  onGetUploadParameters: (file: { name: string; type: string }) => Promise<{
     method: "PUT";
     url: string;
   }>;
@@ -39,7 +39,9 @@ export function ObjectUploader({
     })
       .use(AwsS3, {
         shouldUseMultipart: false,
-        getUploadParameters: onGetUploadParameters,
+        getUploadParameters: (file) => {
+          return onGetUploadParameters({ name: file.name || 'file', type: file.type || 'application/octet-stream' });
+        },
       })
       .on("complete", (result) => {
         onComplete?.(result);

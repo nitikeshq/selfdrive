@@ -1020,8 +1020,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
         });
         
-        // Generate unique key for upload
-        const uniqueKey = `documents/${Date.now()}-${crypto.randomBytes(8).toString('hex')}.pdf`;
+        // Generate unique key for upload (accept any file type)
+        const fileExtension = req.body.fileExtension || 'pdf';
+        const uniqueKey = `documents/${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${fileExtension}`;
         
         const command = new PutObjectCommand({
           Bucket: bucket,

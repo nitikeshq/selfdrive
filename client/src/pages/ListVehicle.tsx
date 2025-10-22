@@ -705,8 +705,9 @@ export default function ListVehicle() {
                         <ObjectUploader
                           maxNumberOfFiles={1}
                           maxFileSize={5242880}
-                          onGetUploadParameters={async () => {
-                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                          onGetUploadParameters={async (file) => {
+                            const ext = file.name.split('.').pop() || 'pdf';
+                            const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
                             const data = await response.json();
                             return { method: "PUT" as const, url: data.uploadURL };
                           }}
@@ -749,8 +750,9 @@ export default function ListVehicle() {
                         <ObjectUploader
                           maxNumberOfFiles={1}
                           maxFileSize={5242880}
-                          onGetUploadParameters={async () => {
-                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                          onGetUploadParameters={async (file) => {
+                            const ext = file.name.split('.').pop() || 'pdf';
+                            const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
                             const data = await response.json();
                             return { method: "PUT" as const, url: data.uploadURL };
                           }}
@@ -793,8 +795,9 @@ export default function ListVehicle() {
                         <ObjectUploader
                           maxNumberOfFiles={1}
                           maxFileSize={5242880}
-                          onGetUploadParameters={async () => {
-                            const response = await apiRequest("POST", "/api/objects/upload", {});
+                          onGetUploadParameters={async (file) => {
+                            const ext = file.name.split('.').pop() || 'pdf';
+                            const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
                             const data = await response.json();
                             return { method: "PUT" as const, url: data.uploadURL };
                           }}

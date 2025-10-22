@@ -323,8 +323,9 @@ export default function PickupVerification() {
                   <ObjectUploader
                     maxNumberOfFiles={1}
                     maxFileSize={50 * 1024 * 1024}
-                    onGetUploadParameters={async () => {
-                      const response = await apiRequest("POST", "/api/objects/upload", {});
+                    onGetUploadParameters={async (file) => {
+                      const ext = file.name.split('.').pop() || 'mp4';
+                      const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
                       const data = await response.json();
                       return { method: "PUT" as const, url: data.uploadURL };
                     }}
