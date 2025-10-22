@@ -28,6 +28,8 @@ import {
   type InsertAgreementAcceptance,
   type InsuranceRequest,
   type InsertInsuranceRequest,
+  type Coupon,
+  type InsertCoupon,
   users,
   vehicles,
   bookings,
@@ -40,7 +42,8 @@ import {
   ownerAddonPurchases,
   tollFees,
   agreementAcceptances,
-  insuranceRequests
+  insuranceRequests,
+  coupons
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte } from "drizzle-orm";
@@ -138,6 +141,16 @@ export interface IStorage {
   getInsuranceRequestsByOwner(ownerId: string): Promise<InsuranceRequest[]>;
   createInsuranceRequest(request: InsertInsuranceRequest): Promise<InsuranceRequest>;
   updateInsuranceRequest(id: string, data: Partial<InsuranceRequest>): Promise<InsuranceRequest | undefined>;
+
+  // Coupon methods
+  getAllCoupons(): Promise<Coupon[]>;
+  getActiveCoupons(): Promise<Coupon[]>;
+  getCoupon(id: string): Promise<Coupon | undefined>;
+  getCouponByCode(code: string): Promise<Coupon | undefined>;
+  createCoupon(coupon: InsertCoupon): Promise<Coupon>;
+  updateCoupon(id: string, data: Partial<Coupon>): Promise<Coupon | undefined>;
+  deleteCoupon(id: string): Promise<boolean>;
+  incrementCouponUsage(id: string): Promise<Coupon | undefined>;
 }
 
 export class DbStorage implements IStorage {
@@ -589,6 +602,61 @@ export class DbStorage implements IStorage {
 
   async updateInsuranceRequest(id: string, data: Partial<InsuranceRequest>): Promise<InsuranceRequest | undefined> {
     const result = await db.update(insuranceRequests).set(data).where(eq(insuranceRequests.id, id)).returning();
+    return result[0];
+  }
+
+  // Coupon methods
+  async getAllCoupons(): Promise<Coupon[]> {
+    return await db.select().from(coupons);
+  }
+
+  async getActiveCoupons(): Promise<Coupon[]> {
+    const now = new Date();
+    return await db.select().from(coupons).where(
+      and(
+        eq(coupons.isActive, true),
+        lte(coupons.validFrom, now),
+        // validUntil can be null (no expiry) or greater than now
+      )
+    );
+  }
+
+  async getCoupon(id: string): Promise<Coupon | undefined> {
+    const result = await db.select().from(coupons).where(eq(coupons.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getCouponByCode(code: string): Promise<Coupon | undefined> {
+    const result = await db.select().from(coupons).where(eq(coupons.code, code.toUpperCase())).limit(1);
+    return result[0];
+  }
+
+  async createCoupon(coupon: InsertCoupon): Promise<Coupon> {
+    const result = await db.insert(coupons).values(coupon).returning();
+    return result[0];
+  }
+
+  async updateCoupon(id: string, data: Partial<Coupon>): Promise<Coupon | undefined> {
+    const result = await db.update(coupons).set({ ...data, updatedAt: new Date() }).where(eq(coupons.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteCoupon(id: string): Promise<boolean> {
+    const result = await db.delete(coupons).where(eq(coupons.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async incrementCouponUsage(id: string): Promise<Coupon | undefined> {
+    const coupon = await this.getCoupon(id);
+    if (!coupon) return undefined;
+    
+    const result = await db.update(coupons)
+      .set({ 
+        currentUsageCount: coupon.currentUsageCount + 1,
+        updatedAt: new Date()
+      })
+      .where(eq(coupons.id, id))
+      .returning();
     return result[0];
   }
 }

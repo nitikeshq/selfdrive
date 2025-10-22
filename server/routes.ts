@@ -1904,6 +1904,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Coupon validation route (for customers)
+  app.post("/api/coupons/validate", async (req, res) => {
+    try {
+      const { code, bookingAmount, bookingHours } = req.body;
+
+      if (!code) {
+        return res.status(400).json({ error: "Coupon code is required" });
+      }
+
+      const coupon = await storage.getCouponByCode(code);
+
+      if (!coupon) {
+        return res.status(404).json({ error: "Invalid coupon code" });
+      }
+
+      if (!coupon.isActive) {
+        return res.status(400).json({ error: "This coupon is no longer active" });
+      }
+
+      const now = new Date();
+      if (coupon.validFrom && new Date(coupon.validFrom) > now) {
+        return res.status(400).json({ error: "This coupon is not yet valid" });
+      }
+
+      if (coupon.validUntil && new Date(coupon.validUntil) < now) {
+        return res.status(400).json({ error: "This coupon has expired" });
+      }
+
+      if (coupon.maxUsageCount && coupon.currentUsageCount >= coupon.maxUsageCount) {
+        return res.status(400).json({ error: "This coupon has reached its usage limit" });
+      }
+
+      if (coupon.minBookingAmount && parseFloat(bookingAmount) < parseFloat(coupon.minBookingAmount)) {
+        return res.status(400).json({ 
+          error: `Minimum booking amount of ₹${coupon.minBookingAmount} required for this coupon` 
+        });
+      }
+
+      // Calculate discount
+      let discountAmount = 0;
+      if (coupon.discountType === "percentage") {
+        discountAmount = (parseFloat(bookingAmount) * parseFloat(coupon.discountValue)) / 100;
+      } else if (coupon.discountType === "fixed_amount") {
+        discountAmount = parseFloat(coupon.discountValue);
+      } else if (coupon.discountType === "free_hours") {
+        // For free hours, calculate the hourly rate
+        const hourlyRate = bookingHours > 0 ? parseFloat(bookingAmount) / bookingHours : 0;
+        discountAmount = hourlyRate * parseFloat(coupon.discountValue);
+      }
+
+      // Ensure discount doesn't exceed booking amount
+      discountAmount = Math.min(discountAmount, parseFloat(bookingAmount));
+
+      res.json({
+        valid: true,
+        coupon: {
+          id: coupon.id,
+          code: coupon.code,
+          description: coupon.description,
+          discountType: coupon.discountType,
+          discountValue: coupon.discountValue,
+        },
+        discountAmount: discountAmount.toFixed(2),
+        finalAmount: (parseFloat(bookingAmount) - discountAmount).toFixed(2),
+      });
+    } catch (error: any) {
+      console.error("Coupon validation error:", error);
+      res.status(500).json({ error: "Failed to validate coupon" });
+    }
+  });
+
+  // Admin coupon routes
+  app.get("/api/admin/coupons", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const coupons = await storage.getAllCoupons();
+      res.json(coupons);
+    } catch (error) {
+      console.error("Get coupons error:", error);
+      res.status(500).json({ error: "Failed to fetch coupons" });
+    }
+  });
+
+  app.post("/api/admin/coupons", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { insertCouponSchema } = await import("@shared/schema");
+      const couponData = insertCouponSchema.parse(req.body);
+      
+      const coupon = await storage.createCoupon(couponData);
+      res.json(coupon);
+    } catch (error: any) {
+      console.error("Create coupon error:", error);
+      res.status(400).json({ error: error.message || "Failed to create coupon" });
+    }
+  });
+
+  app.patch("/api/admin/coupons/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const coupon = await storage.updateCoupon(id, req.body);
+      
+      if (!coupon) {
+        return res.status(404).json({ error: "Coupon not found" });
+      }
+      
+      res.json(coupon);
+    } catch (error: any) {
+      console.error("Update coupon error:", error);
+      res.status(400).json({ error: error.message || "Failed to update coupon" });
+    }
+  });
+
+  app.delete("/api/admin/coupons/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteCoupon(id);
+      
+      if (!success) {
+        return res.status(404).json({ error: "Coupon not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete coupon error:", error);
+      res.status(500).json({ error: "Failed to delete coupon" });
+    }
+  });
+
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
     try {

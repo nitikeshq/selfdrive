@@ -387,6 +387,26 @@ export const insuranceRequests = pgTable("insurance_requests", {
   statusIdx: index("insurance_requests_status_idx").on(table.status),
 }));
 
+// Coupons table - Promotional discount codes
+export const coupons = pgTable("coupons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: varchar("code").notNull().unique(), // e.g., "NEWHOUR"
+  description: text("description").notNull(), // What the coupon offers
+  discountType: text("discount_type").notNull(), // percentage, fixed_amount, free_hours
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(), // % or amount or hours
+  maxUsageCount: integer("max_usage_count"), // null = unlimited
+  currentUsageCount: integer("current_usage_count").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  validFrom: timestamp("valid_from").notNull().defaultNow(),
+  validUntil: timestamp("valid_until"), // null = no expiry
+  minBookingAmount: decimal("min_booking_amount", { precision: 10, scale: 2 }), // Minimum booking amount required
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  codeIdx: index("coupons_code_idx").on(table.code),
+  activeIdx: index("coupons_active_idx").on(table.isActive),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -525,6 +545,20 @@ export const insertInsuranceRequestSchema = createInsertSchema(insuranceRequests
   coverageAmount: z.union([z.string(), z.number(), z.null()]).transform(val => val === null ? null : String(val)).optional(),
 });
 
+export const insertCouponSchema = createInsertSchema(coupons).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  currentUsageCount: true,
+}).extend({
+  code: z.string().min(3).max(50).toUpperCase(),
+  discountType: z.enum(["percentage", "fixed_amount", "free_hours"]),
+  discountValue: z.union([z.string(), z.number()]).transform(val => String(val)),
+  minBookingAmount: z.union([z.string(), z.number(), z.null()]).transform(val => val === null ? null : String(val)).optional(),
+  validFrom: z.union([z.string(), z.date()]).transform(val => typeof val === 'string' ? new Date(val) : val).optional(),
+  validUntil: z.union([z.string(), z.date(), z.null()]).transform(val => val === null || val === "" ? null : typeof val === 'string' ? new Date(val) : val).optional(),
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -571,6 +605,9 @@ export type InsertAgreementAcceptance = z.infer<typeof insertAgreementAcceptance
 
 export type InsuranceRequest = typeof insuranceRequests.$inferSelect;
 export type InsertInsuranceRequest = z.infer<typeof insertInsuranceRequestSchema>;
+
+export type Coupon = typeof coupons.$inferSelect;
+export type InsertCoupon = z.infer<typeof insertCouponSchema>;
 
 // Extended booking type with vehicle and user details
 export type BookingWithDetails = Booking & {

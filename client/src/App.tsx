@@ -30,6 +30,7 @@ const BookingDetails = lazy(() => import("@/pages/BookingDetails"));
 const EditVehicle = lazy(() => import("@/pages/EditVehicle"));
 const BecomeOwner = lazy(() => import("@/pages/BecomeOwner"));
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const AdminCoupons = lazy(() => import("@/pages/AdminCoupons"));
 const TermsAndConditions = lazy(() => import("@/pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const ContactUs = lazy(() => import("@/pages/ContactUs"));
@@ -150,6 +151,11 @@ function Router() {
         <Route path="/admin/addons">
           <ProtectedRoute requireAdmin>
             <AdminAddons />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/coupons">
+          <ProtectedRoute requireAdmin>
+            <AdminCoupons />
           </ProtectedRoute>
         </Route>
 

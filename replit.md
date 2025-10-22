@@ -21,9 +21,11 @@ Preferred communication style: Simple, everyday language.
 - **Core Features**:
     - **Dual-mode Navigation**: Seamless switching between customer and owner interfaces.
     - **Owner Management**: Dashboards for vehicle CRUD, status toggling, transaction overview, and a guided owner onboarding flow. Includes a comprehensive legal agreement tracking and acceptance system (Owner Terms & Conditions, Rental Agreement template, pickup verification with digital signatures and video uploads). Owner insurance request system for requesting coverage quotes.
-    - **Customer Features**: Profile and document upload (Aadhar, Driving License, Profile Photo) to S3, streamlined booking flow, and a rewards system that automatically applies discounts.
+    - **Customer Features**: Profile and document upload (Aadhar, Driving License, Profile Photo) to S3, streamlined booking flow with inline guest registration/login, coupon code system for promotional discounts, and a rewards system that automatically applies discounts.
     - **Customer Support**: Multi-channel support system with WhatsApp (+91 9337 912331, 24/7), Email (support@selfdrivekaro.com, always active), and Phone (+91 9337 912331, 9 AM-7 PM, emergency anytime). Dedicated Support page with contact form, FAQs, and support hours. Contact cards displayed prominently on home page for easy access.
-    - **Admin Features**: CRUD operations for addon products.
+    - **Coupon System**: Promotional discount codes with multiple types (percentage, fixed amount, free hours). Real-time validation on checkout with automatic discount calculation. Supports usage limits, expiry dates, and minimum booking requirements. The "NEWHOUR" campaign offers 1 free hour for first-time users.
+    - **Guest Booking**: Users can register or login directly on the checkout page without navigation interruption, streamlining the booking experience.
+    - **Admin Features**: CRUD operations for addon products and comprehensive coupon management (create, edit, toggle active status, delete) with admin dashboard at /admin/coupons.
     - **Legal Compliance**: Force Majeure, Indemnification, Insurance Coverage Disclosure, Emergency Contact Protocol, Breakdown & Accident Procedures clauses integrated into Terms and Conditions. Agreement tracking includes IP, user agent, digital signatures, and timestamps.
     - **Payment System**: Integrated payment gateway for booking and membership fees, with split payment support and owner payment details management (bank, UPI, PAN, GST).
     - **Referral & Membership**: Referral rewards and annual premium membership with exclusive benefits like free delivery/pickup and late fee waivers.
@@ -32,7 +34,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Storage
 - **Database**: PostgreSQL via Neon (serverless), Drizzle ORM for type-safe queries.
-- **Schema Design**: Comprehensive tables for Users, Vehicles, Bookings, Owner Addresses, Vehicle Documents, Ratings, Challans, Video Verifications, Sessions, Toll Fees, Addon Products, Owner Addon Purchases, referrals, walletTransactions, and insuranceRequests.
+- **Schema Design**: Comprehensive tables for Users, Vehicles, Bookings, Owner Addresses, Vehicle Documents, Ratings, Challans, Video Verifications, Sessions, Toll Fees, Addon Products, Owner Addon Purchases, Referrals, Wallet Transactions, Insurance Requests, and Coupons (promotional discount system).
 - **Object Storage**: AWS S3 for secure storage of documents and images, with an abstraction layer for flexibility.
 
 ## External Dependencies
