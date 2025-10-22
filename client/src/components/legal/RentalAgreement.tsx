@@ -142,7 +142,7 @@ export default function RentalAgreement({ booking, vehicle, owner, customer, gue
         <ul className="list-disc ml-6 space-y-2">
           <li>This agreement is governed by Indian laws and Motor Vehicles Act</li>
           <li>All disputes are subject to Bhubaneswar, Odisha jurisdiction only</li>
-          <li>Both parties agree to first attempt resolution through DriveEase mediation</li>
+          <li>Both parties agree to first attempt resolution through SelfDriveKaro.com mediation</li>
           <li>Digital signatures and video verifications are considered valid legal evidence</li>
         </ul>
       </section>
@@ -150,7 +150,7 @@ export default function RentalAgreement({ booking, vehicle, owner, customer, gue
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Emergency Contact</h2>
         <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-          <p><strong>DriveEase Support:</strong> nitikesh@qwegle.com</p>
+          <p><strong>SelfDriveKaro.com Support:</strong> nitikesh@qwegle.com</p>
           <p><strong>Emergency Helpline:</strong> Contact owner directly</p>
           <p className="mt-2 text-sm text-muted-foreground">
             Available 24/7 for accidents, breakdowns, or urgent assistance
@@ -178,7 +178,7 @@ export default function RentalAgreement({ booking, vehicle, owner, customer, gue
       </div>
 
       <p className="text-sm text-muted-foreground mt-6 text-center">
-        This agreement is facilitated through DriveEase platform - Made in Odisha, India 🇮🇳
+        This agreement is facilitated through SelfDriveKaro.com platform - Made in Odisha, India 🇮🇳
       </p>
     </div>
   );

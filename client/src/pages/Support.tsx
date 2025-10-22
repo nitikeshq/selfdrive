@@ -54,9 +54,9 @@ export default function Support() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <SEO
-        title="Customer Support - DriveEase Help Center"
-        description="Get help with your DriveEase bookings. Contact us via phone, email, or WhatsApp. We're here to assist you 24/7 with your vehicle rental needs."
-        canonical="https://driveease.in/support"
+        title="Customer Support - SelfDriveKaro Help Center"
+        description="Get help with your SelfDriveKaro bookings in Bhubaneswar. Contact us via phone, email, or WhatsApp. We're here to assist you 24/7 with your vehicle rental needs."
+        canonical="https://selfdrivekaro.com/support"
       />
 
       <div className="max-w-7xl mx-auto">
@@ -100,11 +100,11 @@ export default function Support() {
               <h3 className="text-xl font-semibold mb-2">Email</h3>
               <p className="text-sm text-muted-foreground mb-4">Detailed inquiries welcome</p>
               <a 
-                href="mailto:support@driveease.in"
+                href="mailto:support@selfdrivekaro.com"
                 data-testid="link-email-support"
               >
                 <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                  support@driveease.in
+                  support@selfdrivekaro.com
                 </Button>
               </a>
               <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-2">Always Active</p>

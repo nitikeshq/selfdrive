@@ -2,11 +2,11 @@ export function LocalBusinessSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "name": "DriveEase",
+    "name": "SelfDriveKaro.com",
     "description": "Self-drive car and bike rental service in Bhubaneswar, Odisha. Rent vehicles hourly, daily, or weekly with flexible pickup options and premium membership benefits.",
     "url": typeof window !== 'undefined' ? window.location.origin : '',
-    "telephone": "+91-674-212-3456",
-    "email": "support@driveease.com",
+    "telephone": "+91 98765 43210",
+    "email": "support@selfdrivekaro.com",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Patia",

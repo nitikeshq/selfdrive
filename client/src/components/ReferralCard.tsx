@@ -66,12 +66,12 @@ export function ReferralCard() {
   };
 
   const handleShare = async () => {
-    const shareText = `Join DriveEase with my referral code ${user?.referralCode} and get ₹50 in your wallet! Book self-drive cars & bikes instantly.`;
+    const shareText = `Join SelfDriveKaro.com with my referral code ${user?.referralCode} and get ₹50 in your wallet! Book self-drive cars & bikes instantly.`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Join DriveEase",
+          title: "Join SelfDriveKaro.com",
           text: shareText,
         });
       } catch (error) {

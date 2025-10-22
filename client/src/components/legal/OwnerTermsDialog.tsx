@@ -37,7 +37,7 @@ export default function OwnerTermsDialog({ open, onAccepted }: OwnerTermsDialogP
     onSuccess: () => {
       toast({
         title: "Terms Accepted",
-        description: "You can now list your vehicles on DriveEase.",
+        description: "You can now list your vehicles on SelfDriveKaro.com.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/agreement-acceptances/check/owner_terms"] });
       onAccepted();

@@ -13,13 +13,13 @@ export function SEO({
   title, 
   description, 
   keywords, 
-  ogImage = "https://driveease.in/og-image.jpg",
+  ogImage = "https://selfdrivekaro.com/og-image.jpg",
   ogType = "website",
   canonical 
 }: SEOProps) {
   useEffect(() => {
     // Set page title
-    document.title = `${title} | DriveEase`;
+    document.title = `${title} | SelfDriveKaro.com`;
 
     // Set or update meta tags
     const setMeta = (name: string, content: string, isProperty = false) => {
@@ -46,7 +46,7 @@ export function SEO({
     setMeta('og:description', description, true);
     setMeta('og:type', ogType, true);
     setMeta('og:image', ogImage, true);
-    setMeta('og:site_name', 'DriveEase', true);
+    setMeta('og:site_name', 'SelfDriveKaro.com', true);
 
     // Twitter Card tags
     setMeta('twitter:card', 'summary_large_image');

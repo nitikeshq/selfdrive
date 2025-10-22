@@ -27,7 +27,7 @@ export function Navbar() {
           <Link href="/">
             <div className="flex items-center gap-2 hover-elevate active-elevate-2 px-2 py-1 rounded-md transition-all cursor-pointer" data-testid="link-home">
               <Car className="h-7 w-7 text-primary" />
-              <span className="text-xl font-display font-bold text-foreground">DriveEase</span>
+              <span className="text-xl font-display font-bold text-foreground">SelfDriveKaro</span>
             </div>
           </Link>
 

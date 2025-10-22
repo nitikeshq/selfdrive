@@ -51,11 +51,11 @@ export default function Landing() {
   return (
     <div className="min-h-screen">
       <SEO
-        title="DriveEase - Self-Drive Car & Bike Rentals in Bhubaneswar, Odisha"
+        title="SelfDriveKaro.com - Self-Drive Car & Bike Rentals in Bhubaneswar, Odisha"
         description="Rent self-drive cars and bikes with instant confirmation in Bhubaneswar. Hourly, daily, or weekly rentals. Free home delivery available. Book now!"
         keywords="car rental Bhubaneswar, self drive cars, bike rental Odisha, car hire Bhubaneswar, vehicle rental India, hourly car rental"
         ogImage="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070"
-        canonical="https://driveease.in"
+        canonical="https://selfdrivekaro.com"
       />
       <LocalBusinessSchema />
       {/* Hero Section */}
@@ -180,11 +180,11 @@ export default function Landing() {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-sm mb-1">Email Support</h3>
                       <a 
-                        href="mailto:support@driveease.in" 
+                        href="mailto:support@selfdrivekaro.com" 
                         className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium break-all"
                         data-testid="link-email"
                       >
-                        support@driveease.in
+                        support@selfdrivekaro.com
                       </a>
                       <p className="text-xs text-muted-foreground mt-1">Always active</p>
                     </div>
