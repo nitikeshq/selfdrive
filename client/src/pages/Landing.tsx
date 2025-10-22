@@ -59,7 +59,7 @@ export default function Landing() {
       />
       <LocalBusinessSchema />
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] md:h-[80vh] flex items-center py-12 md:py-0">
+      <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center py-12 md:py-0">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=60&w=800&auto=format&fit=crop"
