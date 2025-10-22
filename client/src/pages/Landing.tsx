@@ -74,7 +74,7 @@ export default function Landing() {
           <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-24 md:mt-20 lg:mt-0">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-16 md:mt-20 lg:mt-0">
           <div className="max-w-3xl">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 md:mb-6 leading-tight" data-testid="text-hero-title">
               <span className="block text-white">Your Journey,</span>
