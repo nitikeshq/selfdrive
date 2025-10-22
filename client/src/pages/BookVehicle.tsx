@@ -251,17 +251,33 @@ export default function BookVehicle() {
       });
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Account Created!",
         description: "Processing your booking...",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Wait for auth state to update, then proceed with booking
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/user"] });
+      
       setShowAuthForm(false);
-      // Automatically proceed with booking
+      
+      // Proceed with booking - backend will use session userId
       setTimeout(() => {
-        createBookingMutation.mutate(form.getValues());
-      }, 500);
+        const formData = form.getValues();
+        const bookingData = {
+          ...formData,
+          vehicleId: vehicleId,
+          totalAmount: totalAmount.toString(),
+          deliveryCharge: deliveryCharge.toString(),
+          hasExtraInsurance: false,
+          insuranceAmount: "0",
+          platformCommission: (totalAmount * 0.1).toString(),
+          ownerEarnings: (totalAmount * 0.9).toString(),
+        };
+        createBookingMutation.mutate(bookingData);
+      }, 1000);
     },
     onError: (error: Error) => {
       toast({
@@ -277,17 +293,33 @@ export default function BookVehicle() {
       const response = await apiRequest("POST", "/api/login", data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Logged In!",
         description: "Processing your booking...",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Wait for auth state to update, then proceed with booking
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/user"] });
+      
       setShowAuthForm(false);
-      // Automatically proceed with booking
+      
+      // Proceed with booking - backend will use session userId
       setTimeout(() => {
-        createBookingMutation.mutate(form.getValues());
-      }, 500);
+        const formData = form.getValues();
+        const bookingData = {
+          ...formData,
+          vehicleId: vehicleId,
+          totalAmount: totalAmount.toString(),
+          deliveryCharge: deliveryCharge.toString(),
+          hasExtraInsurance: false,
+          insuranceAmount: "0",
+          platformCommission: (totalAmount * 0.1).toString(),
+          ownerEarnings: (totalAmount * 0.9).toString(),
+        };
+        createBookingMutation.mutate(bookingData);
+      }, 1000);
     },
     onError: (error: Error) => {
       toast({
@@ -310,11 +342,20 @@ export default function BookVehicle() {
   };
 
   const handleGuestCheckout = (guestData: { name: string; email: string; phone: string }) => {
+    const formData = form.getValues();
     const bookingData = {
-      ...form.getValues(),
+      ...formData,
+      isGuestBooking: true,
       guestName: guestData.name,
       guestEmail: guestData.email,
       guestPhone: guestData.phone,
+      vehicleId: vehicleId,
+      totalAmount: totalAmount.toString(),
+      deliveryCharge: deliveryCharge.toString(),
+      hasExtraInsurance: false,
+      insuranceAmount: "0",
+      platformCommission: (totalAmount * 0.1).toString(),
+      ownerEarnings: (totalAmount * 0.9).toString(),
     };
     setShowAuthForm(false);
     createBookingMutation.mutate(bookingData);
