@@ -26,6 +26,9 @@ const bookingFormSchema = z.object({
   endDate: z.string().min(1, "Return date is required"),
   pickupOption: z.enum(["parking", "delivery"]),
   deliveryAddress: z.string().optional(),
+  guestName: z.string().optional(),
+  guestEmail: z.string().optional(),
+  guestPhone: z.string().optional(),
 }).refine(
   (data) => {
     if (data.pickupOption === "delivery") {
@@ -92,6 +95,9 @@ export default function BookVehicle() {
       startDate: pickupFromUrl,
       endDate: returnFromUrl,
       deliveryAddress: "",
+      guestName: isAuthenticated && user ? `${user.firstName} ${user.lastName}` : "",
+      guestEmail: isAuthenticated && user ? user.email : "",
+      guestPhone: isAuthenticated && user ? user.phone || "" : "",
     },
   });
 
@@ -248,11 +254,14 @@ export default function BookVehicle() {
     onSuccess: () => {
       toast({
         title: "Account Created!",
-        description: "You can now complete your booking",
+        description: "Processing your booking...",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setShowAuthForm(false);
-      // After successful registration, the booking form will auto-submit
+      // Automatically proceed with booking
+      setTimeout(() => {
+        createBookingMutation.mutate(form.getValues());
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
@@ -271,11 +280,14 @@ export default function BookVehicle() {
     onSuccess: () => {
       toast({
         title: "Logged In!",
-        description: "You can now complete your booking",
+        description: "Processing your booking...",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setShowAuthForm(false);
-      // After successful login, the booking form will auto-submit
+      // Automatically proceed with booking
+      setTimeout(() => {
+        createBookingMutation.mutate(form.getValues());
+      }, 500);
     },
     onError: (error: Error) => {
       toast({
@@ -287,16 +299,25 @@ export default function BookVehicle() {
   });
 
   const onSubmit = async (data: BookingFormData) => {
+    // If not authenticated, show the auth modal instead of proceeding
     if (!isAuthenticated) {
       setShowAuthForm(true);
-      toast({
-        title: "Authentication Required",
-        description: "Please login or create an account to continue",
-      });
       return;
     }
 
+    // Authenticated users can proceed directly
     createBookingMutation.mutate(data);
+  };
+
+  const handleGuestCheckout = (guestData: { name: string; email: string; phone: string }) => {
+    const bookingData = {
+      ...form.getValues(),
+      guestName: guestData.name,
+      guestEmail: guestData.email,
+      guestPhone: guestData.phone,
+    };
+    setShowAuthForm(false);
+    createBookingMutation.mutate(bookingData);
   };
 
   const onRegister = (data: RegisterFormData) => {
@@ -349,29 +370,146 @@ export default function BookVehicle() {
           <p className="text-muted-foreground">Complete the details below to confirm your booking</p>
         </div>
 
-        {/* Guest Authentication Form */}
+        {/* Guest Checkout / Auth Modal */}
         {!isAuthenticated && showAuthForm && (
-          <Card className="mb-8 border-primary">
-            <CardHeader>
-              <CardTitle>Login or Create Account</CardTitle>
-              <CardDescription>
-                Please login to your existing account or create a new one to continue booking
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login" data-testid="tab-login">
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Login
-                  </TabsTrigger>
-                  <TabsTrigger value="register" data-testid="tab-register">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Create Account
-                  </TabsTrigger>
-                </TabsList>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <CardHeader>
+                <CardTitle>Complete Your Booking</CardTitle>
+                <CardDescription>
+                  Choose how you'd like to proceed with your booking
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="guest" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="guest" data-testid="tab-guest">
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Guest Checkout
+                    </TabsTrigger>
+                    <TabsTrigger value="login" data-testid="tab-login">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Login
+                    </TabsTrigger>
+                    <TabsTrigger value="register" data-testid="tab-register">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Register
+                    </TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="login">
+                  <TabsContent value="guest" className="space-y-4 mt-4">
+                    <div className="bg-muted/50 p-4 rounded-lg mb-4">
+                      <p className="text-sm text-muted-foreground">
+                        No account needed! Just provide your contact details and proceed to payment.
+                        You can register later to view your booking history.
+                      </p>
+                    </div>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        const name = formData.get("guestName") as string;
+                        const email = formData.get("guestEmail") as string;
+                        const phone = formData.get("guestPhone") as string;
+                        
+                        if (!name || !email || !phone) {
+                          toast({
+                            title: "Missing Information",
+                            description: "Please fill in all required fields",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(email)) {
+                          toast({
+                            title: "Invalid Email",
+                            description: "Please enter a valid email address",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        
+                        const phoneDigits = phone.replace(/\D/g, '');
+                        if (phoneDigits.length < 10) {
+                          toast({
+                            title: "Invalid Phone",
+                            description: "Please enter a valid phone number (at least 10 digits)",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        
+                        handleGuestCheckout({ name, email, phone });
+                      }}
+                      className="space-y-4"
+                    >
+                      <div>
+                        <Label htmlFor="guestName">Full Name *</Label>
+                        <Input
+                          id="guestName"
+                          name="guestName"
+                          placeholder="John Doe"
+                          required
+                          data-testid="input-guest-name"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="guestEmail">Email Address *</Label>
+                        <Input
+                          id="guestEmail"
+                          name="guestEmail"
+                          type="email"
+                          placeholder="your@email.com"
+                          required
+                          data-testid="input-guest-email"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="guestPhone">Phone Number *</Label>
+                        <Input
+                          id="guestPhone"
+                          name="guestPhone"
+                          type="tel"
+                          placeholder="+91 9999999999"
+                          required
+                          data-testid="input-guest-phone"
+                        />
+                      </div>
+                      <div className="flex gap-3 pt-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowAuthForm(false)}
+                          className="flex-1"
+                          data-testid="button-cancel-guest"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={createBookingMutation.isPending}
+                          className="flex-1"
+                          data-testid="button-proceed-guest"
+                        >
+                          {createBookingMutation.isPending ? (
+                            <>
+                              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              <CreditCard className="h-4 w-4 mr-2" />
+                              Proceed to Payment
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </form>
+                  </TabsContent>
+
+                  <TabsContent value="login">
                   <Form {...loginForm}>
                     <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
                       <FormField
@@ -532,6 +670,7 @@ export default function BookVehicle() {
               </Tabs>
             </CardContent>
           </Card>
+          </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
