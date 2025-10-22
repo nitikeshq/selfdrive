@@ -14,7 +14,10 @@ import {
   Shield, 
   Zap,
   CheckCircle2,
-  Star
+  Star,
+  Phone,
+  Mail,
+  MessageCircle
 } from "lucide-react";
 import { VehicleCard } from "@/components/VehicleCard";
 import { DateTimePicker } from "@/components/DateTimePicker";
@@ -142,6 +145,85 @@ export default function Landing() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Contact Support Section */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="bg-white/90 dark:bg-card/90 backdrop-blur-sm border-green-200 dark:border-green-800">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MessageCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm mb-1">WhatsApp Booking</h3>
+                      <a 
+                        href="https://wa.me/919876543210" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-green-600 dark:text-green-400 hover:underline text-sm font-medium break-all"
+                        data-testid="link-whatsapp"
+                      >
+                        +91 98765 43210
+                      </a>
+                      <p className="text-xs text-muted-foreground mt-1">Available 24/7</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 dark:bg-card/90 backdrop-blur-sm border-blue-200 dark:border-blue-800">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm mb-1">Email Support</h3>
+                      <a 
+                        href="mailto:support@driveease.in" 
+                        className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium break-all"
+                        data-testid="link-email"
+                      >
+                        support@driveease.in
+                      </a>
+                      <p className="text-xs text-muted-foreground mt-1">Always active</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 dark:bg-card/90 backdrop-blur-sm border-orange-200 dark:border-orange-800">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Phone className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm mb-1">Call Support</h3>
+                      <a 
+                        href="tel:+919876543210" 
+                        className="text-orange-600 dark:text-orange-400 hover:underline text-sm font-medium break-all"
+                        data-testid="link-phone"
+                      >
+                        +91 98765 43210
+                      </a>
+                      <p className="text-xs text-muted-foreground mt-1">9 AM - 7 PM (Emergency: Anytime)</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="mt-4 text-center">
+              <p className="text-sm text-white/80">
+                Website booking available 24/7 • Need help? Visit our{" "}
+                <Link href="/support">
+                  <span className="text-white font-semibold underline cursor-pointer hover:text-white/90" data-testid="link-support-page">
+                    Support Page
+                  </span>
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </section>

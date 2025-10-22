@@ -18,8 +18,9 @@ Preferred communication style: Simple, everyday language.
 - **API Design**: RESTful endpoints, session-based authentication (express-session), role-based access control (isAuthenticated, isAdmin, isOwner) with cookie-based sessions, Bcrypt for password hashing.
 - **Core Features**:
     - **Dual-mode Navigation**: Seamless switching between customer and owner interfaces.
-    - **Owner Management**: Dashboards for vehicle CRUD, status toggling, transaction overview, and a guided owner onboarding flow. Includes a comprehensive legal agreement tracking and acceptance system (Owner Terms & Conditions, Rental Agreement template, pickup verification with digital signatures and video uploads).
+    - **Owner Management**: Dashboards for vehicle CRUD, status toggling, transaction overview, and a guided owner onboarding flow. Includes a comprehensive legal agreement tracking and acceptance system (Owner Terms & Conditions, Rental Agreement template, pickup verification with digital signatures and video uploads). Owner insurance request system for requesting coverage quotes.
     - **Customer Features**: Profile and document upload (Aadhar, Driving License, Profile Photo) to S3, streamlined booking flow, and a rewards system that automatically applies discounts.
+    - **Customer Support**: Multi-channel support system with WhatsApp (+91 98765 43210, 24/7), Email (support@driveease.in, always active), and Phone (+91 98765 43210, 9 AM-7 PM, emergency anytime). Dedicated Support page with contact form, FAQs, and support hours. Contact cards displayed prominently on home page for easy access.
     - **Admin Features**: CRUD operations for addon products.
     - **Legal Compliance**: Force Majeure, Indemnification, Insurance Coverage Disclosure, Emergency Contact Protocol, Breakdown & Accident Procedures clauses integrated into Terms and Conditions. Agreement tracking includes IP, user agent, digital signatures, and timestamps.
     - **Payment System**: Integrated payment gateway for booking and membership fees, with split payment support and owner payment details management (bank, UPI, PAN, GST).

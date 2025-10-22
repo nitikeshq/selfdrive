@@ -31,6 +31,7 @@ const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
 const TermsAndConditions = lazy(() => import("@/pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const ContactUs = lazy(() => import("@/pages/ContactUs"));
+const Support = lazy(() => import("@/pages/Support"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const AdminAddons = lazy(() => import("@/pages/AdminAddons"));
 const Rewards = lazy(() => import("@/pages/Rewards"));
@@ -81,6 +82,7 @@ function Router() {
         <Route path="/terms-and-conditions" component={TermsAndConditions} />
         <Route path="/privacy-policy" component={PrivacyPolicy} />
         <Route path="/contact-us" component={ContactUs} />
+        <Route path="/support" component={Support} />
         <Route component={NotFound} />
       </Switch>
     </Suspense>
