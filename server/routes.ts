@@ -1779,7 +1779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const amount = "999"; // Membership price
         const txnid = `MEMBERSHIP${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
-        const productinfo = "DriveEase Premium Membership - 1 Year";
+        const productinfo = "SelfDriveKaro Premium Membership - 1 Year";
         const firstname = user.firstName || user.email.split('@')[0];
         const email = user.email;
         const phone = user.phone || "0000000000";

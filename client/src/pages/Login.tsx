@@ -70,7 +70,7 @@ export default function Login() {
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070"
-            alt="DriveEase vehicles"
+            alt="SelfDriveKaro vehicles"
             className="w-full h-full object-cover opacity-20"
           />
         </div>
@@ -79,7 +79,7 @@ export default function Login() {
             <Link href="/">
               <div className="flex items-center gap-3 mb-8 cursor-pointer hover:opacity-80 transition-opacity">
                 <Car className="h-10 w-10" />
-                <h1 className="text-3xl font-display font-bold">DriveEase</h1>
+                <h1 className="text-3xl font-display font-bold">SelfDriveKaro</h1>
               </div>
             </Link>
           </div>
@@ -135,7 +135,7 @@ export default function Login() {
             <Link href="/">
               <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
                 <Car className="h-8 w-8 text-primary" />
-                <h1 className="text-2xl font-display font-bold">DriveEase</h1>
+                <h1 className="text-2xl font-display font-bold">SelfDriveKaro</h1>
               </div>
             </Link>
           </div>

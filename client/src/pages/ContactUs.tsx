@@ -66,9 +66,9 @@ export default function ContactUs() {
   return (
     <>
       <SEO
-        title="Contact Us - DriveEase | Self-Drive Car & Bike Rental Bhubaneswar"
-        description="Get in touch with DriveEase for self-drive car and bike rentals in Bhubaneswar, Odisha. Call us at +91 674 212 3456 or visit our office in Patia. 24/7 customer support available."
-        keywords="contact driveease, car rental bhubaneswar contact, bike rental odisha support, self drive rental customer care, bhubaneswar vehicle rental help"
+        title="Contact Us - SelfDriveKaro.com | Self-Drive Car & Bike Rental Bhubaneswar"
+        description="Get in touch with SelfDriveKaro for self-drive car and bike rentals in Bhubaneswar, Odisha. Call us at +91 9337 912331 or visit our office in Patia. 24/7 customer support available."
+        keywords="contact selfdrivekaro, car rental bhubaneswar contact, bike rental odisha support, self drive rental customer care, bhubaneswar vehicle rental help"
         ogImage="/og-contact.jpg"
       />
       <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-muted/30">
@@ -96,8 +96,8 @@ export default function ContactUs() {
                     <p className="text-muted-foreground mb-2">
                       Send us an email and we'll respond within 24 hours
                     </p>
-                    <a href="mailto:support@driveease.com" className="text-primary hover:underline">
-                      support@driveease.com
+                    <a href="mailto:support@selfdrivekaro.com" className="text-primary hover:underline">
+                      support@selfdrivekaro.com
                     </a>
                   </div>
                 </div>
@@ -135,7 +135,7 @@ export default function ContactUs() {
                   <div>
                     <h3 className="font-semibold text-lg mb-2">Visit Us</h3>
                     <p className="text-muted-foreground">
-                      DriveEase Office<br />
+                      SelfDriveKaro Office<br />
                       Patia, Bhubaneswar<br />
                       Odisha 751024, India
                     </p>

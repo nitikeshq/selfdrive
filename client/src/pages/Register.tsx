@@ -43,7 +43,7 @@ export default function Register() {
       
       toast({
         title: "Registration Successful",
-        description: `Welcome to DriveEase, ${user.firstName}!`,
+        description: `Welcome to SelfDriveKaro, ${user.firstName}!`,
       });
       
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
@@ -68,7 +68,7 @@ export default function Register() {
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070"
-            alt="DriveEase vehicles"
+            alt="SelfDriveKaro vehicles"
             className="w-full h-full object-cover opacity-20"
           />
         </div>
@@ -77,7 +77,7 @@ export default function Register() {
             <Link href="/">
               <div className="flex items-center gap-3 mb-8 cursor-pointer hover:opacity-80 transition-opacity">
                 <Car className="h-10 w-10" />
-                <h1 className="text-3xl font-display font-bold">DriveEase</h1>
+                <h1 className="text-3xl font-display font-bold">SelfDriveKaro</h1>
               </div>
             </Link>
           </div>
@@ -144,7 +144,7 @@ export default function Register() {
             <Link href="/">
               <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
                 <Car className="h-8 w-8 text-primary" />
-                <h1 className="text-2xl font-display font-bold">DriveEase</h1>
+                <h1 className="text-2xl font-display font-bold">SelfDriveKaro</h1>
               </div>
             </Link>
           </div>
@@ -154,7 +154,7 @@ export default function Register() {
               Create Your Account
             </h2>
             <p className="text-muted-foreground">
-              Join DriveEase to start renting vehicles instantly
+              Join SelfDriveKaro to start renting vehicles instantly
             </p>
           </div>
 

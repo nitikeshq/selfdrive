@@ -194,7 +194,7 @@ export default function BookVehicle() {
         description={vehicle ? `Book ${vehicle.name} for hourly or daily rental. ${vehicle.brand} ${vehicle.model} available for self-drive. Instant confirmation with flexible payment options.` : 'Complete your vehicle booking'}
         keywords="book car, book bike, vehicle booking, rental confirmation, payment options"
         ogImage={vehicle?.imageUrl}
-        canonical={vehicle ? `https://driveease.in/book/${vehicle.id}` : undefined}
+        canonical={vehicle ? `https://selfdrivekaro.com/book/${vehicle.id}` : undefined}
       />
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">

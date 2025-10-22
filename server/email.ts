@@ -82,7 +82,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     const from = process.env.GMAIL_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER;
 
     await transporter.sendMail({
-      from: `"DriveEase" <${from}>`,
+      from: `"SelfDriveKaro" <${from}>`,
       to: options.to,
       subject: options.subject,
       html,
@@ -101,7 +101,7 @@ export const emailTemplates = {
   welcome: async (email: string, firstName: string) => {
     return sendEmail({
       to: email,
-      subject: "Welcome to DriveEase - Your Journey Begins Here!",
+      subject: "Welcome to SelfDriveKaro - Your Journey, Your Way!",
       template: "welcome",
       data: { firstName },
     });

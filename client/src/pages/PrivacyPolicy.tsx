@@ -203,8 +203,8 @@ export default function PrivacyPolicy() {
                 For questions about this Privacy Policy or our data practices, please contact us:
               </p>
               <div className="mt-3 space-y-1">
-                <p><strong>Email:</strong> privacy@driveease.com</p>
-                <p><strong>Address:</strong> DriveEase, Bhubaneswar, Odisha, India</p>
+                <p><strong>Email:</strong> privacy@selfdrivekaro.com</p>
+                <p><strong>Address:</strong> SelfDriveKaro, Bhubaneswar, Odisha, India</p>
               </div>
             </CardContent>
           </Card>

@@ -130,7 +130,7 @@ export default function Membership() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Crown className="h-12 w-12 text-yellow-500" />
             <h1 className="text-3xl sm:text-4xl font-display font-bold" data-testid="text-membership-title">
-              DriveEase Premium
+              SelfDriveKaro Premium
             </h1>
           </div>
           <p className="text-xl text-muted-foreground">

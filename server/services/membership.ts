@@ -35,7 +35,7 @@ export async function purchaseMembership(userId: string, paymentMethod: "wallet"
       userId,
       MEMBERSHIP_PRICE,
       "membership_purchase",
-      "DriveEase Premium Membership"
+      "SelfDriveKaro Premium Membership"
     );
   }
   // For "online" payment, assume it's already processed via Stripe/PayU

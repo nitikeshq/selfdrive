@@ -20,7 +20,7 @@ export default function TermsAndConditions() {
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-none">
               <p>
-                By accessing and using DriveEase's self-drive vehicle rental platform, you agree to be bound by these Terms and Conditions. 
+                By accessing and using SelfDriveKaro's self-drive vehicle rental platform, you agree to be bound by these Terms and Conditions. 
                 If you do not agree with any part of these terms, you must not use our services.
               </p>
             </CardContent>
@@ -155,7 +155,7 @@ export default function TermsAndConditions() {
               <CardTitle>10. Force Majeure</CardTitle>
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-none">
-              <p className="mb-3">Neither DriveEase nor vehicle owners shall be held liable for any failure or delay in performance under these terms due to circumstances beyond reasonable control, including but not limited to:</p>
+              <p className="mb-3">Neither SelfDriveKaro nor vehicle owners shall be held liable for any failure or delay in performance under these terms due to circumstances beyond reasonable control, including but not limited to:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Acts of God (earthquakes, floods, storms, pandemics)</li>
                 <li>War, terrorism, civil unrest, or riots</li>
@@ -176,7 +176,7 @@ export default function TermsAndConditions() {
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-none">
               <p className="mb-3">
-                <strong>Customer Indemnification:</strong> You agree to indemnify, defend, and hold harmless DriveEase, vehicle owners, and their respective officers, directors, employees, and agents from and against any and all claims, liabilities, damages, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising from:
+                <strong>Customer Indemnification:</strong> You agree to indemnify, defend, and hold harmless SelfDriveKaro, vehicle owners, and their respective officers, directors, employees, and agents from and against any and all claims, liabilities, damages, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising from:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Your use or misuse of any rental vehicle</li>
@@ -186,7 +186,7 @@ export default function TermsAndConditions() {
                 <li>Any traffic violations, fines, or penalties incurred during the rental period</li>
               </ul>
               <p className="mt-3">
-                <strong>Owner Indemnification:</strong> Vehicle owners agree to indemnify DriveEase against any claims arising from mechanical defects, undisclosed vehicle issues, or failure to maintain the vehicle in safe operating condition.
+                <strong>Owner Indemnification:</strong> Vehicle owners agree to indemnify SelfDriveKaro against any claims arising from mechanical defects, undisclosed vehicle issues, or failure to maintain the vehicle in safe operating condition.
               </p>
             </CardContent>
           </Card>
@@ -200,7 +200,7 @@ export default function TermsAndConditions() {
                 <strong>Important Insurance Information:</strong> Understanding your insurance coverage is critical before renting any vehicle.
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li><strong>Basic Coverage:</strong> All vehicles listed on DriveEase must have valid third-party insurance as required by Indian law</li>
+                <li><strong>Basic Coverage:</strong> All vehicles listed on SelfDriveKaro must have valid third-party insurance as required by Indian law</li>
                 <li><strong>Optional Insurance:</strong> Some owners may offer additional comprehensive or zero-depreciation insurance for an extra fee</li>
                 <li><strong>Customer Responsibility:</strong> You are responsible for any damages not covered by the vehicle's insurance policy</li>
                 <li><strong>Deductibles:</strong> Insurance policies may have deductibles; customers may be liable for the deductible amount in case of claims</li>
@@ -208,7 +208,7 @@ export default function TermsAndConditions() {
                 <li><strong>Personal Insurance:</strong> Check if your personal auto insurance policy extends coverage to rental vehicles</li>
               </ul>
               <p className="mt-3 font-semibold">
-                DriveEase acts as a platform connecting vehicle owners and customers. We do not provide insurance coverage. All insurance is provided by vehicle owners or their insurance providers.
+                SelfDriveKaro acts as a platform connecting vehicle owners and customers. We do not provide insurance coverage. All insurance is provided by vehicle owners or their insurance providers.
               </p>
             </CardContent>
           </Card>
@@ -224,12 +224,12 @@ export default function TermsAndConditions() {
                 <li><strong>Police/Crime:</strong> Dial 100 for police assistance</li>
                 <li><strong>Fire Emergency:</strong> Dial 101 for fire department</li>
                 <li><strong>Accident or Breakdown:</strong> See section 14 below for detailed procedures</li>
-                <li><strong>DriveEase Support:</strong> Contact us through the app's emergency button or call our 24/7 helpline displayed in your booking confirmation</li>
+                <li><strong>SelfDriveKaro Support:</strong> Contact us through the app's emergency button or call our 24/7 helpline displayed in your booking confirmation</li>
                 <li><strong>Vehicle Owner:</strong> Contact the vehicle owner immediately using the contact details provided in your booking confirmation</li>
               </ul>
               <p className="mt-3">
                 All bookings include the vehicle owner's emergency contact number. Save this number in your phone before starting your trip. 
-                For platform-related emergencies, use the in-app emergency button which will notify both DriveEase support and the vehicle owner simultaneously.
+                For platform-related emergencies, use the in-app emergency button which will notify both SelfDriveKaro support and the vehicle owner simultaneously.
               </p>
             </CardContent>
           </Card>
@@ -263,8 +263,8 @@ export default function TermsAndConditions() {
                     <li>Record date, time, location, and weather conditions</li>
                   </ul>
                 </li>
-                <li><strong>Notify Immediately:</strong> Contact both the vehicle owner and DriveEase support within 2 hours of the accident</li>
-                <li><strong>Do Not Admit Fault:</strong> Provide only factual information to police and other parties; do not sign any documents without consulting the owner or DriveEase</li>
+                <li><strong>Notify Immediately:</strong> Contact both the vehicle owner and SelfDriveKaro support within 2 hours of the accident</li>
+                <li><strong>Do Not Admit Fault:</strong> Provide only factual information to police and other parties; do not sign any documents without consulting the owner or SelfDriveKaro</li>
                 <li><strong>Insurance Claim:</strong> Cooperate fully with insurance company investigations and provide all required documentation</li>
                 <li><strong>Vehicle Retrieval:</strong> Coordinate with the owner for vehicle towing and repair; do not abandon the vehicle</li>
               </ol>
@@ -294,7 +294,7 @@ export default function TermsAndConditions() {
             <CardContent className="prose dark:prose-invert max-w-none">
               <p>
                 For any questions regarding these Terms and Conditions, please contact us through our Contact Us page 
-                or email us at legal@driveease.com
+                or email us at legal@selfdrivekaro.com
               </p>
             </CardContent>
           </Card>

@@ -8,7 +8,7 @@ async function seed() {
     // Create sample users (owners)
     const [owner1, owner2] = await db.insert(users).values([
       {
-        email: "owner1@driveease.com",
+        email: "owner1@selfdrivekaro.com",
         password: "$2b$10$abcdefghijklmnopqrstuvwxyz123456", // hashed: password123
         firstName: "Rajesh",
         lastName: "Kumar",
@@ -16,7 +16,7 @@ async function seed() {
         role: "owner",
       },
       {
-        email: "owner2@driveease.com",
+        email: "owner2@selfdrivekaro.com",
         password: "$2b$10$abcdefghijklmnopqrstuvwxyz123456", // hashed: password123
         firstName: "Priya",
         lastName: "Sharma",
