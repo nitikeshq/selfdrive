@@ -195,40 +195,41 @@ export default function BookVehicle() {
   };
 
   const createBookingMutation = useMutation({
-    mutationFn: async (data: BookingFormData) => {
-      if (!isAuthenticated || !user) {
-        throw new Error("User not authenticated");
-      }
-
-      const bookingData = {
-        userId: (user as any).id,
-        vehicleId: vehicleId!,
-        startDate: data.startDate, // Send as ISO string directly
-        endDate: data.endDate, // Send as ISO string directly
-        pickupOption: data.pickupOption,
-        deliveryAddress: data.deliveryAddress || null,
-        totalAmount: totalAmount.toString(),
-        deliveryCharge: deliveryCharge.toString(),
-        hasExtraInsurance: false,
-        insuranceAmount: "0",
-        platformCommission: "0",
-        ownerEarnings: "0",
-        status: "pending",
-        paymentStatus: "pending",
-      };
-
-      const response = await apiRequest("POST", "/api/bookings", bookingData);
-
+    mutationFn: async (data: any) => {
+      // Backend will handle authentication - just send the data
+      const response = await apiRequest("POST", "/api/bookings", data);
       return response.json();
     },
-    onSuccess: async (booking) => {
-      // Always use PayUMoney - rewards are auto-applied as discount
+    onSuccess: async (booking, variables) => {
+      // Prepare payment data
+      let paymentEmail, paymentFirstName, paymentPhone;
+      
+      if (variables.isGuestBooking) {
+        // Guest checkout
+        paymentEmail = variables.guestEmail;
+        paymentFirstName = variables.guestName.split(' ')[0] || variables.guestName;
+        paymentPhone = variables.guestPhone;
+      } else if (variables._userEmail) {
+        // User data passed from login/register
+        paymentEmail = variables._userEmail;
+        paymentFirstName = variables._userFirstName;
+        paymentPhone = variables._userPhone || "0000000000";
+      } else if (user) {
+        // Authenticated user (already logged in)
+        paymentEmail = (user as any).email;
+        paymentFirstName = (user as any).firstName;
+        paymentPhone = (user as any).phone || "0000000000";
+      } else {
+        throw new Error("Unable to determine user information");
+      }
+
+      // Create payment
       const response = await apiRequest("POST", "/api/create-payment", {
         amount: totalAmount,
         bookingId: booking.id,
-        userEmail: (user as any).email,
-        userFirstName: (user as any).firstName,
-        userPhone: (user as any).phone || "0000000000",
+        userEmail: paymentEmail,
+        userFirstName: paymentFirstName,
+        userPhone: paymentPhone,
       });
       const data = await response.json();
       setPaymentData(data);
@@ -251,19 +252,19 @@ export default function BookVehicle() {
       });
       return response.json();
     },
-    onSuccess: async () => {
+    onSuccess: async (userData) => {
       toast({
         title: "Account Created!",
         description: "Processing your booking...",
       });
       
-      // Wait for auth state to update, then proceed with booking
+      // Wait for auth state to update
       await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       await queryClient.refetchQueries({ queryKey: ["/api/user"] });
       
       setShowAuthForm(false);
       
-      // Proceed with booking - backend will use session userId
+      // Proceed with booking - pass user data for payment
       setTimeout(() => {
         const formData = form.getValues();
         const bookingData = {
@@ -275,6 +276,10 @@ export default function BookVehicle() {
           insuranceAmount: "0",
           platformCommission: (totalAmount * 0.1).toString(),
           ownerEarnings: (totalAmount * 0.9).toString(),
+          // Include user data for payment creation
+          _userEmail: userData.email,
+          _userFirstName: userData.firstName,
+          _userPhone: userData.phone,
         };
         createBookingMutation.mutate(bookingData);
       }, 1000);
@@ -293,19 +298,19 @@ export default function BookVehicle() {
       const response = await apiRequest("POST", "/api/login", data);
       return response.json();
     },
-    onSuccess: async () => {
+    onSuccess: async (userData) => {
       toast({
         title: "Logged In!",
         description: "Processing your booking...",
       });
       
-      // Wait for auth state to update, then proceed with booking
+      // Wait for auth state to update
       await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       await queryClient.refetchQueries({ queryKey: ["/api/user"] });
       
       setShowAuthForm(false);
       
-      // Proceed with booking - backend will use session userId
+      // Proceed with booking - pass user data for payment
       setTimeout(() => {
         const formData = form.getValues();
         const bookingData = {
@@ -317,6 +322,10 @@ export default function BookVehicle() {
           insuranceAmount: "0",
           platformCommission: (totalAmount * 0.1).toString(),
           ownerEarnings: (totalAmount * 0.9).toString(),
+          // Include user data for payment creation
+          _userEmail: userData.email,
+          _userFirstName: userData.firstName,
+          _userPhone: userData.phone,
         };
         createBookingMutation.mutate(bookingData);
       }, 1000);
@@ -337,8 +346,21 @@ export default function BookVehicle() {
       return;
     }
 
-    // Authenticated users can proceed directly
-    createBookingMutation.mutate(data);
+    // Authenticated users can proceed directly - format data for backend
+    const bookingData = {
+      vehicleId: vehicleId,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      pickupOption: data.pickupOption,
+      deliveryAddress: data.deliveryAddress || null,
+      totalAmount: totalAmount.toString(),
+      deliveryCharge: deliveryCharge.toString(),
+      hasExtraInsurance: false,
+      insuranceAmount: "0",
+      platformCommission: (totalAmount * 0.1).toString(),
+      ownerEarnings: (totalAmount * 0.9).toString(),
+    };
+    createBookingMutation.mutate(bookingData);
   };
 
   const handleGuestCheckout = (guestData: { name: string; email: string; phone: string }) => {
