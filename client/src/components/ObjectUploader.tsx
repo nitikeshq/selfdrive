@@ -45,6 +45,10 @@ export function ObjectUploader({
       })
       .on("complete", (result) => {
         onComplete?.(result);
+        setTimeout(() => {
+          setShowModal(false);
+          uppy.cancelAll();
+        }, 1000);
       })
   );
 
