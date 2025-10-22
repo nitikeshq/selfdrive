@@ -154,7 +154,7 @@ export class DbStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const result = await db.insert(users).values(insertUser).returning();
-    return result[0];
+    return result[0] as User;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
@@ -169,7 +169,7 @@ export class DbStorage implements IStorage {
         },
       })
       .returning();
-    return user;
+    return user as User;
   }
 
   async updateUser(id: string, data: Partial<User>): Promise<User | undefined> {

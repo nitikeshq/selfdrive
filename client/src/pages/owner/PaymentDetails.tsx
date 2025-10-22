@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Building2, CreditCard, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -34,10 +35,7 @@ type PaymentDetailsForm = z.infer<typeof paymentDetailsSchema>;
 export default function PaymentDetails() {
   const { toast } = useToast();
   const [isVerifying, setIsVerifying] = useState(false);
-
-  const { data: user, isLoading: userLoading } = useQuery({
-    queryKey: ["/api/auth/user"],
-  });
+  const { user, isLoading: userLoading } = useAuth();
 
   const form = useForm<PaymentDetailsForm>({
     resolver: zodResolver(paymentDetailsSchema),

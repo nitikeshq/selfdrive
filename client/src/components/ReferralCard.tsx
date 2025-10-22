@@ -1,22 +1,19 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Share2, Copy, Gift, Check } from "lucide-react";
-import type { User } from "@shared/schema";
 
 export function ReferralCard() {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [referralCodeInput, setReferralCodeInput] = useState("");
-
-  const { data: user } = useQuery<User>({
-    queryKey: ["/api/auth/user"],
-  });
+  const { user } = useAuth();
 
   const generateCodeMutation = useMutation({
     mutationFn: async () => {
