@@ -672,7 +672,11 @@ export default function ListVehicle() {
                     <FileText className="h-5 w-5" />
                     Vehicle Documents
                   </h3>
-                  <p className="text-sm text-muted-foreground">Upload required documents for vehicle verification</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isAuthenticated 
+                      ? "Upload required documents for vehicle verification" 
+                      : "Please login or register to upload vehicle documents"}
+                  </p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* RC Document */}
@@ -686,7 +690,7 @@ export default function ListVehicle() {
                           <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
                           <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
                         </div>
-                      ) : (
+                      ) : isAuthenticated ? (
                         <ObjectUploader
                           maxNumberOfFiles={1}
                           maxFileSize={5242880}
@@ -706,6 +710,16 @@ export default function ListVehicle() {
                           <Upload className="h-4 w-4 mr-2" />
                           Upload RC
                         </ObjectUploader>
+                      ) : (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="w-full" 
+                          onClick={() => setShowAuthModal(true)}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Login to Upload
+                        </Button>
                       )}
                     </div>
 
@@ -720,7 +734,7 @@ export default function ListVehicle() {
                           <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
                           <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
                         </div>
-                      ) : (
+                      ) : isAuthenticated ? (
                         <ObjectUploader
                           maxNumberOfFiles={1}
                           maxFileSize={5242880}
@@ -740,6 +754,16 @@ export default function ListVehicle() {
                           <Upload className="h-4 w-4 mr-2" />
                           Upload Insurance
                         </ObjectUploader>
+                      ) : (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="w-full" 
+                          onClick={() => setShowAuthModal(true)}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Login to Upload
+                        </Button>
                       )}
                     </div>
 
@@ -754,7 +778,7 @@ export default function ListVehicle() {
                           <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
                           <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
                         </div>
-                      ) : (
+                      ) : isAuthenticated ? (
                         <ObjectUploader
                           maxNumberOfFiles={1}
                           maxFileSize={5242880}
@@ -774,6 +798,16 @@ export default function ListVehicle() {
                           <Upload className="h-4 w-4 mr-2" />
                           Upload PUC
                         </ObjectUploader>
+                      ) : (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="w-full" 
+                          onClick={() => setShowAuthModal(true)}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Login to Upload
+                        </Button>
                       )}
                     </div>
                   </div>
