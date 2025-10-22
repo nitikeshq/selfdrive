@@ -75,7 +75,7 @@ export default function Landing() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-16 sm:pt-20 lg:pt-0">
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto text-center mb-8">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 md:mb-6 leading-tight" data-testid="text-hero-title">
               <span className="block text-white">Your Journey,</span>
               <span className="block bg-gradient-to-r from-blue-400 via-cyan-300 to-green-400 bg-clip-text text-transparent animate-in slide-in-from-left duration-700">
@@ -83,10 +83,12 @@ export default function Landing() {
               </span>
               <span className="block text-white">Your Schedule</span>
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 md:mb-8 font-medium" data-testid="text-hero-subtitle">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-medium" data-testid="text-hero-subtitle">
               Book self-drive cars & bikes with instant confirmation
             </p>
+          </div>
 
+          <div className="max-w-5xl mx-auto">
             {/* Search Bar */}
             <Card className="bg-white/95 dark:bg-card/95 backdrop-blur-md shadow-2xl">
               <CardContent className="p-4 sm:p-6">
@@ -151,7 +153,7 @@ export default function Landing() {
             </Card>
 
             {/* Contact Support Section */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="bg-white/90 dark:bg-card/90 backdrop-blur-sm border-green-200 dark:border-green-800">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
