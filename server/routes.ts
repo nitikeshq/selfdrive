@@ -11,6 +11,7 @@ import {
   insertVehicleDocumentSchema,
   insertOwnerAddressSchema,
   insertAgreementAcceptanceSchema,
+  insertInsuranceRequestSchema,
   users
 } from "@shared/schema";
 import { z } from "zod";
@@ -1236,6 +1237,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(acceptances);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch booking agreement acceptances" });
+    }
+  });
+
+  // Insurance Request routes
+  app.post("/api/insurance-requests", isOwner, async (req, res) => {
+    try {
+      const ownerId = (req.session as any).userId;
+      const validatedData = insertInsuranceRequestSchema.parse({
+        ...req.body,
+        ownerId,
+      });
+      const request = await storage.createInsuranceRequest(validatedData);
+      res.status(201).json(request);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create insurance request" });
+    }
+  });
+
+  app.get("/api/insurance-requests", isAdmin, async (req, res) => {
+    try {
+      const requests = await storage.getAllInsuranceRequests();
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch insurance requests" });
+    }
+  });
+
+  app.get("/api/owner/insurance-requests", isOwner, async (req, res) => {
+    try {
+      const ownerId = (req.session as any).userId;
+      const requests = await storage.getInsuranceRequestsByOwner(ownerId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch owner insurance requests" });
+    }
+  });
+
+  app.patch("/api/insurance-requests/:id", isAdmin, async (req, res) => {
+    try {
+      const request = await storage.updateInsuranceRequest(req.params.id, req.body);
+      if (!request) {
+        return res.status(404).json({ error: "Insurance request not found" });
+      }
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update insurance request" });
     }
   });
 

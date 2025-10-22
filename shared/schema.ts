@@ -369,6 +369,24 @@ export const agreementAcceptances = pgTable("agreement_acceptances", {
   bookingIdx: index("agreement_acceptances_booking_idx").on(table.bookingId),
 }));
 
+// Insurance Requests table - Track owner insurance requests
+export const insuranceRequests = pgTable("insurance_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ownerId: varchar("owner_id").notNull().references(() => users.id),
+  vehicleId: varchar("vehicle_id").references(() => vehicles.id),
+  insuranceType: text("insurance_type").notNull(), // comprehensive, third_party, zero_depreciation
+  coverageAmount: decimal("coverage_amount", { precision: 10, scale: 2 }),
+  requestReason: text("request_reason"),
+  status: text("status").notNull().default("pending"), // pending, approved, rejected, contacted
+  adminNotes: text("admin_notes"),
+  contactedAt: timestamp("contacted_at"),
+  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  ownerIdx: index("insurance_requests_owner_idx").on(table.ownerId),
+  statusIdx: index("insurance_requests_status_idx").on(table.status),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -468,6 +486,13 @@ export const insertAgreementAcceptanceSchema = createInsertSchema(agreementAccep
   agreedAt: true,
 });
 
+export const insertInsuranceRequestSchema = createInsertSchema(insuranceRequests).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  coverageAmount: z.union([z.string(), z.number(), z.null()]).transform(val => val === null ? null : String(val)).optional(),
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -511,6 +536,9 @@ export type InsertWalletTransaction = z.infer<typeof insertWalletTransactionSche
 
 export type AgreementAcceptance = typeof agreementAcceptances.$inferSelect;
 export type InsertAgreementAcceptance = z.infer<typeof insertAgreementAcceptanceSchema>;
+
+export type InsuranceRequest = typeof insuranceRequests.$inferSelect;
+export type InsertInsuranceRequest = z.infer<typeof insertInsuranceRequestSchema>;
 
 // Extended booking type with vehicle and user details
 export type BookingWithDetails = Booking & {

@@ -53,6 +53,11 @@ export function Navbar() {
                         Payment Details
                       </span>
                     </Link>
+                    <Link href="/owner/insurance">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-insurance">
+                        Insurance
+                      </span>
+                    </Link>
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -208,6 +213,11 @@ export function Navbar() {
                       <Link href="/owner/payment-details">
                         <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-payment-details-mobile">
                           Payment Details
+                        </span>
+                      </Link>
+                      <Link href="/owner/insurance">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-insurance-mobile">
+                          Insurance
                         </span>
                       </Link>
                       <Button 

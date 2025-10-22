@@ -152,7 +152,132 @@ export default function TermsAndConditions() {
 
           <Card>
             <CardHeader>
-              <CardTitle>10. Governing Law</CardTitle>
+              <CardTitle>10. Force Majeure</CardTitle>
+            </CardHeader>
+            <CardContent className="prose dark:prose-invert max-w-none">
+              <p className="mb-3">Neither DriveEase nor vehicle owners shall be held liable for any failure or delay in performance under these terms due to circumstances beyond reasonable control, including but not limited to:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Acts of God (earthquakes, floods, storms, pandemics)</li>
+                <li>War, terrorism, civil unrest, or riots</li>
+                <li>Government actions, regulations, or restrictions</li>
+                <li>Labor strikes, lockouts, or transportation failures</li>
+                <li>Power outages or telecommunications failures</li>
+              </ul>
+              <p className="mt-3">
+                In the event of a force majeure situation, the affected party must notify the other party promptly. 
+                Bookings affected by force majeure events will be eligible for full refunds or rescheduling at no additional charge.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>11. Indemnification</CardTitle>
+            </CardHeader>
+            <CardContent className="prose dark:prose-invert max-w-none">
+              <p className="mb-3">
+                <strong>Customer Indemnification:</strong> You agree to indemnify, defend, and hold harmless DriveEase, vehicle owners, and their respective officers, directors, employees, and agents from and against any and all claims, liabilities, damages, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising from:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Your use or misuse of any rental vehicle</li>
+                <li>Your violation of these Terms and Conditions</li>
+                <li>Your violation of any law or the rights of a third party</li>
+                <li>Any damage to the vehicle beyond normal wear and tear</li>
+                <li>Any traffic violations, fines, or penalties incurred during the rental period</li>
+              </ul>
+              <p className="mt-3">
+                <strong>Owner Indemnification:</strong> Vehicle owners agree to indemnify DriveEase against any claims arising from mechanical defects, undisclosed vehicle issues, or failure to maintain the vehicle in safe operating condition.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>12. Insurance Coverage Disclosure</CardTitle>
+            </CardHeader>
+            <CardContent className="prose dark:prose-invert max-w-none">
+              <p className="mb-3">
+                <strong>Important Insurance Information:</strong> Understanding your insurance coverage is critical before renting any vehicle.
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Basic Coverage:</strong> All vehicles listed on DriveEase must have valid third-party insurance as required by Indian law</li>
+                <li><strong>Optional Insurance:</strong> Some owners may offer additional comprehensive or zero-depreciation insurance for an extra fee</li>
+                <li><strong>Customer Responsibility:</strong> You are responsible for any damages not covered by the vehicle's insurance policy</li>
+                <li><strong>Deductibles:</strong> Insurance policies may have deductibles; customers may be liable for the deductible amount in case of claims</li>
+                <li><strong>Coverage Verification:</strong> We strongly recommend reviewing the insurance coverage details displayed on each vehicle listing before booking</li>
+                <li><strong>Personal Insurance:</strong> Check if your personal auto insurance policy extends coverage to rental vehicles</li>
+              </ul>
+              <p className="mt-3 font-semibold">
+                DriveEase acts as a platform connecting vehicle owners and customers. We do not provide insurance coverage. All insurance is provided by vehicle owners or their insurance providers.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>13. Emergency Contact Protocol</CardTitle>
+            </CardHeader>
+            <CardContent className="prose dark:prose-invert max-w-none">
+              <p className="mb-3">In case of emergencies during your rental period, follow these procedures:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Medical Emergency:</strong> Dial 108 (National Ambulance Service) or 102 (State Ambulance Service) immediately</li>
+                <li><strong>Police/Crime:</strong> Dial 100 for police assistance</li>
+                <li><strong>Fire Emergency:</strong> Dial 101 for fire department</li>
+                <li><strong>Accident or Breakdown:</strong> See section 14 below for detailed procedures</li>
+                <li><strong>DriveEase Support:</strong> Contact us through the app's emergency button or call our 24/7 helpline displayed in your booking confirmation</li>
+                <li><strong>Vehicle Owner:</strong> Contact the vehicle owner immediately using the contact details provided in your booking confirmation</li>
+              </ul>
+              <p className="mt-3">
+                All bookings include the vehicle owner's emergency contact number. Save this number in your phone before starting your trip. 
+                For platform-related emergencies, use the in-app emergency button which will notify both DriveEase support and the vehicle owner simultaneously.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>14. Breakdown and Accident Procedures</CardTitle>
+            </CardHeader>
+            <CardContent className="prose dark:prose-invert max-w-none">
+              <p className="mb-3"><strong>In Case of Vehicle Breakdown:</strong></p>
+              <ul className="list-disc pl-6 space-y-2 mb-4">
+                <li>Move the vehicle to a safe location if possible</li>
+                <li>Turn on hazard lights and place warning triangle (if available) 50 meters behind the vehicle</li>
+                <li>Contact the vehicle owner immediately for assistance</li>
+                <li>Do not attempt major repairs yourself; wait for authorized assistance</li>
+                <li>Document the breakdown with photos and note the time, location, and circumstances</li>
+                <li>If breakdown occurs due to owner's negligence (lack of maintenance), customer is entitled to full refund and alternate vehicle arrangement</li>
+              </ul>
+              
+              <p className="mb-3"><strong>In Case of Accident:</strong></p>
+              <ol className="list-decimal pl-6 space-y-2 mb-4">
+                <li><strong>Ensure Safety:</strong> Check for injuries and call 108 if medical assistance is needed</li>
+                <li><strong>Secure the Scene:</strong> Turn on hazard lights, use warning triangle, and prevent further damage</li>
+                <li><strong>Call Police:</strong> For any accident involving injury or significant damage, dial 100 to file an FIR (First Information Report)</li>
+                <li><strong>Document Everything:</strong>
+                  <ul className="list-disc pl-6 mt-2 space-y-1">
+                    <li>Take photos/videos of all vehicles involved, damage, and accident scene from multiple angles</li>
+                    <li>Note down registration numbers of all vehicles involved</li>
+                    <li>Collect contact information and insurance details of other parties</li>
+                    <li>Get contact details of any witnesses</li>
+                    <li>Record date, time, location, and weather conditions</li>
+                  </ul>
+                </li>
+                <li><strong>Notify Immediately:</strong> Contact both the vehicle owner and DriveEase support within 2 hours of the accident</li>
+                <li><strong>Do Not Admit Fault:</strong> Provide only factual information to police and other parties; do not sign any documents without consulting the owner or DriveEase</li>
+                <li><strong>Insurance Claim:</strong> Cooperate fully with insurance company investigations and provide all required documentation</li>
+                <li><strong>Vehicle Retrieval:</strong> Coordinate with the owner for vehicle towing and repair; do not abandon the vehicle</li>
+              </ol>
+              
+              <p className="mt-3 font-semibold bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-md">
+                <strong>Critical:</strong> Failure to report an accident or provide required documentation may result in denial of insurance claims and full liability for all damages, legal costs, and vehicle depreciation.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>15. Governing Law</CardTitle>
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-none">
               <p>
@@ -164,7 +289,7 @@ export default function TermsAndConditions() {
 
           <Card>
             <CardHeader>
-              <CardTitle>11. Contact Information</CardTitle>
+              <CardTitle>16. Contact Information</CardTitle>
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-none">
               <p>

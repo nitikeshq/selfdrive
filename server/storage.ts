@@ -26,6 +26,8 @@ import {
   type InsertTollFee,
   type AgreementAcceptance,
   type InsertAgreementAcceptance,
+  type InsuranceRequest,
+  type InsertInsuranceRequest,
   users,
   vehicles,
   bookings,
@@ -37,7 +39,8 @@ import {
   addonProducts,
   ownerAddonPurchases,
   tollFees,
-  agreementAcceptances
+  agreementAcceptances,
+  insuranceRequests
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte } from "drizzle-orm";
@@ -128,6 +131,13 @@ export interface IStorage {
   getAgreementAcceptanceByType(userId: string, agreementType: string): Promise<AgreementAcceptance | undefined>;
   getAgreementAcceptanceByBooking(bookingId: string): Promise<AgreementAcceptance[]>;
   createAgreementAcceptance(acceptance: InsertAgreementAcceptance): Promise<AgreementAcceptance>;
+
+  // Insurance Request methods
+  getAllInsuranceRequests(): Promise<InsuranceRequest[]>;
+  getInsuranceRequest(id: string): Promise<InsuranceRequest | undefined>;
+  getInsuranceRequestsByOwner(ownerId: string): Promise<InsuranceRequest[]>;
+  createInsuranceRequest(request: InsertInsuranceRequest): Promise<InsuranceRequest>;
+  updateInsuranceRequest(id: string, data: Partial<InsuranceRequest>): Promise<InsuranceRequest | undefined>;
 }
 
 export class DbStorage implements IStorage {
@@ -555,6 +565,30 @@ export class DbStorage implements IStorage {
 
   async createAgreementAcceptance(acceptance: InsertAgreementAcceptance): Promise<AgreementAcceptance> {
     const result = await db.insert(agreementAcceptances).values(acceptance).returning();
+    return result[0];
+  }
+
+  // Insurance Request methods
+  async getAllInsuranceRequests(): Promise<InsuranceRequest[]> {
+    return await db.select().from(insuranceRequests);
+  }
+
+  async getInsuranceRequest(id: string): Promise<InsuranceRequest | undefined> {
+    const result = await db.select().from(insuranceRequests).where(eq(insuranceRequests.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getInsuranceRequestsByOwner(ownerId: string): Promise<InsuranceRequest[]> {
+    return await db.select().from(insuranceRequests).where(eq(insuranceRequests.ownerId, ownerId));
+  }
+
+  async createInsuranceRequest(request: InsertInsuranceRequest): Promise<InsuranceRequest> {
+    const result = await db.insert(insuranceRequests).values(request).returning();
+    return result[0];
+  }
+
+  async updateInsuranceRequest(id: string, data: Partial<InsuranceRequest>): Promise<InsuranceRequest | undefined> {
+    const result = await db.update(insuranceRequests).set(data).where(eq(insuranceRequests.id, id)).returning();
     return result[0];
   }
 }
