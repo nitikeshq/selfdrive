@@ -239,12 +239,12 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2" data-testid="text-stat-vehicles">10,000+</div>
+              <div className="text-3xl font-bold text-primary mb-2" data-testid="text-stat-vehicles">50+</div>
               <div className="text-sm text-muted-foreground">Vehicles Available</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2" data-testid="text-stat-riders">50,000+</div>
-              <div className="text-sm text-muted-foreground">Happy Riders</div>
+              <div className="text-3xl font-bold text-primary mb-2" data-testid="text-stat-riders">200+</div>
+              <div className="text-sm text-muted-foreground">Happy Customers</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary mb-2" data-testid="text-stat-support">24/7</div>
