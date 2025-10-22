@@ -76,10 +76,14 @@ export default function Landing() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-display font-bold text-white mb-4 md:mb-6" data-testid="text-hero-title">
-              Your Journey, Your Vehicle, Your Schedule
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 md:mb-6 leading-tight" data-testid="text-hero-title">
+              <span className="block text-white">Your Journey,</span>
+              <span className="block bg-gradient-to-r from-blue-400 via-cyan-300 to-green-400 bg-clip-text text-transparent animate-in slide-in-from-left duration-700">
+                Your Vehicle,
+              </span>
+              <span className="block text-white">Your Schedule</span>
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 md:mb-8" data-testid="text-hero-subtitle">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 md:mb-8 font-medium" data-testid="text-hero-subtitle">
               Book self-drive cars & bikes with instant confirmation
             </p>
 
