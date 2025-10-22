@@ -1,0 +1,70 @@
+-- ============================================
+-- SelfDriveKaro.com - Vehicle Types & Categories Setup
+-- ============================================
+-- This file contains the default vehicle types and categories
+-- Used during initial database setup
+-- ============================================
+
+-- Vehicle Types (Reference Data)
+-- ============================================
+-- Type: car or bike
+-- These are the two main vehicle types supported by the platform
+
+-- Car Categories
+-- ============================================
+-- Available car categories:
+-- - Economy: Budget-friendly cars
+-- - Hatchback: Compact city cars
+-- - Sedan: Standard sedans
+-- - Prime Sedan: Premium sedans
+-- - Compact: Small cars for city driving
+-- - SUV: Sport Utility Vehicles
+-- - XUV: Crossover Utility Vehicles
+-- - MUV: Multi Utility Vehicles
+-- - Compact SUV: Smaller SUVs
+-- - Premium: Luxury vehicles
+-- - Luxury: High-end luxury cars
+-- - Luxury Sedan: Premium luxury sedans
+-- - Super Cars: High-performance vehicles
+-- - Sports Car: Sports vehicles
+-- - EV Car: Electric vehicles
+
+-- Bike Categories
+-- ============================================
+-- Available bike categories:
+-- - Commuter Bike: Daily commute bikes
+-- - Standard Bike: Standard motorcycles
+-- - Sports Bike: Performance motorcycles
+-- - Cruiser Bike: Cruiser-style bikes
+-- - Premium Bike: Premium motorcycles
+-- - Scooter: Scooters
+-- - EV Bike: Electric motorcycles
+-- - EV Scooter: Electric scooters
+
+-- ============================================
+-- Note: Vehicle types and categories are stored as TEXT fields
+-- in the vehicles table. No separate reference tables needed.
+-- Validation is done at the application layer.
+-- ============================================
+
+-- Example vehicle insert query:
+-- INSERT INTO vehicles (
+--   owner_id, name, type, category, brand, model, year,
+--   fuel_type, transmission, registration_number,
+--   price_per_hour, price_per_day, location, image_url
+-- ) VALUES (
+--   'owner-uuid',
+--   'Maruti Baleno Hybrid',
+--   'car',
+--   'Hatchback',
+--   'Maruti Suzuki',
+--   'Baleno',
+--   2024,
+--   'petrol',
+--   'manual',
+--   'OD-02-XXXX',
+--   100.00,
+--   1500.00,
+--   'Bhubaneswar',
+--   'https://example.com/image.jpg'
+-- );
