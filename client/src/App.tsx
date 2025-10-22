@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 // Eager load landing page for better initial load
 import Landing from "@/pages/Landing";
@@ -102,6 +103,7 @@ function App() {
             <Footer />
           </div>
           <Toaster />
+          <PWAInstallPrompt />
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
