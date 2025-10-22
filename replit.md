@@ -25,7 +25,7 @@ Preferred communication style: Simple, everyday language.
     - **Legal Compliance**: Force Majeure, Indemnification, Insurance Coverage Disclosure, Emergency Contact Protocol, Breakdown & Accident Procedures clauses integrated into Terms and Conditions. Agreement tracking includes IP, user agent, digital signatures, and timestamps.
     - **Payment System**: Integrated payment gateway for booking and membership fees, with split payment support and owner payment details management (bank, UPI, PAN, GST).
     - **Referral & Membership**: Referral rewards and annual premium membership with exclusive benefits like free delivery/pickup and late fee waivers.
-    - **Vehicle Listing**: Includes vehicle categories (Super cars, Economy, Bikes, Electric Cars, etc.), document upload (RC, Insurance, PUC) with secure storage, and real-time status badges (Available, Paused, Booked).
+    - **Vehicle Listing**: Comprehensive vehicle types and categories system. **Types**: Car or Bike. **Car Categories**: Economy, Hatchback, Sedan, Prime Sedan, Compact, SUV, XUV, MUV, Compact SUV, Premium, Luxury, Luxury Sedan, Super Cars, Sports Car, EV Car. **Bike Categories**: Commuter Bike, Standard Bike, Sports Bike, Cruiser Bike, Premium Bike, Scooter, EV Bike, EV Scooter. Includes document upload (RC, Insurance, PUC) with secure storage, and real-time status badges (Available, Paused, Booked).
     - **SEO**: Local Business JSON-LD, comprehensive meta tags, Open Graph, and Twitter cards for all pages.
 
 ### Data Storage

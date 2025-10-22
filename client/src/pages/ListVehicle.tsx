@@ -294,21 +294,32 @@ export default function ListVehicle() {
                           >
                             {vehicleType === "car" ? (
                               <>
-                                <option value="economy">Economy Cars</option>
+                                <option value="economy">Economy</option>
                                 <option value="hatchback">Hatchback</option>
                                 <option value="sedan">Sedan</option>
-                                <option value="compact">Compact Cars</option>
-                                <option value="suv">SUV/XUV</option>
-                                <option value="premium">Premium Cars</option>
-                                <option value="luxury">Luxury Cars</option>
+                                <option value="prime_sedan">Prime Sedan</option>
+                                <option value="compact">Compact</option>
+                                <option value="suv">SUV</option>
+                                <option value="xuv">XUV</option>
+                                <option value="muv">MUV</option>
+                                <option value="compact_suv">Compact SUV</option>
+                                <option value="premium">Premium</option>
+                                <option value="luxury">Luxury</option>
+                                <option value="luxury_sedan">Luxury Sedan</option>
                                 <option value="supercars">Super Cars</option>
+                                <option value="sports_car">Sports Car</option>
+                                <option value="ev_car">EV Car</option>
                               </>
                             ) : (
                               <>
-                                <option value="commuter_bike">Commuter Bikes</option>
-                                <option value="sports_bike">Sports Bikes</option>
-                                <option value="cruiser_bike">Cruiser Bikes</option>
-                                <option value="premium_bike">Premium Bikes</option>
+                                <option value="commuter_bike">Commuter Bike</option>
+                                <option value="standard_bike">Standard Bike</option>
+                                <option value="sports_bike">Sports Bike</option>
+                                <option value="cruiser_bike">Cruiser Bike</option>
+                                <option value="premium_bike">Premium Bike</option>
+                                <option value="scooter">Scooter</option>
+                                <option value="ev_bike">EV Bike</option>
+                                <option value="ev_scooter">EV Scooter</option>
                               </>
                             )}
                           </select>

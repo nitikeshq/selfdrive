@@ -402,6 +402,38 @@ export const insertVehicleSchema = createInsertSchema(vehicles).omit({
   id: true,
   createdAt: true,
 }).extend({
+  type: z.enum(["car", "bike"], {
+    required_error: "Please select a vehicle type",
+  }),
+  category: z.enum([
+    // Car categories
+    "economy",
+    "hatchback",
+    "sedan",
+    "prime_sedan",
+    "compact",
+    "suv",
+    "xuv",
+    "muv",
+    "compact_suv",
+    "premium",
+    "luxury",
+    "luxury_sedan",
+    "supercars",
+    "sports_car",
+    "ev_car",
+    // Bike categories
+    "commuter_bike",
+    "standard_bike",
+    "sports_bike",
+    "cruiser_bike",
+    "premium_bike",
+    "scooter",
+    "ev_bike",
+    "ev_scooter"
+  ], {
+    required_error: "Please select a category",
+  }),
   pricePerHour: z.union([z.string(), z.number()]).transform(val => String(val)),
   pricePerDay: z.union([z.string(), z.number()]).transform(val => String(val)),
   extraInsuranceCost: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),

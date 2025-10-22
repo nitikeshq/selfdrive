@@ -204,21 +204,32 @@ export default function EditVehicle() {
                           <SelectContent>
                             {vehicleType === "car" ? (
                               <>
-                                <SelectItem value="economy">Economy Cars</SelectItem>
+                                <SelectItem value="economy">Economy</SelectItem>
                                 <SelectItem value="hatchback">Hatchback</SelectItem>
                                 <SelectItem value="sedan">Sedan</SelectItem>
-                                <SelectItem value="compact">Compact Cars</SelectItem>
-                                <SelectItem value="suv">SUV/XUV</SelectItem>
-                                <SelectItem value="premium">Premium Cars</SelectItem>
-                                <SelectItem value="luxury">Luxury Cars</SelectItem>
+                                <SelectItem value="prime_sedan">Prime Sedan</SelectItem>
+                                <SelectItem value="compact">Compact</SelectItem>
+                                <SelectItem value="suv">SUV</SelectItem>
+                                <SelectItem value="xuv">XUV</SelectItem>
+                                <SelectItem value="muv">MUV</SelectItem>
+                                <SelectItem value="compact_suv">Compact SUV</SelectItem>
+                                <SelectItem value="premium">Premium</SelectItem>
+                                <SelectItem value="luxury">Luxury</SelectItem>
+                                <SelectItem value="luxury_sedan">Luxury Sedan</SelectItem>
                                 <SelectItem value="supercars">Super Cars</SelectItem>
+                                <SelectItem value="sports_car">Sports Car</SelectItem>
+                                <SelectItem value="ev_car">EV Car</SelectItem>
                               </>
                             ) : (
                               <>
-                                <SelectItem value="commuter_bike">Commuter Bikes</SelectItem>
-                                <SelectItem value="sports_bike">Sports Bikes</SelectItem>
-                                <SelectItem value="cruiser_bike">Cruiser Bikes</SelectItem>
-                                <SelectItem value="premium_bike">Premium Bikes</SelectItem>
+                                <SelectItem value="commuter_bike">Commuter Bike</SelectItem>
+                                <SelectItem value="standard_bike">Standard Bike</SelectItem>
+                                <SelectItem value="sports_bike">Sports Bike</SelectItem>
+                                <SelectItem value="cruiser_bike">Cruiser Bike</SelectItem>
+                                <SelectItem value="premium_bike">Premium Bike</SelectItem>
+                                <SelectItem value="scooter">Scooter</SelectItem>
+                                <SelectItem value="ev_bike">EV Bike</SelectItem>
+                                <SelectItem value="ev_scooter">EV Scooter</SelectItem>
                               </>
                             )}
                           </SelectContent>
