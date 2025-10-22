@@ -20,6 +20,11 @@ export default function Vehicles() {
   const [pickupDateTime, setPickupDateTime] = useState<string>("");
   const [returnDateTime, setReturnDateTime] = useState<string>("");
 
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   // Initialize filters from URL parameters
   useEffect(() => {
     const params = new URLSearchParams(location.split('?')[1] || '');

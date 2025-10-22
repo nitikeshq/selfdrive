@@ -10,6 +10,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Car, Upload, MapPin, FileText, Shield, Leaf, Check } from "lucide-react";
 import { useState, useEffect } from "react";
+
+// Scroll to top when page loads
+function useScrollToTop() {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+}
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -65,6 +72,7 @@ type OwnerRegistrationForm = z.infer<typeof ownerRegistrationSchema>;
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function ListVehicle() {
+  useScrollToTop();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
