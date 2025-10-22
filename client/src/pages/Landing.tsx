@@ -257,14 +257,14 @@ export default function Landing() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20">
+      <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-display font-bold text-center mb-12" data-testid="text-how-it-works-title">
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-center mb-8" data-testid="text-how-it-works-title">
             How It Works
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="text-center hover-elevate transition-all">
-              <CardContent className="p-8">
+              <CardContent className="p-6">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Car className="h-8 w-8 text-primary" />
                 </div>
@@ -275,7 +275,7 @@ export default function Landing() {
               </CardContent>
             </Card>
             <Card className="text-center hover-elevate transition-all">
-              <CardContent className="p-8">
+              <CardContent className="p-6">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileCheck className="h-8 w-8 text-primary" />
                 </div>
@@ -286,7 +286,7 @@ export default function Landing() {
               </CardContent>
             </Card>
             <Card className="text-center hover-elevate transition-all">
-              <CardContent className="p-8">
+              <CardContent className="p-6">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <TruckIcon className="h-8 w-8 text-primary" />
                 </div>
@@ -301,9 +301,9 @@ export default function Landing() {
       </section>
 
       {/* Featured Vehicles */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-12 md:py-16 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl sm:text-4xl font-display font-bold" data-testid="text-featured-vehicles-title">
               Featured Vehicles
             </h2>
@@ -331,14 +331,14 @@ export default function Landing() {
       </section>
 
       {/* Pickup Options Highlight */}
-      <section className="py-20">
+      <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-display font-bold text-center mb-12" data-testid="text-pickup-options-title">
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-center mb-8" data-testid="text-pickup-options-title">
             Flexible Pickup Options
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="border-2 hover-elevate transition-all">
-              <CardContent className="p-8">
+              <CardContent className="p-6">
                 <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mb-4">
                   <MapPin className="h-8 w-8 text-accent-foreground" />
                 </div>
@@ -350,7 +350,7 @@ export default function Landing() {
               </CardContent>
             </Card>
             <Card className="border-2 border-primary/20 hover-elevate transition-all">
-              <CardContent className="p-8">
+              <CardContent className="p-6">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                   <TruckIcon className="h-8 w-8 text-primary" />
                 </div>
@@ -366,10 +366,10 @@ export default function Landing() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-12 md:py-16 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-display font-bold text-center mb-12" data-testid="text-why-choose-title">
-            Why Choose DriveEase
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-center mb-8" data-testid="text-why-choose-title">
+            Why Choose SelfDriveKaro
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="text-center hover-elevate transition-all">
@@ -413,9 +413,9 @@ export default function Landing() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20">
+      <section className="py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-display font-bold text-center mb-12" data-testid="text-testimonials-title">
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-center mb-8" data-testid="text-testimonials-title">
             What Our Customers Say
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -453,7 +453,7 @@ export default function Landing() {
       </section>
 
       {/* Owner CTA */}
-      <section className="py-20 bg-primary text-primary-foreground">
+      <section className="py-12 md:py-16 bg-primary text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
