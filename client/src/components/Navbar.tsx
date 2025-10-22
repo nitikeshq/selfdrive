@@ -27,7 +27,10 @@ export function Navbar() {
           <Link href="/">
             <div className="flex items-center gap-2 hover-elevate active-elevate-2 px-2 py-1 rounded-md transition-all cursor-pointer" data-testid="link-home">
               <Car className="h-7 w-7 text-primary" />
-              <span className="text-xl font-display font-bold text-foreground">SelfDriveKaro</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-display font-bold text-foreground leading-tight">SelfDriveKaro</span>
+                <span className="text-[10px] text-muted-foreground leading-tight -mt-0.5">Your Journey, Your Way</span>
+              </div>
             </div>
           </Link>
 

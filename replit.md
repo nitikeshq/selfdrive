@@ -1,5 +1,7 @@
 # SelfDriveKaro.com - Self-Drive Car & Bike Rental Platform
 
+**Motto:** "Your Journey, Your Way"
+
 ## Overview
 SelfDriveKaro.com (SDK) is a full-stack vehicle rental platform now available in Bhubaneswar, inspired by Airbnb and Uber, facilitating hourly, daily, or weekly self-drive car and bike rentals. It connects customers with vehicle owners and provides an intuitive platform for administrators. The platform offers real-time vehicle availability, integrated payment solutions, and flexible pickup options. Its primary goal is to empower vehicle owners to generate passive income and offer customers a seamless, trust-focused rental experience. The project aims for near-perfect legal compliance and comprehensive protection for all users.
 
