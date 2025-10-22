@@ -59,7 +59,7 @@ export default function Landing() {
       />
       <LocalBusinessSchema />
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] md:h-[80vh] flex items-center py-12 pt-24 md:pt-24 lg:pt-28">
+      <section className="relative min-h-[70vh] md:h-[80vh] flex items-center py-12 md:py-0">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=60&w=800&auto=format&fit=crop"
@@ -74,7 +74,7 @@ export default function Landing() {
           <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-24 md:mt-20 lg:mt-0">
           <div className="max-w-3xl">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 md:mb-6 leading-tight" data-testid="text-hero-title">
               <span className="block text-white">Your Journey,</span>
