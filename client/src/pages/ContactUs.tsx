@@ -199,7 +199,7 @@ export default function ContactUs() {
                   <label className="text-sm font-medium mb-2 block">Phone Number</label>
                   <Input
                     type="tel"
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 9337 912331"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     data-testid="input-contact-phone"

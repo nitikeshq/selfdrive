@@ -161,13 +161,13 @@ export default function Landing() {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-sm mb-1">WhatsApp Booking</h3>
                       <a 
-                        href="https://wa.me/919876543210" 
+                        href="https://wa.me/919337912331" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-green-600 dark:text-green-400 hover:underline text-sm font-medium break-all"
                         data-testid="link-whatsapp"
                       >
-                        +91 98765 43210
+                        +91 9337 912331
                       </a>
                       <p className="text-xs text-muted-foreground mt-1">Available 24/7</p>
                     </div>
@@ -205,11 +205,11 @@ export default function Landing() {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-sm mb-1">Call Support</h3>
                       <a 
-                        href="tel:+919876543210" 
+                        href="tel:+919337912331" 
                         className="text-orange-600 dark:text-orange-400 hover:underline text-sm font-medium break-all"
                         data-testid="link-phone"
                       >
-                        +91 98765 43210
+                        +91 9337 912331
                       </a>
                       <p className="text-xs text-muted-foreground mt-1">9 AM - 7 PM (Emergency: Anytime)</p>
                     </div>

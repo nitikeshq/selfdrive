@@ -12,7 +12,7 @@ async function seed() {
         password: "$2b$10$abcdefghijklmnopqrstuvwxyz123456", // hashed: password123
         firstName: "Rajesh",
         lastName: "Kumar",
-        phone: "+91 98765 43210",
+        phone: "+91 9337 912331",
         role: "owner",
       },
       {

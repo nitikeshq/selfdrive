@@ -79,13 +79,13 @@ export default function Support() {
               <h3 className="text-xl font-semibold mb-2">WhatsApp</h3>
               <p className="text-sm text-muted-foreground mb-4">Quick responses via chat</p>
               <a 
-                href="https://wa.me/919876543210" 
+                href="https://wa.me/919337912331" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 data-testid="link-whatsapp-support"
               >
                 <Button variant="outline" className="w-full border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20">
-                  +91 98765 43210
+                  +91 9337 912331
                 </Button>
               </a>
               <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-2">Available 24/7</p>
@@ -119,11 +119,11 @@ export default function Support() {
               <h3 className="text-xl font-semibold mb-2">Phone</h3>
               <p className="text-sm text-muted-foreground mb-4">Speak to our team directly</p>
               <a 
-                href="tel:+919876543210"
+                href="tel:+919337912331"
                 data-testid="link-phone-support"
               >
                 <Button variant="outline" className="w-full border-orange-600 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-                  +91 98765 43210
+                  +91 9337 912331
                 </Button>
               </a>
               <p className="text-xs text-orange-600 dark:text-orange-400 font-medium mt-2">9 AM - 7 PM Daily</p>
@@ -140,8 +140,8 @@ export default function Support() {
                 <h3 className="text-lg font-semibold mb-2">Emergency Support</h3>
                 <p className="text-sm text-muted-foreground mb-2">
                   For urgent issues like accidents, breakdowns, or emergencies during your rental, you can call us anytime at{" "}
-                  <a href="tel:+919876543210" className="font-semibold text-red-600 dark:text-red-400 hover:underline">
-                    +91 98765 43210
+                  <a href="tel:+919337912331" className="font-semibold text-red-600 dark:text-red-400 hover:underline">
+                    +91 9337 912331
                   </a>
                   {" "}— even outside regular hours.
                 </p>
@@ -192,7 +192,7 @@ export default function Support() {
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 9337 912331"
                       required
                       data-testid="input-phone"
                     />
@@ -251,7 +251,7 @@ export default function Support() {
                 <div>
                   <h4 className="font-semibold mb-2">What if I have an emergency during rental?</h4>
                   <p className="text-sm text-muted-foreground">
-                    Call us immediately at +91 98765 43210. Our emergency line is available 24/7 for accidents, breakdowns, or urgent issues during your rental period.
+                    Call us immediately at +91 9337 912331. Our emergency line is available 24/7 for accidents, breakdowns, or urgent issues during your rental period.
                   </p>
                 </div>
                 <div>
