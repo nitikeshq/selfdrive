@@ -15,6 +15,7 @@ export default function Vehicles() {
   const [location] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [pickupDateTime, setPickupDateTime] = useState<string>("");
   const [returnDateTime, setReturnDateTime] = useState<string>("");
@@ -24,11 +25,13 @@ export default function Vehicles() {
     const params = new URLSearchParams(location.split('?')[1] || '');
     const urlLocation = params.get('location');
     const urlType = params.get('type');
+    const urlCategory = params.get('category');
     const urlPickupTime = params.get('pickupTime');
     const urlReturnTime = params.get('returnTime');
     
     if (urlLocation) setSelectedLocation(urlLocation);
     if (urlType) setSelectedType(urlType);
+    if (urlCategory) setSelectedCategory(urlCategory);
     if (urlPickupTime) setPickupDateTime(urlPickupTime);
     if (urlReturnTime) setReturnDateTime(urlReturnTime);
   }, [location]);
@@ -95,23 +98,32 @@ export default function Vehicles() {
                          vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = !selectedType || vehicle.type === selectedType;
+    const matchesCategory = !selectedCategory || vehicle.category === selectedCategory;
     const matchesLocation = !selectedLocation || vehicle.location === selectedLocation;
     const matchesTime = isVehicleAvailableAtTime(vehicle);
     
-    return matchesSearch && matchesType && matchesLocation && matchesTime;
+    return matchesSearch && matchesType && matchesCategory && matchesLocation && matchesTime;
   }) || [];
 
   const uniqueLocations = Array.from(new Set(vehicles?.map(v => v.location) || []));
+  
+  // Get categories based on selected type
+  const availableCategories = vehicles
+    ?.filter(v => !selectedType || v.type === selectedType)
+    .map(v => v.category)
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .sort() || [];
 
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedType("");
+    setSelectedCategory("");
     setSelectedLocation("");
     setPickupDateTime("");
     setReturnDateTime("");
   };
 
-  const hasActiveFilters = searchTerm || selectedType || selectedLocation || pickupDateTime || returnDateTime;
+  const hasActiveFilters = searchTerm || selectedType || selectedCategory || selectedLocation || pickupDateTime || returnDateTime;
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -131,8 +143,8 @@ export default function Vehicles() {
         {/* Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="lg:col-span-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="lg:col-span-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -147,13 +159,32 @@ export default function Vehicles() {
               <div>
                 <select
                   value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedType(e.target.value);
+                    setSelectedCategory(""); // Reset category when type changes
+                  }}
                   className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
                   data-testid="select-vehicle-type-filter"
                 >
                   <option value="">All Types</option>
                   <option value="car">Cars</option>
                   <option value="bike">Bikes</option>
+                </select>
+              </div>
+              <div>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  data-testid="select-category-filter"
+                  disabled={availableCategories.length === 0}
+                >
+                  <option value="">All Categories</option>
+                  {availableCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -199,7 +230,13 @@ export default function Vehicles() {
                 {selectedType && (
                   <Badge variant="secondary" className="gap-1">
                     Type: {selectedType}
-                    <X className="h-3 w-3 cursor-pointer" onClick={() => setSelectedType("")} />
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => { setSelectedType(""); setSelectedCategory(""); }} />
+                  </Badge>
+                )}
+                {selectedCategory && (
+                  <Badge variant="secondary" className="gap-1">
+                    Category: {selectedCategory.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => setSelectedCategory("")} />
                   </Badge>
                 )}
                 {selectedLocation && (
