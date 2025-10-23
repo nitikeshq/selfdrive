@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Calendar, MapPin, TruckIcon, CreditCard, Users, Fuel, Settings, AlertCircle, Tag, Check, X, UserPlus, LogIn } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Calendar, MapPin, TruckIcon, CreditCard, Users, Fuel, Settings, AlertCircle, Tag, Check, X, UserPlus, LogIn, Phone } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
@@ -70,6 +71,8 @@ export default function BookVehicle() {
   const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null);
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [showAuthForm, setShowAuthForm] = useState(false);
+  const [showPaymentChoice, setShowPaymentChoice] = useState(false);
+  const [pendingBookingData, setPendingBookingData] = useState<any>(null);
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -244,6 +247,33 @@ export default function BookVehicle() {
     },
   });
 
+  const createLeadMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/bookings/lead", data);
+      return response.json();
+    },
+    onSuccess: async () => {
+      setShowPaymentChoice(false);
+      setPendingBookingData(null);
+      toast({
+        title: "Request Submitted!",
+        description: "The vehicle owner will contact you shortly to confirm your booking.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      // Redirect to home or bookings page
+      setTimeout(() => {
+        setLocation("/");
+      }, 2000);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit booking request",
+        variant: "destructive",
+      });
+    },
+  });
+
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
       const response = await apiRequest("POST", "/api/register", {
@@ -264,7 +294,7 @@ export default function BookVehicle() {
       
       setShowAuthForm(false);
       
-      // Proceed with booking - pass user data for payment
+      // Show payment choice modal
       setTimeout(() => {
         const formData = form.getValues();
         const bookingData = {
@@ -281,7 +311,8 @@ export default function BookVehicle() {
           _userFirstName: userData.firstName,
           _userPhone: userData.phone,
         };
-        createBookingMutation.mutate(bookingData);
+        setPendingBookingData(bookingData);
+        setShowPaymentChoice(true);
       }, 1000);
     },
     onError: (error: Error) => {
@@ -310,7 +341,7 @@ export default function BookVehicle() {
       
       setShowAuthForm(false);
       
-      // Proceed with booking - pass user data for payment
+      // Show payment choice modal
       setTimeout(() => {
         const formData = form.getValues();
         const bookingData = {
@@ -327,7 +358,8 @@ export default function BookVehicle() {
           _userFirstName: userData.firstName,
           _userPhone: userData.phone,
         };
-        createBookingMutation.mutate(bookingData);
+        setPendingBookingData(bookingData);
+        setShowPaymentChoice(true);
       }, 1000);
     },
     onError: (error: Error) => {
@@ -346,7 +378,7 @@ export default function BookVehicle() {
       return;
     }
 
-    // Authenticated users can proceed directly - format data for backend
+    // Authenticated users can proceed - show payment choice modal
     const bookingData = {
       vehicleId: vehicleId,
       startDate: data.startDate,
@@ -360,7 +392,8 @@ export default function BookVehicle() {
       platformCommission: (totalAmount * 0.1).toString(),
       ownerEarnings: (totalAmount * 0.9).toString(),
     };
-    createBookingMutation.mutate(bookingData);
+    setPendingBookingData(bookingData);
+    setShowPaymentChoice(true);
   };
 
   const handleGuestCheckout = (guestData: { name: string; email: string; phone: string }) => {
@@ -380,7 +413,8 @@ export default function BookVehicle() {
       ownerEarnings: (totalAmount * 0.9).toString(),
     };
     setShowAuthForm(false);
-    createBookingMutation.mutate(bookingData);
+    setPendingBookingData(bookingData);
+    setShowPaymentChoice(true);
   };
 
   const onRegister = (data: RegisterFormData) => {
@@ -1079,6 +1113,64 @@ export default function BookVehicle() {
           </div>
         </div>
       </div>
+
+      {/* Payment Choice Dialog */}
+      <Dialog open={showPaymentChoice} onOpenChange={(open) => {
+        setShowPaymentChoice(open);
+        if (!open) {
+          // Clear pending data when dialog is closed
+          setPendingBookingData(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Choose Payment Option</DialogTitle>
+            <DialogDescription>
+              Would you like to pay the advance now or request a callback from the vehicle owner?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Button
+              size="lg"
+              onClick={() => {
+                if (pendingBookingData) {
+                  createBookingMutation.mutate(pendingBookingData);
+                  setShowPaymentChoice(false);
+                }
+              }}
+              disabled={createBookingMutation.isPending}
+              className="w-full"
+              data-testid="button-pay-now"
+            >
+              <CreditCard className="mr-2 h-5 w-5" />
+              {createBookingMutation.isPending ? "Processing..." : "Pay Advance Now"}
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => {
+                if (pendingBookingData) {
+                  createLeadMutation.mutate(pendingBookingData);
+                }
+              }}
+              disabled={createLeadMutation.isPending}
+              className="w-full"
+              data-testid="button-request-callback"
+            >
+              <Phone className="mr-2 h-5 w-5" />
+              {createLeadMutation.isPending ? "Submitting..." : "Request Callback"}
+            </Button>
+          </div>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>
+              <strong>Pay Advance Now:</strong> Complete payment immediately to confirm your booking.
+            </p>
+            <p>
+              <strong>Request Callback:</strong> The vehicle owner will contact you to discuss details before payment.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Payment Modal - PayU Integration */}
       {paymentData && (
