@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Car, Upload, MapPin, FileText, Shield, Leaf, Check } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 
 // Scroll to top when page loads
 function useScrollToTop() {
@@ -22,10 +22,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
-import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import OwnerTermsDialog from "@/components/legal/OwnerTermsDialog";
+
+// Lazy load heavy components to improve initial page load
+const GooglePlacesAutocomplete = lazy(() => import("@/components/GooglePlacesAutocomplete"));
+const ObjectUploader = lazy(() => import("@/components/ObjectUploader").then(m => ({ default: m.ObjectUploader })));
 
 const vehicleFormSchema = z.object({
   name: z.string().min(1, "Vehicle name is required"),
@@ -472,18 +474,20 @@ export default function ListVehicle() {
                           Vehicle Parking Location
                         </FormLabel>
                         <FormControl>
-                          <GooglePlacesAutocomplete
-                            value={field.value}
-                            onChange={(value, placeId, lat, lng) => {
-                              field.onChange(value);
-                              if (placeId) form.setValue("locationPlaceId", placeId);
-                              if (lat) form.setValue("locationLat", parseFloat(lat));
-                              if (lng) form.setValue("locationLng", parseFloat(lng));
-                            }}
-                            placeholder="Enter parking location"
-                            restrictToBhubaneswar={true}
-                            testId="input-location"
-                          />
+                          <Suspense fallback={<Input placeholder="Loading location search..." disabled />}>
+                            <GooglePlacesAutocomplete
+                              value={field.value}
+                              onChange={(value, placeId, lat, lng) => {
+                                field.onChange(value);
+                                if (placeId) form.setValue("locationPlaceId", placeId);
+                                if (lat) form.setValue("locationLat", parseFloat(lat));
+                                if (lng) form.setValue("locationLng", parseFloat(lng));
+                              }}
+                              placeholder="Enter parking location"
+                              restrictToBhubaneswar={true}
+                              testId="input-location"
+                            />
+                          </Suspense>
                         </FormControl>
                         <FormDescription className="text-xs">
                           Enter the parking location for your vehicle
@@ -710,26 +714,28 @@ export default function ListVehicle() {
                           <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
                         </div>
                       ) : isAuthenticated ? (
-                        <ObjectUploader
-                          maxNumberOfFiles={1}
-                          maxFileSize={5242880}
-                          onGetUploadParameters={async (file) => {
-                            const ext = file.name.split('.').pop() || 'pdf';
-                            const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
-                            const data = await response.json();
-                            return { method: "PUT" as const, url: data.uploadURL };
-                          }}
-                          onComplete={(result) => {
-                            if (result.successful && result.successful[0]) {
-                              setRcDocUrl(result.successful[0].uploadURL || "");
-                              toast({ title: "RC Document uploaded successfully" });
-                            }
-                          }}
-                          buttonClassName="w-full"
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload RC
-                        </ObjectUploader>
+                        <Suspense fallback={<Button disabled className="w-full"><Upload className="h-4 w-4 mr-2" />Loading...</Button>}>
+                          <ObjectUploader
+                            maxNumberOfFiles={1}
+                            maxFileSize={5242880}
+                            onGetUploadParameters={async (file) => {
+                              const ext = file.name.split('.').pop() || 'pdf';
+                              const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
+                              const data = await response.json();
+                              return { method: "PUT" as const, url: data.uploadURL };
+                            }}
+                            onComplete={(result) => {
+                              if (result.successful && result.successful[0]) {
+                                setRcDocUrl(result.successful[0].uploadURL || "");
+                                toast({ title: "RC Document uploaded successfully" });
+                              }
+                            }}
+                            buttonClassName="w-full"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload RC
+                          </ObjectUploader>
+                        </Suspense>
                       ) : (
                         <Button 
                           type="button" 
@@ -755,26 +761,28 @@ export default function ListVehicle() {
                           <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
                         </div>
                       ) : isAuthenticated ? (
-                        <ObjectUploader
-                          maxNumberOfFiles={1}
-                          maxFileSize={5242880}
-                          onGetUploadParameters={async (file) => {
-                            const ext = file.name.split('.').pop() || 'pdf';
-                            const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
-                            const data = await response.json();
-                            return { method: "PUT" as const, url: data.uploadURL };
-                          }}
-                          onComplete={(result) => {
-                            if (result.successful && result.successful[0]) {
-                              setInsuranceDocUrl(result.successful[0].uploadURL || "");
-                              toast({ title: "Insurance document uploaded successfully" });
-                            }
-                          }}
-                          buttonClassName="w-full"
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload Insurance
-                        </ObjectUploader>
+                        <Suspense fallback={<Button disabled className="w-full"><Upload className="h-4 w-4 mr-2" />Loading...</Button>}>
+                          <ObjectUploader
+                            maxNumberOfFiles={1}
+                            maxFileSize={5242880}
+                            onGetUploadParameters={async (file) => {
+                              const ext = file.name.split('.').pop() || 'pdf';
+                              const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
+                              const data = await response.json();
+                              return { method: "PUT" as const, url: data.uploadURL };
+                            }}
+                            onComplete={(result) => {
+                              if (result.successful && result.successful[0]) {
+                                setInsuranceDocUrl(result.successful[0].uploadURL || "");
+                                toast({ title: "Insurance document uploaded successfully" });
+                              }
+                            }}
+                            buttonClassName="w-full"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload Insurance
+                          </ObjectUploader>
+                        </Suspense>
                       ) : (
                         <Button 
                           type="button" 
@@ -800,26 +808,28 @@ export default function ListVehicle() {
                           <span className="text-sm text-green-700 dark:text-green-300">Document uploaded</span>
                         </div>
                       ) : isAuthenticated ? (
-                        <ObjectUploader
-                          maxNumberOfFiles={1}
-                          maxFileSize={5242880}
-                          onGetUploadParameters={async (file) => {
-                            const ext = file.name.split('.').pop() || 'pdf';
-                            const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
-                            const data = await response.json();
-                            return { method: "PUT" as const, url: data.uploadURL };
-                          }}
-                          onComplete={(result) => {
-                            if (result.successful && result.successful[0]) {
-                              setPucDocUrl(result.successful[0].uploadURL || "");
-                              toast({ title: "PUC document uploaded successfully" });
-                            }
-                          }}
-                          buttonClassName="w-full"
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload PUC
-                        </ObjectUploader>
+                        <Suspense fallback={<Button disabled className="w-full"><Upload className="h-4 w-4 mr-2" />Loading...</Button>}>
+                          <ObjectUploader
+                            maxNumberOfFiles={1}
+                            maxFileSize={5242880}
+                            onGetUploadParameters={async (file) => {
+                              const ext = file.name.split('.').pop() || 'pdf';
+                              const response = await apiRequest("POST", "/api/objects/upload", { fileExtension: ext });
+                              const data = await response.json();
+                              return { method: "PUT" as const, url: data.uploadURL };
+                            }}
+                            onComplete={(result) => {
+                              if (result.successful && result.successful[0]) {
+                                setPucDocUrl(result.successful[0].uploadURL || "");
+                                toast({ title: "PUC document uploaded successfully" });
+                              }
+                            }}
+                            buttonClassName="w-full"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload PUC
+                          </ObjectUploader>
+                        </Suspense>
                       ) : (
                         <Button 
                           type="button" 
