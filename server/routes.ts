@@ -604,6 +604,157 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create booking lead (request callback before payment)
+  app.post("/api/bookings/lead", async (req: any, res) => {
+    try {
+      const isAuthenticated = !!(req.session && req.session.userId);
+      let bookingData: any;
+      
+      if (isAuthenticated) {
+        const authenticatedBookingSchema = insertBookingSchema.extend({
+          userId: z.string().optional(),
+        });
+        
+        const validatedData = authenticatedBookingSchema.parse(req.body);
+        bookingData = {
+          ...validatedData,
+          userId: req.session.userId,
+          isGuestBooking: false,
+          guestEmail: null,
+          guestPhone: null,
+          guestName: null,
+          status: "lead", // Mark as lead, not pending
+        };
+      } else {
+        const guestBookingSchema = z.object({
+          vehicleId: z.string(),
+          startDate: z.coerce.date(),
+          endDate: z.coerce.date(),
+          pickupOption: z.string(),
+          deliveryAddress: z.string().optional(),
+          totalAmount: z.string(),
+          deliveryCharge: z.string().optional(),
+          hasExtraInsurance: z.boolean().optional(),
+          insuranceAmount: z.string().optional(),
+          platformCommission: z.string().optional(),
+          ownerEarnings: z.string().optional(),
+          isGuestBooking: z.literal(true),
+          guestEmail: z.string().email(),
+          guestPhone: z.string().min(10),
+          guestName: z.string().min(1),
+        });
+        
+        const validatedData = guestBookingSchema.parse(req.body);
+        bookingData = {
+          ...validatedData,
+          userId: null,
+          status: "lead", // Mark as lead for guest bookings too
+        };
+      }
+      
+      // Check vehicle availability
+      const isAvailable = await storage.checkVehicleAvailability(
+        bookingData.vehicleId,
+        bookingData.startDate,
+        bookingData.endDate
+      );
+
+      if (!isAvailable) {
+        return res.status(400).json({ error: "Vehicle is not available for selected dates" });
+      }
+
+      // Create booking with lead status
+      const booking = await storage.createBooking(bookingData);
+      
+      // Get vehicle and owner details for notifications
+      const vehicle = await storage.getVehicle(booking.vehicleId);
+      if (!vehicle) {
+        return res.status(404).json({ error: "Vehicle not found" });
+      }
+      
+      const owner = await storage.getUser(vehicle.ownerId);
+      if (!owner) {
+        return res.status(404).json({ error: "Owner not found" });
+      }
+      
+      // Get customer details
+      let customerName, customerEmail, customerPhone;
+      if (booking.isGuestBooking) {
+        customerName = booking.guestName || "Guest";
+        customerEmail = booking.guestEmail || "";
+        customerPhone = booking.guestPhone || "";
+      } else {
+        const customer = await storage.getUser(booking.userId!);
+        customerName = customer ? `${customer.firstName} ${customer.lastName}` : "Customer";
+        customerEmail = customer?.email || "";
+        customerPhone = customer?.phone || "";
+      }
+      
+      // Format dates for email
+      const pickupDate = new Date(booking.startDate).toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Asia/Kolkata"
+      });
+      const returnDate = new Date(booking.endDate).toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Asia/Kolkata"
+      });
+      
+      // Send notifications
+      const { emailTemplates } = await import("./email");
+      
+      // Notify owner
+      await emailTemplates.leadNotificationOwner(
+        owner.email,
+        `${owner.firstName} ${owner.lastName}`,
+        customerName,
+        customerEmail,
+        customerPhone,
+        vehicle.name,
+        booking.id,
+        pickupDate,
+        returnDate,
+        booking.pickupOption === "delivery" ? "Doorstep Delivery" : "Parking Pickup",
+        booking.totalAmount,
+        booking.ownerEarnings || "0",
+        booking.platformCommission || "0"
+      );
+      
+      // Notify platform
+      await emailTemplates.leadNotificationPlatform(
+        customerName,
+        customerEmail,
+        customerPhone,
+        vehicle.name,
+        `${owner.firstName} ${owner.lastName}`,
+        owner.email,
+        owner.phone || "",
+        booking.id,
+        pickupDate,
+        returnDate,
+        booking.pickupOption === "delivery" ? "Doorstep Delivery" : "Parking Pickup",
+        booking.totalAmount,
+        booking.ownerEarnings || "0",
+        booking.platformCommission || "0"
+      );
+      
+      res.status(201).json({
+        success: true,
+        booking,
+        message: "Booking inquiry submitted! The owner will contact you shortly."
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error("Lead validation error:", JSON.stringify(error.errors, null, 2));
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error("Lead creation error:", error);
+      res.status(500).json({ error: "Failed to create booking inquiry" });
+    }
+  });
+
   app.patch("/api/bookings/:id", async (req, res) => {
     try {
       const booking = await storage.updateBooking(req.params.id, req.body);

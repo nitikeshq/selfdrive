@@ -212,4 +212,81 @@ export const emailTemplates = {
       },
     });
   },
+
+  leadNotificationOwner: async (
+    ownerEmail: string,
+    ownerName: string,
+    customerName: string,
+    customerEmail: string,
+    customerPhone: string,
+    vehicleName: string,
+    bookingId: string,
+    pickupDate: string,
+    returnDate: string,
+    pickupOption: string,
+    totalAmount: string,
+    ownerEarnings: string,
+    platformCommission: string
+  ) => {
+    return sendEmail({
+      to: ownerEmail,
+      subject: "🔥 New Booking Lead - Customer Requesting Callback",
+      template: "lead-notification-owner",
+      data: {
+        ownerName,
+        customerName,
+        customerEmail,
+        customerPhone,
+        vehicleName,
+        bookingId,
+        pickupDate,
+        returnDate,
+        pickupOption,
+        totalAmount,
+        ownerEarnings,
+        platformCommission,
+        websiteUrl: process.env.REPLIT_DEV_DOMAIN || "http://localhost:5000",
+      },
+    });
+  },
+
+  leadNotificationPlatform: async (
+    customerName: string,
+    customerEmail: string,
+    customerPhone: string,
+    vehicleName: string,
+    ownerName: string,
+    ownerEmail: string,
+    ownerPhone: string,
+    bookingId: string,
+    pickupDate: string,
+    returnDate: string,
+    pickupOption: string,
+    totalAmount: string,
+    ownerEarnings: string,
+    platformCommission: string
+  ) => {
+    return sendEmail({
+      to: "nitikesh@qwegle.com",
+      subject: "📊 New Booking Lead Received - Awaiting Customer Call",
+      template: "lead-notification-platform",
+      data: {
+        customerName,
+        customerEmail,
+        customerPhone,
+        vehicleName,
+        ownerName,
+        ownerEmail,
+        ownerPhone: ownerPhone || "Not provided",
+        bookingId,
+        pickupDate,
+        returnDate,
+        pickupOption,
+        totalAmount,
+        ownerEarnings,
+        platformCommission,
+        websiteUrl: process.env.REPLIT_DEV_DOMAIN || "http://localhost:5000",
+      },
+    });
+  },
 };

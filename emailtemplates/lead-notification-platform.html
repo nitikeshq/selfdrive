@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Lead Received</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .notification-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .status-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .lead-card {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        .detail-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .revenue-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .revenue-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        .warning-box {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box h4 {
+            margin: 0 0 8px 0;
+            color: #dc2626;
+        }
+        .button {
+            display: inline-block;
+            background: #8b5cf6;
+            color: white;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="notification-icon">📊</div>
+            <h1>New Booking Lead</h1>
+        </div>
+        
+        <div class="content">
+            <span class="status-badge">⏳ Awaiting Customer Call</span>
+            
+            <h2>New Lead Received</h2>
+            
+            <p>A customer has expressed interest in booking a vehicle and requested a callback before making payment.</p>
+            
+            <div class="lead-card">
+                <h3 style="margin: 0 0 16px 0; color: #8b5cf6;">Lead Details</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Lead ID</span>
+                    <span class="detail-value">{{bookingId}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Customer Name</span>
+                    <span class="detail-value">{{customerName}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Customer Email</span>
+                    <span class="detail-value">{{customerEmail}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Customer Phone</span>
+                    <span class="detail-value">{{customerPhone}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Vehicle</span>
+                    <span class="detail-value">{{vehicleName}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Owner Name</span>
+                    <span class="detail-value">{{ownerName}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Owner Email</span>
+                    <span class="detail-value">{{ownerEmail}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Owner Phone</span>
+                    <span class="detail-value">{{ownerPhone}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Pickup Date</span>
+                    <span class="detail-value">{{pickupDate}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Return Date</span>
+                    <span class="detail-value">{{returnDate}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Pickup Option</span>
+                    <span class="detail-value">{{pickupOption}}</span>
+                </div>
+            </div>
+            
+            <div class="revenue-card">
+                <h3 style="margin: 0 0 8px 0;">💰 Potential Revenue (if confirmed)</h3>
+                <div class="revenue-value">₹{{platformCommission}}</div>
+                <p style="font-size: 14px; margin-top: 8px; opacity: 0.9;">Platform Commission (30% of ₹{{totalAmount}})</p>
+                <p style="font-size: 12px; margin-top: 8px; opacity: 0.9;">Owner Earnings: ₹{{ownerEarnings}}</p>
+            </div>
+            
+            <div class="warning-box">
+                <h4>⚠️ Follow-up Required</h4>
+                <p style="margin: 8px 0 0 0; color: #dc2626; font-size: 14px;">
+                    <strong>Owner has been notified.</strong> Monitor this lead and ensure the owner follows up within 2 hours to maximize conversion. Consider calling the owner if no action is taken.
+                </p>
+            </div>
+            
+            <center>
+                <a href="{{websiteUrl}}/admin-dashboard" class="button">View Admin Dashboard</a>
+            </center>
+            
+            <p style="margin-top: 30px; font-size: 14px; color: #64748b;">
+                <strong>Lead Status:</strong> The booking is currently pending. It will be confirmed once the customer completes the advance payment after the call.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>Track all leads and bookings at {{websiteUrl}}/admin-dashboard</p>
+            <p>&copy; 2025 SelfDriveKaro. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

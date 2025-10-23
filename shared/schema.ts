@@ -196,7 +196,7 @@ export const bookings = pgTable("bookings", {
   platformCommission: decimal("platform_commission", { precision: 10, scale: 2 }).default("0"),
   ownerEarnings: decimal("owner_earnings", { precision: 10, scale: 2 }).default("0"),
   
-  status: text("status").notNull().default("pending"), // pending, confirmed, active, completed, cancelled
+  status: text("status").notNull().default("pending"), // lead, pending, confirmed, active, completed, cancelled
   paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, refunded, partially_refunded
   paymentIntentId: text("payment_intent_id"),
   refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
