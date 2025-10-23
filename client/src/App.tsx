@@ -132,7 +132,7 @@ function Router() {
           </ProtectedRoute>
         </Route>
         <Route path="/list-vehicle">
-          <ProtectedRoute requireOwner>
+          <ProtectedRoute>
             <ListVehicle />
           </ProtectedRoute>
         </Route>
