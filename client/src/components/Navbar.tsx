@@ -41,6 +41,16 @@ export function Navbar() {
                 {isOwnerMode ? (
                   // Owner Mode Navigation
                   <>
+                    <Link href="/vehicles">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse-owner">
+                        Browse Vehicles
+                      </span>
+                    </Link>
+                    <Link href="/vendors">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors-owner">
+                        Rental Partners
+                      </span>
+                    </Link>
                     <Link href="/owner/vehicles">
                       <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-my-vehicles">
                         My Vehicles
@@ -213,6 +223,16 @@ export function Navbar() {
                   {isOwnerMode ? (
                     // Owner Mode Navigation
                     <>
+                      <Link href="/vehicles">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse-owner-mobile">
+                          Browse Vehicles
+                        </span>
+                      </Link>
+                      <Link href="/vendors">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors-owner-mobile">
+                          Rental Partners
+                        </span>
+                      </Link>
                       <Link href="/owner/vehicles">
                         <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-my-vehicles-mobile">
                           My Vehicles
