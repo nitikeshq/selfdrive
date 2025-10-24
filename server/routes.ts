@@ -1302,18 +1302,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
         const crypto = await import("crypto");
         
-        const region = process.env.AWS_REGION || 'us-east-1';
+        const region = process.env.AWS_S3_REGION || process.env.AWS_REGION || 'us-east-1';
         const bucket = process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || '';
+        const accessKeyId = process.env.AWS_API_KEY || process.env.AWS_ACCESS_KEY_ID;
+        const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
         
         if (!bucket) {
           return res.status(500).json({ error: "AWS S3 bucket not configured" });
         }
         
+        if (!accessKeyId || !secretAccessKey) {
+          return res.status(500).json({ error: "AWS S3 credentials not configured" });
+        }
+        
         const client = new S3Client({
           region,
           credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+            accessKeyId,
+            secretAccessKey,
           },
         });
         
