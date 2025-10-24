@@ -50,10 +50,8 @@ const vendorInfoSchema = z.object({
 export default function Profile() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [aadharFile, setAadharFile] = useState<File | null>(null);
-  const [dlFile, setDlFile] = useState<File | null>(null);
-  const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
-  const [companyLogoUrl, setCompanyLogoUrl] = useState<string>("");
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | undefined>(undefined);
+  const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
 
   const { data: profile, isLoading } = useQuery<User>({
     queryKey: ["/api/profile"],
@@ -193,49 +191,30 @@ export default function Profile() {
     },
   });
 
-  // Upload Documents
-  const updateDocumentsMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const response = await fetch("/api/profile/documents", {
-        method: "POST",
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-      
-      return response.json();
+  // Update document URL
+  const updateDocumentUrlMutation = useMutation({
+    mutationFn: async (data: { aadharPhotoUrl?: string; dlPhotoUrl?: string; profileImageUrl?: string }) => {
+      return await apiRequest("PATCH", "/api/profile/documents", data);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      const docType = variables.aadharPhotoUrl ? "Aadhar" : variables.dlPhotoUrl ? "Driving License" : "Profile Photo";
       toast({
         title: "Success",
-        description: "Documents uploaded successfully",
+        description: `${docType} uploaded successfully`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/profile"] });
-      setAadharFile(null);
-      setDlFile(null);
-      setProfilePhotoFile(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setUploadingDoc(null);
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to upload documents",
+        description: "Failed to upload document",
         variant: "destructive",
       });
+      setUploadingDoc(null);
     },
   });
-
-  const handleDocumentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData();
-    
-    if (aadharFile) formData.append("aadhar", aadharFile);
-    if (dlFile) formData.append("dl", dlFile);
-    if (profilePhotoFile) formData.append("profilePhoto", profilePhotoFile);
-
-    updateDocumentsMutation.mutate(formData);
-  };
 
   if (isLoading) {
     return (
@@ -418,130 +397,187 @@ export default function Profile() {
             <CardHeader>
               <CardTitle>KYC Documents</CardTitle>
               <CardDescription>
-                Upload your documents once and they'll be automatically used during bookings
+                Upload your documents directly to secure cloud storage. All uploads are instant and automatic.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleDocumentSubmit} className="space-y-6">
-                {/* Profile Photo */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label>Profile Photo</Label>
-                    {profile?.profileImageUrl && (
-                      <span className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
-                        <CheckCircle className="h-4 w-4" />
-                        Uploaded
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setProfilePhotoFile(e.target.files?.[0] || null)}
-                      className="flex-1"
-                      data-testid="input-profile-photo"
-                    />
-                    {profile?.profileImageUrl && (
-                      <img
-                        src={profile.profileImageUrl}
-                        alt="Profile"
-                        className="h-12 w-12 rounded-full object-cover"
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Aadhar Card */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label>Aadhar Card</Label>
-                    {profile?.aadharPhotoUrl && (
-                      <span className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
-                        <CheckCircle className="h-4 w-4" />
-                        Uploaded
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Input
-                      type="file"
-                      accept="image/*,.pdf"
-                      onChange={(e) => setAadharFile(e.target.files?.[0] || null)}
-                      className="flex-1"
-                      data-testid="input-aadhar"
-                    />
-                    {profile?.aadharPhotoUrl && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open(profile.aadharPhotoUrl!, "_blank")}
-                        data-testid="button-view-aadhar"
-                      >
-                        View
-                      </Button>
-                    )}
-                  </div>
-                  {profile?.aadharNumber && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Number: {profile.aadharNumber}
-                    </p>
+            <CardContent className="space-y-6">
+              {/* Profile Photo */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Profile Photo</Label>
+                  {profile?.profileImageUrl && (
+                    <span className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+                      <CheckCircle className="h-4 w-4" />
+                      Uploaded
+                    </span>
                   )}
                 </div>
-
-                {/* Driving License */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label>Driving License</Label>
-                    {profile?.dlPhotoUrl && (
-                      <span className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
-                        <CheckCircle className="h-4 w-4" />
-                        Uploaded
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Input
-                      type="file"
-                      accept="image/*,.pdf"
-                      onChange={(e) => setDlFile(e.target.files?.[0] || null)}
-                      className="flex-1"
-                      data-testid="input-dl"
-                    />
-                    {profile?.dlPhotoUrl && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open(profile.dlPhotoUrl!, "_blank")}
-                        data-testid="button-view-dl"
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <Suspense fallback={<div className="text-sm text-muted-foreground">Loading uploader...</div>}>
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={5 * 1024 * 1024}
+                        onGetUploadParameters={async () => {
+                          const res = await fetch("/api/objects/upload", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                          });
+                          if (!res.ok) throw new Error("Failed to get upload URL");
+                          const data = await res.json();
+                          return { method: "PUT" as const, url: data.uploadURL };
+                        }}
+                        onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+                          if (result.successful && result.successful.length > 0) {
+                            const uploadedUrl = result.successful[0].uploadURL;
+                            setUploadingDoc("profilePhoto");
+                            updateDocumentUrlMutation.mutate({ profileImageUrl: uploadedUrl });
+                          }
+                        }}
+                        buttonClassName="w-full"
                       >
-                        View
-                      </Button>
-                    )}
+                        <Upload className="h-4 w-4 mr-2" />
+                        {uploadingDoc === "profilePhoto" ? "Uploading..." : profile?.profileImageUrl ? "Change Photo" : "Upload Photo"}
+                      </ObjectUploader>
+                    </Suspense>
+                    <p className="text-sm text-muted-foreground mt-1">JPG, PNG (max 5MB)</p>
                   </div>
-                  {profile?.dlNumber && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Number: {profile.dlNumber}
-                    </p>
+                  {profile?.profileImageUrl && (
+                    <img
+                      src={profile.profileImageUrl}
+                      alt="Profile"
+                      className="h-20 w-20 rounded-full object-cover border border-border"
+                    />
                   )}
                 </div>
+              </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={!aadharFile && !dlFile && !profilePhotoFile || updateDocumentsMutation.isPending}
-                  data-testid="button-upload-documents"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {updateDocumentsMutation.isPending ? "Uploading..." : "Upload Documents"}
-                </Button>
-              </form>
+              {/* Aadhar Card */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Aadhar Card</Label>
+                  {profile?.aadharPhotoUrl && (
+                    <span className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+                      <CheckCircle className="h-4 w-4" />
+                      Uploaded
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <Suspense fallback={<div className="text-sm text-muted-foreground">Loading uploader...</div>}>
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={10 * 1024 * 1024}
+                        onGetUploadParameters={async () => {
+                          const res = await fetch("/api/objects/upload", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                          });
+                          if (!res.ok) throw new Error("Failed to get upload URL");
+                          const data = await res.json();
+                          return { method: "PUT" as const, url: data.uploadURL };
+                        }}
+                        onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+                          if (result.successful && result.successful.length > 0) {
+                            const uploadedUrl = result.successful[0].uploadURL;
+                            setUploadingDoc("aadhar");
+                            updateDocumentUrlMutation.mutate({ aadharPhotoUrl: uploadedUrl });
+                          }
+                        }}
+                        buttonClassName="w-full"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {uploadingDoc === "aadhar" ? "Uploading..." : profile?.aadharPhotoUrl ? "Change Aadhar" : "Upload Aadhar"}
+                      </ObjectUploader>
+                    </Suspense>
+                    <p className="text-sm text-muted-foreground mt-1">Image or PDF (max 10MB)</p>
+                  </div>
+                  {profile?.aadharPhotoUrl && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(profile.aadharPhotoUrl!, "_blank")}
+                      data-testid="button-view-aadhar"
+                    >
+                      View
+                    </Button>
+                  )}
+                </div>
+                {profile?.aadharNumber && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Number: {profile.aadharNumber}
+                  </p>
+                )}
+              </div>
+
+              {/* Driving License */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Driving License</Label>
+                  {profile?.dlPhotoUrl && (
+                    <span className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+                      <CheckCircle className="h-4 w-4" />
+                      Uploaded
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <Suspense fallback={<div className="text-sm text-muted-foreground">Loading uploader...</div>}>
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={10 * 1024 * 1024}
+                        onGetUploadParameters={async () => {
+                          const res = await fetch("/api/objects/upload", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                          });
+                          if (!res.ok) throw new Error("Failed to get upload URL");
+                          const data = await res.json();
+                          return { method: "PUT" as const, url: data.uploadURL };
+                        }}
+                        onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+                          if (result.successful && result.successful.length > 0) {
+                            const uploadedUrl = result.successful[0].uploadURL;
+                            setUploadingDoc("dl");
+                            updateDocumentUrlMutation.mutate({ dlPhotoUrl: uploadedUrl });
+                          }
+                        }}
+                        buttonClassName="w-full"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {uploadingDoc === "dl" ? "Uploading..." : profile?.dlPhotoUrl ? "Change DL" : "Upload DL"}
+                      </ObjectUploader>
+                    </Suspense>
+                    <p className="text-sm text-muted-foreground mt-1">Image or PDF (max 10MB)</p>
+                  </div>
+                  {profile?.dlPhotoUrl && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(profile.dlPhotoUrl!, "_blank")}
+                      data-testid="button-view-dl"
+                    >
+                      View
+                    </Button>
+                  )}
+                </div>
+                {profile?.dlNumber && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Number: {profile.dlNumber}
+                  </p>
+                )}
+              </div>
 
               {/* KYC Status */}
               {profile?.isKycVerified && (
-                <div className="mt-6 p-4 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 rounded-lg">
+                <div className="p-4 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 rounded-lg">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <span className="text-green-700 dark:text-green-300 font-medium">

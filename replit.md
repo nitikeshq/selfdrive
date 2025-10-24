@@ -17,7 +17,7 @@ Preferred communication style: Simple, everyday language.
 - **Vehicle Image Upload**: Added dual upload options (URL input or S3 file upload) to List Vehicle page
 - **KYC Enforcement**: Implemented booking validation - authenticated users must upload Aadhar + DL before booking
 - **Payment Details Enforcement**: Vehicles from owners without complete bank details are hidden from public listing
-- **AWS S3 Integration**: Using custom environment variable names (AWS_API_KEY, AWS_S3_REGION) for all file uploads
+- **AWS S3 Integration**: All file uploads (vehicle images, documents, company logos, profile photos) use direct S3 upload via ObjectUploader component with custom environment variable names (AWS_API_KEY, AWS_S3_REGION). No files pass through the server - all uploads go directly from browser to S3.
 
 ## System Architecture
 

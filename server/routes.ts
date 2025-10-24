@@ -278,60 +278,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/profile/documents", isAuthenticated, upload.fields([
-    { name: 'aadhar', maxCount: 1 },
-    { name: 'dl', maxCount: 1 },
-    { name: 'profilePhoto', maxCount: 1 }
-  ]), async (req: any, res) => {
+  // Update profile documents (URLs from S3 direct upload)
+  app.patch("/api/profile/documents", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.session.userId;
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      const storageProvider = StorageFactory.getProvider();
+      const { aadharPhotoUrl, dlPhotoUrl, profileImageUrl } = req.body;
       
       const updates: any = {};
 
-      // Upload Aadhar to storage
-      if (files.aadhar && files.aadhar[0]) {
-        const aadharFile = files.aadhar[0];
-        const aadharKey = await storageProvider.upload(
-          aadharFile.buffer,
-          aadharFile.originalname,
-          aadharFile.mimetype,
-          `documents/aadhar/${userId}`
-        );
-        updates.aadharPhotoUrl = await storageProvider.getSignedUrl(aadharKey, 86400 * 30); // 30 days
-      }
-
-      // Upload DL to storage
-      if (files.dl && files.dl[0]) {
-        const dlFile = files.dl[0];
-        const dlKey = await storageProvider.upload(
-          dlFile.buffer,
-          dlFile.originalname,
-          dlFile.mimetype,
-          `documents/dl/${userId}`
-        );
-        updates.dlPhotoUrl = await storageProvider.getSignedUrl(dlKey, 86400 * 30); // 30 days
-      }
-
-      // Upload Profile Photo to storage
-      if (files.profilePhoto && files.profilePhoto[0]) {
-        const photoFile = files.profilePhoto[0];
-        const photoKey = await storageProvider.upload(
-          photoFile.buffer,
-          photoFile.originalname,
-          photoFile.mimetype,
-          `profile-photos/${userId}`
-        );
-        updates.profileImageUrl = await storageProvider.getSignedUrl(photoKey, 86400 * 30); // 30 days
-      }
+      // Update document URLs (already uploaded to S3 by frontend)
+      if (aadharPhotoUrl !== undefined) updates.aadharPhotoUrl = aadharPhotoUrl;
+      if (dlPhotoUrl !== undefined) updates.dlPhotoUrl = dlPhotoUrl;
+      if (profileImageUrl !== undefined) updates.profileImageUrl = profileImageUrl;
 
       // Update user in database
       const updatedUser = await storage.updateUser(userId, updates);
-      res.json(updatedUser);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Don't send password back
+      const { password, ...userWithoutPassword } = updatedUser;
+      res.json(userWithoutPassword);
     } catch (error) {
-      console.error("Error uploading documents:", error);
-      res.status(500).json({ message: "Failed to upload documents" });
+      console.error("Error updating documents:", error);
+      res.status(500).json({ message: "Failed to update documents" });
     }
   });
 
