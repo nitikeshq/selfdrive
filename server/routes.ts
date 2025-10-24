@@ -142,6 +142,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+      
+      // Get vehicle count for this owner
+      const allVehicles = await storage.getAllVehicles();
+      const vehicleCount = allVehicles.filter(v => v.ownerId === userId).length;
+      
       res.json({
         id: user.id,
         email: user.email,
@@ -150,6 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         role: user.role,
         phone: user.phone,
         profileImageUrl: user.profileImageUrl,
+        vehicleCount, // Add vehicle count for navbar logic
         // Vendor details
         isVendor: user.isVendor,
         companyName: user.companyName,

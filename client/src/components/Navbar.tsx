@@ -17,7 +17,7 @@ export function Navbar() {
                       location === '/owner-dashboard' || 
                       location === '/list-vehicle' ||
                       location.startsWith('/edit-vehicle');
-  const hasVehicles = user && (user as any).role === 'owner';
+  const hasVehicles = user && (user as any).vehicleCount > 0;
 
   return (
     <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -156,8 +156,8 @@ export function Navbar() {
               <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
             ) : isAuthenticated && user ? (
               <div className="flex items-center gap-3">
-                <Link href="/dashboard">
-                  <div className="flex items-center gap-2 cursor-pointer hover-elevate px-2 py-1 rounded-md transition-all">
+                <Link href="/profile">
+                  <div className="flex items-center gap-2 cursor-pointer hover-elevate px-2 py-1 rounded-md transition-all" data-testid="link-profile">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={(user as any).profileImageUrl || undefined} />
                       <AvatarFallback>
