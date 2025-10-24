@@ -783,6 +783,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         
         const validatedData = authenticatedBookingSchema.parse(req.body);
+        
+        // KYC verification requirement: check if user has uploaded Aadhar and DL
+        const user = await storage.getUser(req.session.userId);
+        if (!user) {
+          return res.status(401).json({ error: "User not found" });
+        }
+        
+        if (!user.aadharPhotoUrl || !user.dlPhotoUrl) {
+          return res.status(400).json({ 
+            error: "KYC verification required",
+            message: "Please upload your Aadhar card and Driving License in your profile before making a booking.",
+            requiresKyc: true 
+          });
+        }
+        
         bookingData = {
           ...validatedData,
           userId: req.session.userId, // Always use session userId for security
