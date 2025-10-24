@@ -201,6 +201,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update profile - comprehensive endpoint for all profile fields
+  app.patch("/api/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const {
+        firstName,
+        lastName,
+        phone,
+        currentPassword,
+        newPassword,
+        bankAccountHolderName,
+        bankAccountNumber,
+        bankIfscCode,
+        upiId,
+        panNumber,
+        gstNumber,
+        companyName,
+        isVendor,
+      } = req.body;
+
+      const updates: any = {};
+
+      // Personal info updates
+      if (firstName !== undefined) updates.firstName = firstName;
+      if (lastName !== undefined) updates.lastName = lastName;
+      if (phone !== undefined) updates.phone = phone;
+
+      // Password change (requires current password validation)
+      if (newPassword && currentPassword) {
+        const user = await storage.getUser(userId);
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        // Verify current password
+        const validPassword = await comparePassword(currentPassword, user.password);
+        if (!validPassword) {
+          return res.status(400).json({ message: "Current password is incorrect" });
+        }
+
+        // Hash and update new password
+        updates.password = await hashPassword(newPassword);
+      }
+
+      // Bank details (for owners)
+      if (bankAccountHolderName !== undefined) updates.bankAccountHolderName = bankAccountHolderName;
+      if (bankAccountNumber !== undefined) updates.bankAccountNumber = bankAccountNumber;
+      if (bankIfscCode !== undefined) updates.bankIfscCode = bankIfscCode;
+
+      // Payment details
+      if (upiId !== undefined) updates.upiId = upiId;
+      if (panNumber !== undefined) updates.panNumber = panNumber;
+      if (gstNumber !== undefined) updates.gstNumber = gstNumber;
+
+      // Vendor info
+      if (companyName !== undefined) updates.companyName = companyName;
+      if (isVendor !== undefined) updates.isVendor = isVendor;
+      
+      // Company logo URL (from S3 upload)
+      if (req.body.companyLogoUrl !== undefined) updates.companyLogoUrl = req.body.companyLogoUrl;
+
+      // Update user in database
+      const updatedUser = await storage.updateUser(userId, updates);
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Don't send password back
+      const { password, ...userWithoutPassword } = updatedUser;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   app.post("/api/profile/documents", isAuthenticated, upload.fields([
     { name: 'aadhar', maxCount: 1 },
     { name: 'dl', maxCount: 1 },

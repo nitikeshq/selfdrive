@@ -48,7 +48,10 @@ const vehicleFormSchema = z.object({
   locationLng: z.number().optional(),
   ownerLocation: z.string().min(1, "Owner location is required"),
   features: z.string().optional(),
-  imageUrl: z.string().url("Valid image URL is required"),
+  imageUrl: z.string().min(1, "Vehicle image is required").refine((val) => {
+    // Allow both URLs and S3 keys
+    return val.startsWith('http') || val.startsWith('vehicles/') || val.startsWith('documents/');
+  }, "Valid image URL or upload is required"),
   availabilityType: z.enum(["always", "specific_hours"]).default("always"),
   availableFromTime: z.string().optional(),
   availableToTime: z.string().optional(),
@@ -82,6 +85,8 @@ export default function ListVehicle() {
   const [showOwnerTerms, setShowOwnerTerms] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [pendingVehicleData, setPendingVehicleData] = useState<VehicleFormData | null>(null);
+  const [imageUploadMode, setImageUploadMode] = useState<"url" | "upload">("url");
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
   
   // Document upload states
   const [rcDocUrl, setRcDocUrl] = useState<string>("");
@@ -562,21 +567,72 @@ export default function ListVehicle() {
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Vehicle Image URL</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="https://example.com/image.jpg" 
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setImagePreview(e.target.value);
-                          }}
-                          data-testid="input-image-url"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter a valid image URL for your vehicle
-                      </FormDescription>
+                      <FormLabel>Vehicle Image</FormLabel>
+                      <Tabs value={imageUploadMode} onValueChange={(v) => setImageUploadMode(v as "url" | "upload")} className="w-full">
+                        <TabsList className="grid w-full grid-cols-2">
+                          <TabsTrigger value="url">Image URL</TabsTrigger>
+                          <TabsTrigger value="upload">Upload Image</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="url" className="space-y-2">
+                          <FormControl>
+                            <Input 
+                              placeholder="https://example.com/vehicle-image.jpg" 
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                setImagePreview(e.target.value);
+                                setUploadedImageUrl("");
+                              }}
+                              data-testid="input-image-url"
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter a valid image URL for your vehicle
+                          </FormDescription>
+                        </TabsContent>
+                        <TabsContent value="upload" className="space-y-2">
+                          <Suspense fallback={<div className="text-sm text-muted-foreground">Loading uploader...</div>}>
+                            <ObjectUploader
+                              maxNumberOfFiles={1}
+                              maxFileSize={5 * 1024 * 1024}
+                              onGetUploadParameters={async () => {
+                                const res = await fetch("/api/objects/upload", {
+                                  method: "POST",
+                                  credentials: "include",
+                                  headers: { "Content-Type": "application/json" },
+                                });
+                                if (!res.ok) throw new Error("Failed to get upload URL");
+                                const data = await res.json();
+                                return { method: "PUT" as const, url: data.uploadURL };
+                              }}
+                              onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+                                if (result.successful && result.successful.length > 0) {
+                                  const uploadedUrl = result.successful[0].uploadURL;
+                                  setUploadedImageUrl(uploadedUrl);
+                                  field.onChange(uploadedUrl);
+                                  setImagePreview(uploadedUrl);
+                                  toast({
+                                    title: "Success",
+                                    description: "Vehicle image uploaded successfully!",
+                                  });
+                                }
+                              }}
+                              buttonClassName="w-full"
+                            >
+                              <Upload className="h-4 w-4 mr-2" />
+                              {uploadedImageUrl ? "Change Image" : "Upload Vehicle Image"}
+                            </ObjectUploader>
+                          </Suspense>
+                          {uploadedImageUrl && (
+                            <p className="text-sm text-green-600 dark:text-green-400">
+                              ✓ Image uploaded successfully
+                            </p>
+                          )}
+                          <FormDescription>
+                            Upload a high-quality image of your vehicle (max 5MB)
+                          </FormDescription>
+                        </TabsContent>
+                      </Tabs>
                       <FormMessage />
                     </FormItem>
                   )}
