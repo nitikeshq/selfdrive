@@ -270,20 +270,38 @@ export default function OwnerDashboard() {
           ) : (
             <div className="space-y-4">
               {bookings?.slice(0, 5).map((booking) => (
-                <Card key={booking.id} className="hover-elevate transition-all" data-testid={`card-owner-booking-${booking.id}`}>
+                <Card 
+                  key={booking.id} 
+                  className={`hover-elevate transition-all ${
+                    booking.status === "pending" ? "border-2 border-orange-500/50 bg-orange-50/50 dark:bg-orange-950/20" : ""
+                  }`}
+                  data-testid={`card-owner-booking-${booking.id}`}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 flex-1">
                         <img
                           src={booking.vehicle.imageUrl}
                           alt={booking.vehicle.name}
                           className="w-16 h-16 object-cover rounded-lg"
                         />
-                        <div>
-                          <h4 className="font-semibold">{booking.vehicle.name}</h4>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold">{booking.vehicle.name}</h4>
+                            {booking.status === "pending" && (
+                              <span className="text-xs px-2 py-0.5 bg-orange-500/20 text-orange-600 dark:text-orange-400 rounded-full font-medium border border-orange-500/30 animate-pulse">
+                                💰 Lead - Follow Up!
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             By {booking.user.firstName} {booking.user.lastName}
                           </p>
+                          {booking.status === "pending" && (booking.user.phone || booking.user.email) && (
+                            <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                              📞 Contact: {booking.user.phone || booking.user.email}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
@@ -292,9 +310,11 @@ export default function OwnerDashboard() {
                           booking.status === "confirmed" ? "bg-blue-500/10 text-blue-600" :
                           booking.status === "active" ? "bg-green-500/10 text-green-600" :
                           booking.status === "completed" ? "bg-gray-500/10 text-gray-600" :
+                          booking.status === "lead" ? "bg-purple-500/10 text-purple-600" :
+                          booking.status === "pending" ? "bg-orange-500/10 text-orange-600 border border-orange-500/30" :
                           "bg-yellow-500/10 text-yellow-600"
                         }>
-                          {booking.status}
+                          {booking.status === "pending" ? "Payment Pending" : booking.status}
                         </Badge>
                       </div>
                     </div>
