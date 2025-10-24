@@ -553,15 +553,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Vehicles routes - Returns ALL vehicles with status badges
+  // Vehicles routes - Returns vehicles with status badges (excludes vehicles from owners without bank details)
   app.get("/api/vehicles", async (req, res) => {
     try {
       const { search, location } = req.query;
       let vehicles = await storage.getAllVehicles();
       
-      // Add status to each vehicle (Available, Paused, or Booked)
+      // Add status to each vehicle and filter by owner's bank details
       const now = new Date();
-      const vehiclesWithStatus = await Promise.all(vehicles.map(async (vehicle) => {
+      const vehiclesWithStatusAndValidation = await Promise.all(vehicles.map(async (vehicle) => {
+        // Get owner information
+        const owner = await storage.getUser(vehicle.ownerId);
+        
+        // Check if owner has provided required bank details
+        const hasBankDetails = owner && 
+                               owner.bankAccountNumber && 
+                               owner.bankAccountHolderName && 
+                               owner.bankIfscCode;
+        
+        // Skip vehicles from owners without bank details
+        if (!hasBankDetails) {
+          return null;
+        }
+        
         let status = "Available";
         
         if (vehicle.isPaused) {
@@ -582,7 +596,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return { ...vehicle, status };
       }));
       
-      vehicles = vehiclesWithStatus;
+      // Filter out null entries (vehicles from owners without bank details)
+      vehicles = vehiclesWithStatusAndValidation.filter(v => v !== null);
       
       // Filter by location only if explicitly provided
       if (location && typeof location === 'string') {
