@@ -28,13 +28,14 @@ Preferred communication style: Simple, everyday language.
     - **Admin Features**: CRUD operations for addon products and comprehensive coupon management (create, edit, toggle active status, delete) with admin dashboard at /admin/coupons.
     - **Legal Compliance**: Force Majeure, Indemnification, Insurance Coverage Disclosure, Emergency Contact Protocol, Breakdown & Accident Procedures clauses integrated into Terms and Conditions. Agreement tracking includes IP, user agent, digital signatures, and timestamps.
     - **Payment System**: Integrated payment gateway for booking and membership fees, with split payment support and owner payment details management (bank, UPI, PAN, GST).
-    - **Referral & Membership**: Referral rewards and annual premium membership with exclusive benefits like free delivery/pickup and late fee waivers.
+    - **Referral & Membership**: Referral rewards and annual premium membership with exclusive benefits like free delivery/pickup and late fee waivers. Membership and Rewards are unified in a single page showing membership benefits, purchase options, rewards balance, and transaction history.
+    - **Multi-Vendor System**: Support for rental partners and agencies. Vendors can register with company name and logo, build their brand profile with ratings and stats, and list multiple vehicles under their business. Features include: searchable vendor directory (/vendors as "Rental Partners"), individual vendor profile pages with fleet overview and aggregate ratings, and vendor-specific branding throughout the platform.
     - **Vehicle Listing**: Comprehensive vehicle types and categories system. **Types**: Car or Bike. **Car Categories**: Economy, Hatchback, Sedan, Prime Sedan, Compact, SUV, XUV, MUV, Compact SUV, Premium, Luxury, Luxury Sedan, Super Cars, Sports Car, EV Car. **Bike Categories**: Commuter Bike, Standard Bike, Sports Bike, Cruiser Bike, Premium Bike, Scooter, EV Bike, EV Scooter. Includes document upload (RC, Insurance, PUC) with secure storage, and real-time status badges (Available, Paused, Booked).
     - **SEO**: Local Business JSON-LD, comprehensive meta tags, Open Graph, and Twitter cards for all pages.
 
 ### Data Storage
 - **Database**: PostgreSQL via Neon (serverless), Drizzle ORM for type-safe queries.
-- **Schema Design**: Comprehensive tables for Users, Vehicles, Bookings, Owner Addresses, Vehicle Documents, Ratings, Challans, Video Verifications, Sessions, Toll Fees, Addon Products, Owner Addon Purchases, Referrals, Wallet Transactions, Insurance Requests, and Coupons (promotional discount system).
+- **Schema Design**: Comprehensive tables for Users (with vendor fields: isVendor, companyName, companyLogoUrl), Vehicles, Bookings, Owner Addresses, Vehicle Documents, Ratings, Challans, Video Verifications, Sessions, Toll Fees, Addon Products, Owner Addon Purchases, Referrals, Wallet Transactions, Insurance Requests, and Coupons (promotional discount system).
 - **Object Storage**: AWS S3 for secure storage of documents and images, with an abstraction layer for flexibility.
 
 ## External Dependencies
