@@ -36,10 +36,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.post("/api/register", async (req, res) => {
     try {
-      const { email, password, firstName, lastName, role } = req.body;
+      const { email, password, firstName, lastName, role, phone, isVendor, companyName, companyLogoUrl } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password required" });
+      }
+
+      // Validate vendor fields if registering as vendor
+      if (isVendor && !companyName) {
+        return res.status(400).json({ message: "Company name is required for vendor registration" });
       }
 
       // Check if user exists
@@ -57,7 +62,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password: hashedPassword,
         firstName,
         lastName,
+        phone,
         role: role || "customer",
+        isVendor: isVendor || false,
+        companyName: isVendor ? companyName : null,
+        companyLogoUrl: isVendor ? companyLogoUrl : null,
       });
 
       // Create session
@@ -69,6 +78,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        phone: user.phone,
+        isVendor: user.isVendor,
+        companyName: user.companyName,
+        companyLogoUrl: user.companyLogoUrl,
       });
     } catch (error) {
       console.error("Register error:", error);
@@ -135,7 +148,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        phone: user.phone,
         profileImageUrl: user.profileImageUrl,
+        // Vendor details
+        isVendor: user.isVendor,
+        companyName: user.companyName,
+        companyLogoUrl: user.companyLogoUrl,
+        averageRatingAsOwner: user.averageRatingAsOwner,
+        totalRatingsAsOwner: user.totalRatingsAsOwner,
         // Payment details
         bankAccountHolderName: user.bankAccountHolderName,
         bankAccountNumber: user.bankAccountNumber,
@@ -327,6 +347,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating purchase:", error);
       res.status(500).json({ message: "Failed to create purchase" });
+    }
+  });
+
+  // Vendor/Agency routes
+  app.get("/api/vendors", async (req, res) => {
+    try {
+      const { search, minRating } = req.query;
+      
+      // Get all users who are vendors (isVendor = true) or have role = owner
+      const allUsers = await storage.getAllUsers();
+      let vendors = allUsers.filter(u => u.isVendor || u.role === "owner");
+      
+      // Apply search filter (company name or owner name)
+      if (search && typeof search === "string") {
+        const searchLower = search.toLowerCase();
+        vendors = vendors.filter(v => 
+          (v.companyName && v.companyName.toLowerCase().includes(searchLower)) ||
+          (v.firstName && v.firstName.toLowerCase().includes(searchLower)) ||
+          (v.lastName && v.lastName.toLowerCase().includes(searchLower))
+        );
+      }
+      
+      // Apply rating filter
+      if (minRating && typeof minRating === "string") {
+        const minRatingNum = parseFloat(minRating);
+        vendors = vendors.filter(v => 
+          v.averageRatingAsOwner && parseFloat(v.averageRatingAsOwner) >= minRatingNum
+        );
+      }
+      
+      // Get vehicle count for each vendor
+      const vendorsWithStats = await Promise.all(vendors.map(async (vendor) => {
+        const vehicles = await storage.getVehiclesByOwner(vendor.id);
+        return {
+          id: vendor.id,
+          firstName: vendor.firstName,
+          lastName: vendor.lastName,
+          email: vendor.email,
+          phone: vendor.phone,
+          isVendor: vendor.isVendor,
+          companyName: vendor.companyName,
+          companyLogoUrl: vendor.companyLogoUrl,
+          averageRatingAsOwner: vendor.averageRatingAsOwner || "0",
+          totalRatingsAsOwner: vendor.totalRatingsAsOwner || 0,
+          vehicleCount: vehicles.length,
+        };
+      }));
+      
+      res.json(vendorsWithStats);
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+      res.status(500).json({ message: "Failed to fetch vendors" });
+    }
+  });
+
+  app.get("/api/vendors/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Get vendor user details
+      const vendor = await storage.getUser(id);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      
+      // Get all vehicles owned by this vendor
+      const vehicles = await storage.getVehiclesByOwner(id);
+      
+      // Calculate stats
+      const totalVehicles = vehicles.length;
+      const availableVehicles = vehicles.filter(v => v.isAvailable).length;
+      
+      res.json({
+        id: vendor.id,
+        firstName: vendor.firstName,
+        lastName: vendor.lastName,
+        email: vendor.email,
+        phone: vendor.phone,
+        isVendor: vendor.isVendor,
+        companyName: vendor.companyName,
+        companyLogoUrl: vendor.companyLogoUrl,
+        averageRatingAsOwner: vendor.averageRatingAsOwner || "0",
+        totalRatingsAsOwner: vendor.totalRatingsAsOwner || 0,
+        vehicles: vehicles,
+        stats: {
+          totalVehicles,
+          availableVehicles,
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching vendor:", error);
+      res.status(500).json({ message: "Failed to fetch vendor details" });
+    }
+  });
+
+  app.patch("/api/user/vendor-info", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const { companyName, companyLogoUrl } = req.body;
+      
+      // Update vendor information
+      const updatedUser = await storage.updateUser(userId, {
+        companyName,
+        companyLogoUrl,
+        isVendor: true, // Enable vendor mode when updating vendor info
+      });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({
+        id: updatedUser.id,
+        companyName: updatedUser.companyName,
+        companyLogoUrl: updatedUser.companyLogoUrl,
+        isVendor: updatedUser.isVendor,
+      });
+    } catch (error) {
+      console.error("Error updating vendor info:", error);
+      res.status(500).json({ message: "Failed to update vendor information" });
     }
   });
 

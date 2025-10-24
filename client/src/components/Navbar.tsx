@@ -79,6 +79,11 @@ export function Navbar() {
                         Browse Vehicles
                       </span>
                     </Link>
+                    <Link href="/vendors">
+                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors">
+                        Vendors
+                      </span>
+                    </Link>
                     <Link href="/dashboard">
                       <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard">
                         My Bookings
@@ -128,6 +133,11 @@ export function Navbar() {
                 <Link href="/vehicles">
                   <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse">
                     Browse Vehicles
+                  </span>
+                </Link>
+                <Link href="/vendors">
+                  <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors">
+                    Vendors
                   </span>
                 </Link>
                 <Link href="/become-owner">
@@ -244,6 +254,11 @@ export function Navbar() {
                           Browse Vehicles
                         </span>
                       </Link>
+                      <Link href="/vendors">
+                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors-mobile">
+                          Vendors
+                        </span>
+                      </Link>
                       <Link href="/dashboard">
                         <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-dashboard-mobile">
                           My Bookings
@@ -279,6 +294,11 @@ export function Navbar() {
                   <Link href="/vehicles">
                     <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-browse-mobile">
                       Browse Vehicles
+                    </span>
+                  </Link>
+                  <Link href="/vendors">
+                    <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors-mobile">
+                      Vendors
                     </span>
                   </Link>
                   <Link href="/become-owner">

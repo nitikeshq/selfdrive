@@ -6,16 +6,29 @@ import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Car, UserPlus, CheckCircle2, Shield, Clock, Zap } from "lucide-react";
+import { Car, UserPlus, CheckCircle2, Shield, Clock, Zap, Building2, Upload } from "lucide-react";
 
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits").optional(),
+  isVendor: z.boolean().default(false),
+  companyName: z.string().optional(),
+  companyLogoUrl: z.string().optional(),
+}).refine((data) => {
+  if (data.isVendor && !data.companyName) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Company name is required for vendor registration",
+  path: ["companyName"],
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -25,6 +38,8 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const [isVendor, setIsVendor] = useState(false);
+
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -32,6 +47,10 @@ export default function Register() {
       password: "",
       firstName: "",
       lastName: "",
+      phone: "",
+      isVendor: false,
+      companyName: "",
+      companyLogoUrl: "",
     },
   });
 
@@ -238,6 +257,82 @@ export default function Register() {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={registerForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base">Phone Number (Optional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="tel"
+                            placeholder="+91 9876543210"
+                            {...field}
+                            className="h-11"
+                            data-testid="input-register-phone"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={registerForm.control}
+                    name="isVendor"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 bg-muted/30">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              setIsVendor(!!checked);
+                            }}
+                            data-testid="checkbox-register-vendor"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-base flex items-center gap-2">
+                            <Building2 className="h-4 w-4" />
+                            Register as Vendor/Agency
+                          </FormLabel>
+                          <FormDescription>
+                            Check this if you're a garage, rental business, or agency with multiple vehicles
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  {isVendor && (
+                    <div className="space-y-4 p-4 border border-primary/20 rounded-lg bg-primary/5">
+                      <FormField
+                        control={registerForm.control}
+                        name="companyName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base">Company/Brand Name *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., ABC Rentals, Quick Drive"
+                                {...field}
+                                className="h-11"
+                                data-testid="input-register-companyname"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        <p className="flex items-center gap-2">
+                          <Upload className="h-4 w-4" />
+                          Company logo can be uploaded later from your profile
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
                     <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />

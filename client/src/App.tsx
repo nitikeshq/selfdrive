@@ -40,6 +40,8 @@ const AdminAddons = lazy(() => import("@/pages/AdminAddons"));
 const Rewards = lazy(() => import("@/pages/Rewards"));
 const Membership = lazy(() => import("@/pages/Membership"));
 const PickupVerification = lazy(() => import("@/pages/PickupVerification"));
+const Vendors = lazy(() => import("@/pages/Vendors"));
+const VendorProfile = lazy(() => import("@/pages/VendorProfile"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 // Loading skeleton component
@@ -64,6 +66,8 @@ function Router() {
         {/* Public Routes */}
         <Route path="/" component={Landing} />
         <Route path="/vehicles" component={Vehicles} />
+        <Route path="/vendors" component={Vendors} />
+        <Route path="/vendor/:id" component={VendorProfile} />
         <Route path="/book/:id" component={BookVehicle} />
         <Route path="/become-owner" component={BecomeOwner} />
         <Route path="/login" component={Login} />

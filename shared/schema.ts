@@ -60,6 +60,11 @@ export const users = pgTable("users", {
   averageRatingAsOwner: decimal("average_rating_as_owner", { precision: 3, scale: 2 }).default("0"),
   totalRatingsAsOwner: integer("total_ratings_as_owner").default(0),
   
+  // Vendor/Agency Information
+  isVendor: boolean("is_vendor").notNull().default(false), // true for garages/agencies, false for individuals
+  companyName: text("company_name"), // Company/Brand name for vendors
+  companyLogoUrl: text("company_logo_url"), // S3 URL for company logo
+  
   // PayU Vendor/Settlement Details (for owners)
   payuVendorId: text("payu_vendor_id"), // PayU sub-merchant ID for direct settlement
   upiId: text("upi_id"), // UPI ID for payments
