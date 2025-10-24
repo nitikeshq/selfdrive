@@ -8,6 +8,17 @@ SelfDriveKaro.com (SDK) is a full-stack vehicle rental platform now available in
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (October 24, 2025)
+- **Comprehensive Edit Profile System**: Added 4-tab profile editing interface (Personal, Security, Documents, Owner/Vendor) with react-hook-form validation
+- **Personal Info Tab**: Edit name and phone number
+- **Security Tab**: Password change with current password validation
+- **Documents Tab**: KYC document upload (Aadhar, DL, Profile Photo) via S3
+- **Owner/Vendor Tab**: Payment details (bank account, UPI, PAN, GST), company info, and company logo upload via S3
+- **Vehicle Image Upload**: Added dual upload options (URL input or S3 file upload) to List Vehicle page
+- **KYC Enforcement**: Implemented booking validation - authenticated users must upload Aadhar + DL before booking
+- **Payment Details Enforcement**: Vehicles from owners without complete bank details are hidden from public listing
+- **AWS S3 Integration**: Using custom environment variable names (AWS_API_KEY, AWS_S3_REGION) for all file uploads
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -20,8 +31,8 @@ Preferred communication style: Simple, everyday language.
 - **API Design**: RESTful endpoints, session-based authentication (express-session), role-based access control (isAuthenticated, isAdmin, isOwner) with cookie-based sessions, Bcrypt for password hashing.
 - **Core Features**:
     - **Dual-mode Navigation**: Seamless switching between customer and owner interfaces.
-    - **Owner Management**: Dashboards for vehicle CRUD, status toggling, transaction overview, and a guided owner onboarding flow. Includes a comprehensive legal agreement tracking and acceptance system (Owner Terms & Conditions, Rental Agreement template, pickup verification with digital signatures and video uploads). Owner insurance request system for requesting coverage quotes.
-    - **Customer Features**: Profile and document upload (Aadhar, Driving License, Profile Photo) to S3, streamlined booking flow with inline guest registration/login, coupon code system for promotional discounts, and a rewards system that automatically applies discounts.
+    - **Owner Management**: Dashboards for vehicle CRUD with dual image upload options (URL input or S3 file upload), status toggling, transaction overview, and a guided owner onboarding flow. Owner/Vendor profile tab for managing payment details (bank account, IFSC code, UPI ID, PAN, GST), company information (company name, logo upload via S3). **Payment Details Enforcement**: Vehicles are hidden from /vehicles listing if owner hasn't provided complete bank details (account number, holder name, IFSC). Includes comprehensive legal agreement tracking and acceptance system (Owner Terms & Conditions, Rental Agreement template, pickup verification with digital signatures and video uploads). Owner insurance request system for requesting coverage quotes.
+    - **Customer Features**: Comprehensive profile editing with 4-tab interface (Personal Info, Security, Documents, Owner/Vendor). Personal info editing (name, phone), password change with current password validation, KYC document upload (Aadhar, Driving License, Profile Photo) to S3. Streamlined booking flow with inline guest registration/login, coupon code system for promotional discounts, and a rewards system that automatically applies discounts. **KYC Enforcement**: Authenticated users must upload Aadhar and Driving License before making bookings (guest bookings unaffected).
     - **Customer Support**: Multi-channel support system with WhatsApp (+91 9337 912331, 24/7), Email (support@selfdrivekaro.com, always active), and Phone (+91 9337 912331, 9 AM-7 PM, emergency anytime). Dedicated Support page with contact form, FAQs, and support hours. Contact cards displayed prominently on home page for easy access.
     - **Coupon System**: Promotional discount codes with multiple types (percentage, fixed amount, free hours). Real-time validation on checkout with automatic discount calculation. Supports usage limits, expiry dates, and minimum booking requirements. The "NEWHOUR" campaign offers 1 free hour for first-time users.
     - **Guest Checkout**: Users see a modal with three options when proceeding to payment: (1) Guest Checkout - quick booking with just name, email, and phone (no account required), (2) Login for existing users, (3) Register to create an account. All three options seamlessly proceed to payment after completion. Guest bookings can later be claimed by registering with the same email.
