@@ -27,7 +27,7 @@ const registerSchema = z.object({
   }
   return true;
 }, {
-  message: "Company name is required for vendor registration",
+  message: "Company name is required for rental partner registration",
   path: ["companyName"],
 });
 
@@ -295,7 +295,7 @@ export default function Register() {
                         <div className="space-y-1 leading-none">
                           <FormLabel className="text-base flex items-center gap-2">
                             <Building2 className="h-4 w-4" />
-                            Register as Vendor/Agency
+                            Register as Rental Partner/Agency
                           </FormLabel>
                           <FormDescription>
                             Check this if you're a garage, rental business, or agency with multiple vehicles

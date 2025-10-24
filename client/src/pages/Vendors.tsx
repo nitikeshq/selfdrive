@@ -35,8 +35,8 @@ export default function Vendors() {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="All Vendors & Agencies | SelfDriveKaro"
-        description="Browse all vehicle rental vendors and agencies in Bhubaneswar. Compare prices, ratings, and fleet sizes to find the perfect rental provider."
+        title="All Rental Partners & Agencies | SelfDriveKaro"
+        description="Browse all trusted rental partners and agencies in Bhubaneswar. Compare prices, ratings, and fleet sizes to find the perfect rental provider."
       />
 
       {/* Hero Section */}
@@ -46,11 +46,11 @@ export default function Vendors() {
             <div className="flex items-center justify-center gap-3 mb-4">
               <Building2 className="h-12 w-12 text-primary" />
               <h1 className="text-4xl md:text-5xl font-display font-bold">
-                Our Vendors
+                Our Rental Partners
               </h1>
             </div>
             <p className="text-lg text-muted-foreground mb-8">
-              Browse trusted rental vendors and agencies in Bhubaneswar
+              Browse trusted rental partners and agencies in Bhubaneswar
             </p>
 
             {/* Search and Filter */}
@@ -59,7 +59,7 @@ export default function Vendors() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Search by vendor name..."
+                  placeholder="Search by partner name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 h-12"
@@ -101,11 +101,11 @@ export default function Vendors() {
         ) : filteredVendors.length === 0 ? (
           <div className="text-center py-16">
             <Building2 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">No Vendors Found</h3>
+            <h3 className="text-2xl font-semibold mb-2">No Rental Partners Found</h3>
             <p className="text-muted-foreground mb-6">
               {searchTerm || minRating
                 ? "Try adjusting your search filters"
-                : "No vendors have registered yet"}
+                : "No rental partners have registered yet"}
             </p>
             <Button onClick={() => { setSearchTerm(""); setMinRating(""); }}>
               Clear Filters
@@ -115,7 +115,7 @@ export default function Vendors() {
           <>
             <div className="mb-6">
               <h2 className="text-2xl font-bold">
-                {filteredVendors.length} Vendor{filteredVendors.length !== 1 ? 's' : ''} Available
+                {filteredVendors.length} Rental Partner{filteredVendors.length !== 1 ? 's' : ''} Available
               </h2>
             </div>
 

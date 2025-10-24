@@ -81,7 +81,7 @@ export function Navbar() {
                     </Link>
                     <Link href="/vendors">
                       <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors">
-                        Vendors
+                        Rental Partners
                       </span>
                     </Link>
                     <Link href="/dashboard">
@@ -137,7 +137,7 @@ export function Navbar() {
                 </Link>
                 <Link href="/vendors">
                   <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors">
-                    Vendors
+                    Rental Partners
                   </span>
                 </Link>
                 <Link href="/become-owner">
@@ -256,7 +256,7 @@ export function Navbar() {
                       </Link>
                       <Link href="/vendors">
                         <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors-mobile">
-                          Vendors
+                          Rental Partners
                         </span>
                       </Link>
                       <Link href="/dashboard">
@@ -298,7 +298,7 @@ export function Navbar() {
                   </Link>
                   <Link href="/vendors">
                     <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-vendors-mobile">
-                      Vendors
+                      Rental Partners
                     </span>
                   </Link>
                   <Link href="/become-owner">

@@ -58,12 +58,12 @@ export default function VendorProfile() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Vendor Not Found</h2>
-          <p className="text-muted-foreground mb-4">The vendor you're looking for doesn't exist.</p>
+          <h2 className="text-2xl font-bold mb-2">Rental Partner Not Found</h2>
+          <p className="text-muted-foreground mb-4">The rental partner you're looking for doesn't exist.</p>
           <Link href="/vendors">
             <Button>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Vendors
+              Back to Rental Partners
             </Button>
           </Link>
         </div>
@@ -88,7 +88,7 @@ export default function VendorProfile() {
           <Link href="/vendors">
             <Button variant="ghost" className="mb-6">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to All Vendors
+              Back to All Rental Partners
             </Button>
           </Link>
 
