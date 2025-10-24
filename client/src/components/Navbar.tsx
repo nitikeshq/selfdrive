@@ -61,20 +61,10 @@ export function Navbar() {
                         Transactions
                       </span>
                     </Link>
-                    <Link href="/owner/payment-details">
-                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-payment-details">
-                        Payment Details
-                      </span>
-                    </Link>
-                    <Link href="/owner/insurance">
-                      <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-insurance">
-                        Insurance
-                      </span>
-                    </Link>
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => setLocation('/dashboard')}
+                      onClick={() => setLocation('/vehicles')}
                       data-testid="button-switch-customer"
                     >
                       <ArrowRightLeft className="h-4 w-4 mr-2" />
@@ -114,7 +104,7 @@ export function Navbar() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => setLocation('/owner-dashboard')}
+                        onClick={() => setLocation('/owner/vehicles')}
                         data-testid="button-switch-owner"
                       >
                         <ArrowRightLeft className="h-4 w-4 mr-2" />
@@ -237,21 +227,11 @@ export function Navbar() {
                           Transactions
                         </span>
                       </Link>
-                      <Link href="/owner/payment-details">
-                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-payment-details-mobile">
-                          Payment Details
-                        </span>
-                      </Link>
-                      <Link href="/owner/insurance">
-                        <span className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer" data-testid="link-insurance-mobile">
-                          Insurance
-                        </span>
-                      </Link>
                       <Button 
                         variant="outline" 
                         className="w-full"
                         onClick={() => {
-                          setLocation('/dashboard');
+                          setLocation('/vehicles');
                           setMobileMenuOpen(false);
                         }}
                         data-testid="button-switch-customer-mobile"
@@ -283,7 +263,7 @@ export function Navbar() {
                           variant="outline" 
                           className="w-full"
                           onClick={() => {
-                            setLocation('/owner-dashboard');
+                            setLocation('/owner/vehicles');
                             setMobileMenuOpen(false);
                           }}
                           data-testid="button-switch-owner-mobile"

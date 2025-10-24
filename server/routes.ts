@@ -423,7 +423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Calculate stats
       const totalVehicles = vehicles.length;
-      const availableVehicles = vehicles.filter(v => v.isAvailable).length;
+      const availableVehicles = vehicles.filter(v => v.available).length;
       
       res.json({
         id: vendor.id,

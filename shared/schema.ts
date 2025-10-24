@@ -50,7 +50,7 @@ export const users = pgTable("users", {
   
   // Referral System
   referralCode: varchar("referral_code"),
-  referredBy: varchar("referred_by").references(() => users.id), // Who referred this user
+  referredBy: varchar("referred_by"), // Who referred this user - FK defined separately to avoid circular ref
   
   // User Rating (as a customer)
   averageRatingAsCustomer: decimal("average_rating_as_customer", { precision: 3, scale: 2 }).default("0"),
