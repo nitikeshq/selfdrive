@@ -741,6 +741,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // LEAD CAPTURE SYSTEM:
+  // This endpoint creates bookings with "pending" status BEFORE payment redirect.
+  // This ensures we capture ALL booking attempts as leads, even if payment is abandoned.
+  // Payment success callback updates status to "confirmed". Pending bookings = leads to follow up.
   app.post("/api/bookings", async (req: any, res) => {
     try {
       console.log("Booking request body:", JSON.stringify(req.body, null, 2));

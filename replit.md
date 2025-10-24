@@ -9,6 +9,7 @@ SelfDriveKaro.com (SDK) is a full-stack vehicle rental platform now available in
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (October 24, 2025)
+- **Lead Capture System**: All booking attempts are captured BEFORE payment. Bookings are created with "pending" status before redirecting to payment gateway, ensuring no customer data is lost even if payment is abandoned. Pending bookings serve as valuable sales leads.
 - **Comprehensive Edit Profile System**: Added 4-tab profile editing interface (Personal, Security, Documents, Owner/Vendor) with react-hook-form validation
 - **Personal Info Tab**: Edit name and phone number
 - **Security Tab**: Password change with current password validation
